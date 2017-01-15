@@ -1,0 +1,29 @@
+4.1 SQL Server instance configuration
+Installation components	Values
+45	55
+Instance name	"%c"PM@MSSQL@servprop@0;
+Server name?	"%c"PM@MSSQL@servprop@1;
+RDBMS Version/Release?	"%c"PM@MSSQL@servprop@4;
+Root Directory	"%s"PM@MSSQL@etc@Root@1;
+Server Collation	"%c"PM@MSSQL@servprop@2;
+Clustered?	"%c"PM@MSSQL@servprop@5;
+Server authentication	"%c"PM@MSSQL@servprop@6;
+What is the transaction mix of the system? Is it primarily OLTP, batch, data warehousing or a mixture?	"";
+TCP/IP Port	"1433";
+Number of Database?	"%s"PM@MSSQL@readDatabase@Database@1;
+Number of Database File?	"%s"PM@MSSQL@readDatabase@DB Data@1;
+Number of transaction Log file?	"%s"PM@MSSQL@readDatabase@DB Log@1;
+Number of TempDB file?	"%s"PM@MSSQL@readDatabase@TempDB Data@1;
+Number of TempDB Transaction Log file?	"%s"PM@MSSQL@readDatabase@TempDB Log@1;
+Components to Install	"";
+SQL Server Database Services	"%E"PM@MSSQL@summaryFeature@0@SQL_Engine@0@SQL_Engine@Selected-Unselected-Unselected;
+\tSQL server replication	"%E"PM@MSSQL@summaryFeature@0@SQL_Replication@0@SQL_Replication@Selected-Unselected-Unselected;
+\tFull text search	"%E"PM@MSSQL@summaryFeature@0@SQL_FullText@0@SQL_FullText@Selected-Unselected-Unselected;
+Analysis Services	"%E"PM@MSSQL@summaryFeature@0@Analysis_Server@0@Analysis_Server@Selected-Unselected-Unselected;
+Reporting Services	"%E"PM@MSSQL@summaryFeature@0@RS_Server@0@RS_Server@Selected-Unselected-Unselected;
+Notification Services	"%E"PM@MSSQL@summaryFeature@0@Notification_Services@0@Notification_Services@Selected-Unselected-Unselected;
+Integration Services	"%E"PM@MSSQL@summaryFeature@0@SQL_DTS@0@SQL_DTS@Selected-Unselected-Unselected;
+Backward Compatibility	"%E"PM@MSSQL@summaryFeature@0@TOOLS_BC_DEP@0@TOOLS_BC_DEP@Selected-Unselected-Unselected;
+Native Client	"%E"PM@MSSQL@summaryFeature@0@NS_Client@0@NS_Client@Selected-Unselected-Unselected;
+Management Tools	"%E"PM@MSSQL@summaryFeature@0@SQL_Tools90@0@SQL_Tools90@Selected-Unselected-Unselected;
+Books Online	"%E"PM@MSSQL@summaryFeature@0@SQL_BooksOnline@0@SQL_BooksOnline@Selected-Unselected-Unselected;

@@ -1,0 +1,42 @@
+4.1 Instance Configuration
+What?	Values?
+45	55
+Instance Name	"%s"db2support@DB2SNAP@db2level.supp_out@Instance@1;
+Server Name	"%s"OS@.@etc@Hostname@1;
+RDBMS Version/Release	"%s Version %s %sbit"db2support@DB2SNAP@db2licm.supp_out@Product name@1,db2support@DB2SNAP@db2licm.supp_out@Version information@1,db2support@DB2SNAP@db2level.supp_out@Bit@1;
+DB2 Client Version/Release	"IBM Data Server Client Version %s"db2support@DB2SNAP@db2licm.supp_out@Version information@1;
+Storage Type	"";
+DB2 Home	"%s"db2support@DB2SNAP@db2level.supp_out@Product path@1;
+Max number of concurrently active databases	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Max number of concurrently active databases@2;
+Federated Database System Support	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Federated Database System Support@2;
+JDK Path	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Java Development Kit installation path@2;
+Diagnostic error capture level	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Diagnostic error capture level@2;
+Notify Level	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Notify Level@2;
+Diagnostic data directory path	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Diagnostic data directory path@2;
+Monitor switches:	"%T"4@1@Monitor switches@0-1@Name-Value;
+Monitor health of instance and databases	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Monitor health of instance and databases@2;
+Authentication Type	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Database manager authentication@2;
+Default Database Path	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Default database path@2;
+Database monitor heap size (4KB)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Database monitor heap size (4KB)@2;
+Java Virtual Machine heap size (4KB)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Java Virtual Machine heap size (4KB)@2;
+Audit buffer size (4KB)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Audit buffer size (4KB)@2;
+Instance shared memory (4KB)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Size of instance shared memory (4KB)@2;
+Agent stack size	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Agent stack size@2;
+Sort heap threshold (4KB)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Sort heap threshold (4KB)@2;
+Directory cache support	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Directory cache support@2;
+Application support layer heap size(4KB)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Application support layer heap size (4KB)@2;
+Max requester I/O block size (bytes)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Max requester I/O block size (bytes)@2;
+Workload impact by throttled utilities	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Workload impact by throttled utilities@2;
+Agent pool size	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Agent pool size@2;
+Initial number of agents in pool	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Initial number of agents in pool@2;
+Max number of coordinating agents	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Max number of coordinating agents@2;
+Max number of client connections	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Max number of client connections@2;
+Maximum query degree of parallelism	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Maximum query degree of parallelism@2;
+Enable intra-partition parallelism	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Enable intra-partition parallelism@2;
+No. of int. communication buffers (4KB)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@No. of int. communication buffers(4KB)@2;
+No. of int. communication channels	"%s"db2support@DB2CONFIG@dbm.supp_cfg@No. of int. communication channels@2;
+Node connection elapse time (sec)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Node connection elapse time (sec)@2;
+Max number of node connection retries	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Max number of node connection retries@2;
+Max time difference between nodes (min)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@Max time difference between nodes (min)@2;
+db2start/db2stop timeout (min)	"%s"db2support@DB2CONFIG@dbm.supp_cfg@db2start/db2stop timeout (min)@2;
+Auto Start Instance	"%X"db2support@DB2SNAP@db2set.supp_out@DB2AUTOSTART@0@NO-YES;

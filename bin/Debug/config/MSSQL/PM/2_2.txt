@@ -1,0 +1,10 @@
+2.2 Compare to MSSQL Server Requirement
+Requirement	Server Specification
+35	65
+OS Spec:\nWindows Server 2003, Windows XP, and Windows 2000	"%s (%s)"PM@MSSQL@systeminfo@OS Name@1,PM@MSSQL@systeminfo@OS Version@1;
+System Type	"%s"PM@MSSQL@systeminfo@System Type@1;
+Procressor Type\no Pentium III-compatible processor or higher	"%s %s @%s"PM@MSSQL@systeminfo@Processor Number@1,PM@MSSQL@systeminfo@Processor Type@1,PM@MSSQL@systeminfo@Processor Speed@1;
+Processor Speed\no Minimum: 600 MHz\nRecommend 1GHz or Higher	"%s"PM@MSSQL@systeminfo@Processor Speed@1;
+Memory (RAM)\no Minimum: 512MB\nRecommend 1GB or more	"%s"PM@MSSQL@systeminfo@Total Physical Memory@1;
+Disk Space:\nDatabase Engine datafile, 280MB\nAnalysis Service and datafile 90MB\nReport Service 120MB\nNotifcation Services,client companent 50MB\nIntregraton Service 120MB\nSQL Server Book Online 250MB\nSample Database 410MB	"%T"PM@MSSQL@resultdisk@0-1-2-3-4-5@Volume-File System-Status-Capacity-Available-%Free@13-20-14-20-20-13;
+Internet Requirement\nMicrosoft Internet Explorer 6.0 sp1 or later,Microsoft  Management Console(MMC) ,Internet Information Services 5.0 or later require for Microsoft SQL Server 2005 Reporting Services,	"N/A";

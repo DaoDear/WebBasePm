@@ -1,0 +1,7 @@
+4.3 Major Security Initailization Parameters
+Name	Values
+40	60
+O7_DICTIONARY_ACCESSIBILITY	"%s"4_2@Database Parameter@1@O7_DICTIONARY_ACCESSIBILITY@2;
+audit_trail	"%s"4_2@Database Parameter@1@audit_trail@2;
+remote_login_passwordfile	"%s"4_2@Database Parameter@1@remote_login_passwordfile@2;
+remote_os_authent	"%s"4_2@Database Parameter@1@remote_os_authent@2;

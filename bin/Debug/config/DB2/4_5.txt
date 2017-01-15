@@ -1,0 +1,8 @@
+4.5 Database Configuration Environment
+What?	Values?
+45	55
+DB2COMM	"%s"db2support@DB2SNAP@db2set.supp_out@DB2COMM@1;
+DB2SYSTEM	"%s"db2support@DB2SNAP@db2set.supp_out@DB2SYSTEM@1;
+DB2INSTDEF	"%s"db2support@DB2SNAP@db2set.supp_out@DB2INSTDEF@1;
+DB2ADMIN_SERVER	"%s"db2support@DB2SNAP@db2set.supp_out@DB2ADMINSERVER@1;
+PATH	"%s"OS@.@etc@PATH@1;

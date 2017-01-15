@@ -1,0 +1,11 @@
+SUNWarc
+SUNWbtool
+SUNWhea
+SUNWlibm
+SUNWlibms
+SUNWmfrun
+SUNWsprot
+SUNWtoo
+SUNWi1of
+SUNWxwfnt
+SUNWsprox

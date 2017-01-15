@@ -1,0 +1,8 @@
+4.5 Security Configuration
+What?	Values
+55	45
+Server authentication	"%c"PM@MSSQL@servprop@6;
+Login Auditing	"";
+Server Proxy account	"";
+Enable C2 audit tracing	"%E"PM@MSSQL@sp_configure@0@c2 audit mode@4@0-1@No-Yes-Unknown;
+Cross database ownership chaining	"%E"PM@MSSQL@sp_configure@0@cross db ownership chaining@4@0-1@No-Yes-Unknown;

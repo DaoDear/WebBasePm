@@ -1,0 +1,23 @@
+3.5 SQL Server configuration
+What	Values
+50	50
+Root Directory	"%s"PM@MSSQL@etc@Root@1;
+Server Collation	"%c"PM@MSSQL@servprop@2;
+Clustered?	"%c"PM@MSSQL@servprop@5;
+Server authentication	"%c"PM@MSSQL@servprop@6;
+Database Collation setting	"";
+Components to Install	"";
+SQL Server Database Services	"";
+\tCreate a SQL Server Failover Cluster	"";
+Analysis Services	"";
+\tCreate an Analysis Server Failover Cluster	"";
+Reporting Services	"";
+Notification Services	"";
+Integration Services	"";
+Client Components	"";
+Documentation, Sample, and Sample Database	"";
+\tSQL Server Books Online	"";
+\tSample database	"";
+\t\tAdventureWorks Sample OLTP	"";
+\t\tAdventureWorksDW Sample Data	"";
+\tSample Code and Applications	"";

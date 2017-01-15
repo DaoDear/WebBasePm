@@ -1,0 +1,4 @@
+7.4 Filestream
+	Values
+40	60
+File Stream	"%E"PM@MSSQL@summarySetting@0@FILESTREAMLEVEL@1@0@Disable-Enable;

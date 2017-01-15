@@ -1,0 +1,22 @@
+5.1 Performance Review
+Information Required to Tune Memory Allocation	Answer
+35	65
+1. What is the gethitratio of the librarycache?	"%T"5_1@LibraryCache HitRatio@1@0-1@NameSpace-GetHitRatio;
+2. What is the PIN / RELOAD ratio within the librarycache;\n\nSelect sum(pins) "Executions", sum(reloads) "Cache Misses", sum(reloads)/sum(pins) from v$librarycache;\n\nNote: Reload should ideally be ZERO\nNever more than 1% of the PINS.\n\nIf reloads to pin ratio is >1% - INCREASE the shared_pool_size.	"%T"5_1@PIN/RELOAD ratio@1@0-1-2@Execution-Cache Misses-Sum;
+3. Data Dictionary Cache Miss Ratio\nKeep this below 5%	"Dictionary Cache Hit Ratio: %c"5_1@DictionaryCache HitRatio@1@0;
+4. shared_pool_size =?	"%s"4_2@Database Parameter@1@shared_pool_size@2;
+5. shared_pool_reserved_size =?	"%s"4_2@Database Parameter@1@shared_pool_reserved_size@2;
+6. What are the SHARED_POOL_RESERVED statistics?\nSelect * from v$shared_pool_reserved?	"Free space: %c\nAverage Free Size: %c\nMax Free Size: %c\nUsed Space: %c\nAverage Used Space: %c"5_1@Shared pool statistics@1@0,5_1@Shared pool statistics@1@1,5_1@Shared pool statistics@1@2,5_1@Shared pool statistics@1@3,5_1@Shared pool statistics@1@4;
+7. Redo Log space request 	"%c"5_1@Redolog space request@1@0;
+8. DB Block Buffer Cache Hit Ratio?	"%c"5_1@DB Block Buffer Cache Hit Ratio@1@0;
+9. Latch Hit Ratio?	"%c"5_1@Latch Hit Ratio@1@0;
+10. Disk Sort Ratio?	"%c"5_1@Disk Sort Ratio@1@0;
+11. Rollback Segment Waits?	"%c"5_1@Rollback Segment Waits@1@0;
+12. Dispatcher Workload?	"%c"5_1@Dispatcher Workload@1@0;
+13. PGA cache hit percentage 	"%c"5_1@PGA Cache Hit Percentage@1@0;
+The UNDO Tablespace	"%s"4_2@Database Parameter@1@undo_tablespace@2;
+Number and size of Undo Segments?	"%T"5_1@No. and Size of undo segments@1@0-1-2@Amount-Segment Type-Size(MB);
+Information Required to Tune Logging and Archiving	"";
+At least 3 redo log groups?	"%e"5_1@Amount of log group@1@0@0-1-2@No-No-No-Yes;
+Are using Archive Mode	"%e"4_1@Archive log mode?@1@0@NOARCHIVELOG-ARCHIVELOG@No-Yes;
+Archive log names include sequence number?	"";

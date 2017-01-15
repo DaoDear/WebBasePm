@@ -1,0 +1,7 @@
+4.6 Connection Configure
+What?	Values
+55	45
+Maximum  number of connection connections	"%s"PM@MSSQL@sp_configure@user connections@4;
+Allow remote connections to this server	"%E"PM@MSSQL@sp_configure@0@remote access@4@0-1@No-Yes-Unknown;
+Remote query timeout	"%s"PM@MSSQL@sp_configure@remote query timeout (s)@4;
+Require distributed transactions for server-to-server	"%E"PM@MSSQL@sp_configure@0@remote proc trans@4@0-1@No-Yes-Unknown;

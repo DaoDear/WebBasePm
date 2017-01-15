@@ -1,0 +1,34 @@
+4.1 SQL Server instance configuration
+Installation components	Values
+45	55
+Instance name	"%c"PM@MSSQL@servprop@0;
+Server name?	"%c"PM@MSSQL@servprop@1;
+RDBMS Version/Release?	"%c"PM@MSSQL@servprop@4;
+Root Directory	"%s"PM@MSSQL@etc@Root@1;
+Server Collation	"%c"PM@MSSQL@servprop@2;
+Clustered?	"%c"PM@MSSQL@servprop@5;
+Server authentication	"%c"PM@MSSQL@servprop@6;
+What is the transaction mix of the system? Is it primarily OLTP, batch, data warehousing or a mixture?	"";
+TCP/IP Port	"1433";
+Number of Database?	"%s"PM@MSSQL@readDatabase@Database@1;
+Number of Database File?	"%s"PM@MSSQL@readDatabase@DB Data@1;
+Number of transaction Log file?	"%s"PM@MSSQL@readDatabase@DB Log@1;
+Number of TempDB file?	"%s"PM@MSSQL@readDatabase@TempDB Data@1;
+Number of TempDB Transaction Log file?	"%s"PM@MSSQL@readDatabase@TempDB Log@1;
+Instance features	"";
+Database Engine Services	"%E"PM@MSSQL@summaryFeature@0@Database Engine Services@0@Database Engine Services@Selected-Unselected-Unselected;
+\tSQL-Server Replication	"%E"PM@MSSQL@summaryFeature@0@SQL Server Replication@0@SQL Server Replication@Selected-Unselected-Unselected;
+\tFull-Text Search	"%E"PM@MSSQL@summaryFeature@0@Full-Text Search@0@Full|-Text Search@Selected-Unselected-Unselected;
+Analysis Services	"%E"PM@MSSQL@summaryFeature@0@Analysis Services@0@Analysis Services@Selected-Unselected-Unselected;
+Reporting Services	"%E"PM@MSSQL@summaryFeature@0@Reporting Services@0@Reporting Services@Selected-Unselected-Unselected;
+Shared features	"";
+Business Intelligence Development Studio	"%E"PM@MSSQL@summaryFeature@0@Business Intelligence Development Studio@0@Business Intelligence Development Studio@Selected-Unselected-Unselected;
+Client Tools Connectivity	"%E"PM@MSSQL@summaryFeature@0@Client Tools Connectivity@0@Client Tools Connectivity@Selected-Unselected-Unselected;
+Integration Services	"%E"PM@MSSQL@summaryFeature@0@Integration Services@0@Integration Services@Selected-Unselected-Unselected;
+Client Tools Backwards Compatibility	"%E"PM@MSSQL@summaryFeature@0@Client Tools Backwards Compatibility@0@Client Tools Backwards Compatibility@Selected-Unselected-Unselected;
+Client Tools SDK	"%E"PM@MSSQL@summaryFeature@0@Client Tools SDK@0@Client Tools SDK@Selected-Unselected-Unselected;
+SQL Server Books Online	"%E"PM@MSSQL@summaryFeature@0@SQL Server Books Online@0@SQL Server Books Online@Selected-Unselected-Unselected;
+Management Tools - Basic	"%E"PM@MSSQL@summaryFeature@0@Management Tools - Basic@0@Management Tools |- Basic@Selected-Unselected-Unselected;
+\tManagement Tools - Complete	"%E"PM@MSSQL@summaryFeature@0@Management Tools - Complete@0@Management Tools |- Complete@Selected-Unselected-Unselected;
+SQL Client Connectivity SDK	"%E"PM@MSSQL@summaryFeature@0@SQL Client Connectivity SDK@0@SQL Client Connectivity SDK@Selected-Unselected-Unselected;
+Microsoft Sync Framework	"%E"PM@MSSQL@summaryFeature@0@Microsoft Sync Framework@0@Microsoft Sync Framework@Selected-Unselected-Unselected;

@@ -1,0 +1,9 @@
+6.1 Service accounts
+Service Accounts	User	Startup Types
+40	35	25
+SQL Server Agent	"%s"PM@MSSQL@summarySetting@AGTSVCACCOUNT@1;	"";
+SQL Server Database Engine	"%s"PM@MSSQL@summarySetting@SQLSVCACCOUNT@1;	"";
+SQL Server Analysis Services	"%s"PM@MSSQL@summarySetting@ASSVCACCOUNT@1;	"";
+SQL Server Reporting Services	"%s"PM@MSSQL@summarySetting@RSSVCACCOUNT@1;	"";
+SQL Full-text Filter Daemon Launcher	"%s"PM@MSSQL@summarySetting@FTSVCACCOUNT@1;	"";
+SQL Server Browser	"NT AUTHORITY\\LOCAL SERVICE";	"";

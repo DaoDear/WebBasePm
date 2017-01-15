@@ -1,0 +1,20 @@
+5.x MFEC Recommendation checklist
+Information Required to Review Database	Answer
+70	30
+The Data/Index File group	"";
+All files in a File group on same disk?\nRefer to datafile listing	"";
+Read only Filegroup	"";
+Similar extent sizes in a Filegroup	"";
+Data and index Filegroup on separate disks?	"";
+All indexes in Index Filegroup?	"";
+The Primary File group	"";
+Only system objects?	"";
+The Tempdb	"";
+Any user objects in temp Tempdb?	"";
+Any temporary table index on Tempdb	"";
+Autogrowth unlimited?	"";
+Tempdb and datadb on separate disks?	"";
+Information Required to Transactionlog	"";
+Recovery Model set = FULL	"";
+Transaction_log on separate disks from database files?	"";
+Transaction log control by policy backup	"";

@@ -1,0 +1,10 @@
+7.3 Data directory
+	Values
+26	74
+Data root directory	"%s"PM@MSSQL@summarySetting@INSTALLSQLDATADIR@1;
+System database directory	"%s"PM@MSSQL@install@SYSTEMDBDIR@1;
+User database directory	"%s"PM@MSSQL@summarySetting@SQLUSERDBDIR@1;
+User database log directory	"%s"PM@MSSQL@summarySetting@SQLUSERDBLOGDIR@1;
+Temp DB directory	"%s"PM@MSSQL@summarySetting@SQLTEMPDBDIR@1;
+Temp DB log directory	"%s"PM@MSSQL@summarySetting@SQLTEMPDBLOGDIR@1;
+Backup directory	"%s"PM@MSSQL@summarySetting@SQLBACKUPDIR@1;

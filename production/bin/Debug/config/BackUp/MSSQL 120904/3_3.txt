@@ -1,0 +1,8 @@
+3.3 Network configuration
+What	Values
+30	70
+Network diagram available?	"";
+Bandwidth, latency?	"";
+Alternate routes?	"";
+IP Address	"%s"PM@MSSQL@etc@IP Address@1;
+SQL Server TCP/IP Port	"1433";

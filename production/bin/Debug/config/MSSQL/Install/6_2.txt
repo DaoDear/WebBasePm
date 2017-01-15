@@ -1,0 +1,4 @@
+6.2 Server collation
+Components	Values
+40	60
+Collation	"%s"PM@MSSQL@summarySetting@SQLCOLLATION@1;

@@ -1,0 +1,7 @@
+8.2 Data directories
+	Values
+25	75
+Data directory	"%s"PM@MSSQL@summarySetting@ASDATADIR@1;
+Log file directory	"%s"PM@MSSQL@summarySetting@ASLOGDIR@1;
+Temp directory	"%s"PM@MSSQL@summarySetting@ASTEMPDIR@1;
+Backup directory	"%s"PM@MSSQL@summarySetting@ASBACKUPDIR@1;

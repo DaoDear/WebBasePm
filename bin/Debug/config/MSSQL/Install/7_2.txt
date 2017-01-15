@@ -1,0 +1,4 @@
+7.2 Specify SQL Server administrators
+	Values
+40	60
+SQL Server administrator	"%s"PM@MSSQL@summarySetting@SQLSYSADMINACCOUNTS@1;

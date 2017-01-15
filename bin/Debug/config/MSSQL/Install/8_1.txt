@@ -1,0 +1,4 @@
+8.1 Specify Administrators for Analysis Services
+	Values
+40	60
+SQL Server administrator	"%s"PM@MSSQL@summarySetting@ASSYSADMINACCOUNTS@1;

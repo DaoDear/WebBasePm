@@ -1,0 +1,4 @@
+Specify the Reporting Services configuration mode
+	Values
+40	60
+Reporting Services configuration mode	"%s"PM@MSSQL@summarySetting@RSINSTALLMODE@1;

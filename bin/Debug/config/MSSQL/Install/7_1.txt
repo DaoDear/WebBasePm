@@ -1,0 +1,5 @@
+7.1 Authentication Mode
+	Values
+40	60
+Mode	"%E"PM@MSSQL@summarySetting@0@SECURITYMODE@1@SQL-<empty>@Mix mode-Window Authentication mode-Unknown;
+Sa password	"";
