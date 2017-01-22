@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="GenPM.aspx.cs" Inherits="WebBasePM.ProductionGenerator" %>
-<%@ Register Namespace="CuteWebUI" Assembly="CuteWebUI.AjaxUploader" TagPrefix="CuteWebUI" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -272,7 +271,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                                            
                                             <div id="step-3">
                                                 <div class="form-horizontal form-label-left">
                                                     <div class="x_title">
@@ -295,12 +294,14 @@
 
                                                     <div class="form-group">
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ospath">Input Path</label>                                                        
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">                             
-                                                        <CuteWebUI:UploadAttachments ID="OSFILES" runat="server" InsertButtonStyle-CssClass="btn btn-default" ProgressLabelStyle-CssClass="progress progress_sm" ></CuteWebUI:UploadAttachments>
-                                                        <button onclick="DoBrowseFolder();return false" id='btnFolder' class="btn btn-default">Upload Folder</button>
-                                                        </div> 
-                                                        
-                                                                                                       
+                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <div class="input-group">
+                                                                <asp:TextBox ID="OSInput" CssClass="form-control" runat="server"></asp:TextBox>
+                                                                <span class="input-group-btn">
+                                                                    <asp:Button id="OpenFolder" OnClick="OpenFolder_Click" Text="BROWSE" CssClass="btn btn-primary" runat="server" />
+                                                                </span>
+                                                            </div>
+                                                        </div>                                                  
                                                     </div>
                                                 </div>
                                             </div>
@@ -322,30 +323,27 @@
                                                     <div class="form-group">
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbcon">Configruation</label>
                                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            <CuteWebUI:UploadAttachments ID="DBCONFILE" runat="server" MultipleFilesUpload="false" InsertButtonStyle-CssClass="btn btn-default" ProgressLabelStyle-CssClass="progress progress_sm" InsertText="Browse"></CuteWebUI:UploadAttachments>
-                                                        </div>
+                                                           <asp:FileUpload ID="DBConfigUpload" runat="server" />
+                                                         </div>
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbgrowth">Growth Rate</span></label>
+                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbgrowth">Growth Rate</label>
                                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                                             <!-- <CuteWebUI:UploadAttachments ID="DBGROWTHFILE" runat="server" MultipleFilesUpload="false" InsertButtonStyle-CssClass="btn btn-default" ProgressLabelStyle-CssClass="progress progress_sm" InsertText="Browse"></CuteWebUI:UploadAttachments> -->
-                                                        </div>
+                                                            </div>
                                                     </div>
 
                                                     <div class="form-group">
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbback">Backup Database</span></label>
                                                          <div class="col-md-6 col-sm-6 col-xs-12">
-                                                             <!-- <CuteWebUI:UploadAttachments ID="DBBACKUPFILE" runat="server" MultipleFilesUpload="false" InsertButtonStyle-CssClass="btn btn-default" ProgressLabelStyle-CssClass="progress progress_sm" InsertText="Browse"></CuteWebUI:UploadAttachments> -->
-                                                        </div>
+                                                         </div>
                                                        
                                                     </div>
 
                                                     <div class="form-group">
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbalert">Alert Log</label>
                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            <!-- <CuteWebUI:UploadAttachments ID="DBALERTFILE" runat="server" MultipleFilesUpload="false" InsertButtonStyle-CssClass="btn btn-default" ProgressLabelStyle-CssClass="progress progress_sm" InsertText="Browse"></CuteWebUI:UploadAttachments> -->
-                                                        </div>
+                                                           </div>
                                                     </div>
 
                                                 </div>
@@ -415,7 +413,6 @@
        
         var indexPage = 0;
         $(document).ready(function () {
-
             $('#wizard').smartWizard({
                 onFinish: onFinishCallback,
                 saveState: true
@@ -424,9 +421,7 @@
             $('#wizard_verticle').smartWizard({
                 transitionEffect: 'slide',
                 saveState: true
-            });
-
-            
+            });            
            
             $('.buttonNext').addClass('btn btn-success');
             $('.buttonPrevious').addClass('btn btn-primary');
@@ -447,30 +442,6 @@
 
 
     </script>
-    <!-- /jQuery Smart Wizard -->
-    <script type="text/javascript">
-            var uploader;
-            var inputfile;
-            var btnFolder;
-            function CuteWebUI_AjaxUploader_OnInitialize(msg,task)
-            {
-                uploader=this;
-                var scope=uploader.internalobject;
-                if(scope.addontype!="HTML5")return;
-                inputfile=scope.addonobject;
-                if(!/Chrome/.test(navigator.userAgent))return;
-                btnFolder=document.getElementById("btnFolder");
-                btnFolder.style.display="";
-            }
-            function DoBrowseFolder()
-            {
-                if(!inputfile)return;
-                inputfile.setAttribute("webkitdirectory","");
-                inputfile.setAttribute("directory","");
-                uploader.startbrowse();
-                inputfile.removeAttribute("webkitdirectory");
-                inputfile.removeAttribute("directory");
-            }
-        </script>
+    <!-- /jQuery Smart Wizard -->    
 </body>
 </html>

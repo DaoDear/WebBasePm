@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.OleDb;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-
-
+using System.Threading;
+using System.Windows.Forms;
+using NUnit.Framework;
 
 
 namespace WebBasePM
@@ -25,134 +19,388 @@ namespace WebBasePM
 
         protected void Page_Load(object sender, EventArgs e)
         {
-           
+            
         }
 
-        protected void srhProjCode_Click(object sender, EventArgs e)
+        // To open folder.
+        protected void OpenFolder_Click(object sender, EventArgs e)
         {
+            FolderBrowserDialog folderBrowser = new FolderBrowserDialog();
+            Thread thread = new Thread(() => folderBrowser.ShowDialog(new Form() { TopMost = true, WindowState = FormWindowState.Maximized }));
+            thread.IsBackground = false;
+            
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
 
-            string projCode = projCodeInput.Text;
-            custComFull.Text = "";
-            custComAbbv.Text = "";
-            string projectCodeQuery = "SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';";
-            objConn = new SqlConnection(strConnString);
-            SqlDataReader reader;
-            objCmd = new SqlCommand(projectCodeQuery, objConn);
-            objConn.Open();
-            reader = objCmd.ExecuteReader();
-            if (reader.HasRows)
+            string osPath = folderBrowser.SelectedPath;
+            OSInput.Text = osPath;
+            thread.Abort();            
+        }
+
+        /* Function that generate the os information it need OS Path. 
+        *  Use this function as a test.
+        */
+        [TestCase("D:\\oracle")]
+        public void osConfigGen(string osPath)
+        {
+            // Get the initial value for the project.
+            string projectcode = projCodeInput.Text;
+            string quarter = quarterInput.Text;
+            string osTypeIn = OSType.Text;
+
+            List<environment> environmentList = new List<ProductionGenerator.environment>();
+            List<Hardware> hardwareList = new List<ProductionGenerator.Hardware>();
+            List<DiskSpace> diskList = new List<ProductionGenerator.DiskSpace>();
+
+            string hostname = "", 
+                   ipAddress = "", 
+                   oracleOwner_login = "", 
+                   oracleOwner_homeDirectory = "", 
+                   oracleOwner_shell = "", 
+                   oracleGroup_firstGroup = "", 
+                   oracleGroup_secondGroup = "",
+                   osNode = "1", 
+                   osType = osTypeIn, 
+                   osInfo = "", 
+                   osMemSize = "", 
+                   osSwap = "", 
+                   osTmp = "", 
+                   osJava = "", 
+                   osKernel = "",
+                   systemModel = "", 
+                   machineSerialNumber = "", 
+                   processorType = "", 
+                   processorImplementationMode = "", 
+                   processorVersion = "", 
+                   numOfProc = "", 
+                   procClockSpeed = "", 
+                   cpuType = "", 
+                   kernelType = "", 
+                   ipaddress = "", 
+                   subNetMask = "", 
+                   crontab = "";
+
+            string timeStamp = GetTimestamp(DateTime.Now);
+            string tempPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory.ToString(), "TEMP", "OS_" + timeStamp);
+
+            //Create temp directory after inserted data to database, it must remove this folder.
+            Directory.CreateDirectory(tempPath);
+
+            string[] Files = Directory.GetFiles(osPath);
+           
+            List<FileInfo> osFilesList = new List<FileInfo>();
+                      
+
+            // Upload folder and files retrieve iteration.
+            for (int i = 0; i < Files.Length; i++)
             {
-                globalChk = true;
-                while (reader.Read())
+                File.Copy(Files[i], Path.Combine(tempPath, Path.GetFileName(Files[i])));
+            }
+            string[] Files_Init = Directory.GetFiles(tempPath);
+            // Add File into list of OS File.
+            foreach (string file in Files_Init) {
+                osFilesList.Add(new FileInfo(file));
+            }
+          
+            //List file due to requirement .
+            for (int i = 0; i < osFilesList.Count(); i++)
+            {
+                string fileName = osFilesList[i].Name;
+                string filePath = osFilesList[i].FullName;
+
+                // Trap user environment file.
+                if (fileName.ToLower().Equals("user_environments.txt"))
                 {
-                    if (reader["projectCode"].ToString() == projCode)
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    string[] strtmps = null;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        custComFull.Text = reader["customerCompanyFull"].ToString();
-                        custComAbbv.Text = reader["customerAbbv"].ToString();
+                        if (line.Trim().Length > 0)
+                        {
+                            strtmps = line.Trim().Split(new char[] { '=' }, 2);
+                            environmentList.Add(new environment(strtmps[0].ToString(), strtmps[1].ToString()));
+                        }
+                    }
+                }
+                //Trap user id.
+                else if (fileName.ToLower().Equals("user_id.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        string[] strtmps2 = line.Trim().Split(new char[] { '(', ')' });
+                        string[] strtmps = new string[2];
+                        strtmps[0] = "";
+                        strtmps[1] = "";
+                        if (strtmps2.Length > 3)
+                        {
+                            strtmps[0] = strtmps2[3];
+                        }
+                        if (strtmps2.Length > 5)
+                        {
+                            strtmps[1] = strtmps2[5];
+                            for (int j = 7; j < strtmps2.Length; j += 2)
+                            {
+                                strtmps[1] += "," + strtmps2[j];
+                                oracleGroup_firstGroup = strtmps[1].ToString();
+                                oracleGroup_secondGroup = strtmps2[j].ToString();
+                            }
+                        }
+                    }
+                }
+                // Trap crontab file.
+                else if (fileName.ToLower().Equals("crontab.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    string[] strtmps = null;
+                    if ((line = reader.ReadToEnd()) != null && line.Trim().Length > 0)
+                    {
+                        strtmps = line.Trim().Split(new char[] { }, 1);
                     }
                     else
                     {
-                        custComFull.Text = "None";
-                        custComAbbv.Text = "None";
+                        strtmps = new string[] { "-" };
                     }
+                    crontab = strtmps[0].ToString();
                 }
-
-                CustFName.Text = "";
-                CustLName.Text = "";
-                CustEmail.Text = "";
-                CustPhone.Text = "";
-                SaleFName.Text = "";
-                SaleLName.Text = "";
-                SaleEmail.Text = "";
-                SalePhone.Text = "";
-                EGFName.Text = "";
-                EGLName.Text = "";
-                EGEmail.Text = "";
-                EGPhone.Text = "";
-
-
-                string personInFoQuery = "SELECT Personinfo.*, PmInfo_PersonInfo.* FROM Personinfo JOIN PmInfo_PersonInfo ON Personinfo.personID = PmInfo_PersonInfo.personinfo_personID";
-                objConn = new SqlConnection(strConnString);
-                SqlDataReader readerPerson;                
-                objCmd = new SqlCommand(personInFoQuery, objConn);
-                readerPerson = objCmd.ExecuteReader();
-                if (readerPerson.HasRows)
+                // Trap hostname file.
+                else if (fileName.ToLower().Equals("hostname.txt"))
                 {
-                    while (readerPerson.Read())
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    object[] objtmps = null;
+                    if ((line = reader.ReadLine()) != null)
                     {
-                        if (readerPerson["personType"].ToString().Equals("customer"))
+                        objtmps = new object[2];
+                        objtmps[0] = "Hostname";
+                        objtmps[1] = line.Trim();
+                        hostname = objtmps[1].ToString();
+                    }
+
+                }
+                //Trap ip address.
+                else if (fileName.ToLower().Equals("ip.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    bool notFirst = false;
+                    string ipTmp = null;
+                    object[] objtmps = null;
+                    string[] strtmps = null;
+                    char[] deli1 = new char[] { ' ' };
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if ((strtmps = line.Trim().Split(deli1)).Length > 1 && strtmps[0].Equals("inet") && !strtmps[1].Equals("127.0.0.1"))
                         {
-                            CustFName.Text = readerPerson["personName"].ToString();
-                            CustLName.Text = readerPerson["personLastName"].ToString();
-                            CustEmail.Text = readerPerson["personPhone"].ToString();
-                            CustPhone.Text = readerPerson["customerCompanyFull"].ToString();
+                            if (notFirst)
+                            {
+                                ipTmp += "," + strtmps[1];
+                            }
+                            else
+                            {
+                                ipTmp = strtmps[1];
+                                notFirst = true;
+                            }
                         }
-                        else if (readerPerson["personType"].ToString().Equals("sale"))
+                    }
+                    objtmps = new object[2];
+                    objtmps[0] = "IP Address";
+                    objtmps[1] = ipTmp;
+                    ipAddress = objtmps[1].ToString();
+                }
+                // Trap os information.
+                else if (fileName.ToLower().Equals("os_info.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    object[] objtmps = null;
+                    if ((line = reader.ReadLine()) != null)
+                    {
+                        objtmps = new object[2];
+                        objtmps[1] = line.Trim();
+                        osInfo = objtmps[1].ToString();
+                    }
+                }
+                // Trap disk information.
+                else if (fileName.ToLower().Equals("disk.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    object[] objtmps = null;
+                    char[] deli1 = new char[] { ' ' };
+                    if (reader.ReadLine() != null)
+                    {
+                        while (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
                         {
-                            SaleFName.Text = readerPerson["personName"].ToString();
-                            SaleLName.Text = readerPerson["personLastName"].ToString();
-                            SaleEmail.Text = readerPerson["personPhone"].ToString();
-                            SalePhone.Text = readerPerson["customerCompanyFull"].ToString();
-                        }
-                        else if (readerPerson["personType"].ToString().Equals("engineer")) {
-                            EGFName.Text = readerPerson["personName"].ToString();
-                            EGLName.Text = readerPerson["personLastName"].ToString();
-                            EGEmail.Text = readerPerson["personPhone"].ToString();
-                            EGPhone.Text = readerPerson["customerCompanyFull"].ToString();
+                            objtmps = line.Split(deli1, 7, StringSplitOptions.RemoveEmptyEntries);
+                            diskList.Add(new DiskSpace(objtmps[0].ToString(), objtmps[1].ToString(), objtmps[2].ToString(), objtmps[3].ToString(), objtmps[4].ToString(), objtmps[5].ToString(), objtmps[6].ToString()));
                         }
                     }
                 }
+                //Trap system information.
+                else if (fileName.ToLower().Equals("system_info.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    string[] strtmps = null;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.Trim().Length > 0)
+                        {
+                            strtmps = line.Trim().Split(new char[] { ':' }, 2);
+                            if (strtmps.Length > 1)
+                            {
+                                hardwareList.Add(new Hardware(strtmps[0].ToString(), strtmps[1].ToString()));
+                            }                          
+                        }
+                    }
+                    //This file is list like the xml file that it is needed to serach using this searchTextEnvironment function.
+                    systemModel = searchTextEnvironment(hardwareList, "System Model");
+                    machineSerialNumber = searchTextEnvironment(hardwareList, "Machine Serial Number"); 
+                    processorType = searchTextEnvironment(hardwareList, "Processor Type");
+                    processorImplementationMode = searchTextEnvironment(hardwareList, "Processor Implementation Mode");
+                    processorVersion = searchTextEnvironment(hardwareList, "Processor Version");
+                    numOfProc = searchTextEnvironment(hardwareList, "Number Of Processors");
+                    procClockSpeed = searchTextEnvironment(hardwareList, "Processor Clock Speed");
+                    cpuType = searchTextEnvironment(hardwareList, "CPU Type");
+                    kernelType = searchTextEnvironment(hardwareList, "Kernel Type");
+                    ipaddress = searchTextEnvironment(hardwareList, "IP Address");
+                    subNetMask = searchTextEnvironment(hardwareList, "Sub Netmask");
+                }
+                // Trap swap information.
+                else if (fileName.ToLower().Equals("swap.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    string[] strtmps = null;
+                    char[] deli1 = new char[] { ' ' };
+                    object[] objtmps = null;
+                    if (reader.ReadLine() != null)
+                    {
+                        if (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
+                        {
+                            strtmps = line.Split(deli1, 9, StringSplitOptions.RemoveEmptyEntries);
+                            if ((strtmps != null) && (strtmps.Length > 3) && (strtmps[3].Length > 0))
+                            {
+                                objtmps = new object[2];
+                                objtmps[1] = "Paging Space Information\n   Total Paging Space : " + strtmps[3];
+                                osSwap = objtmps[1].ToString();
+                            }
+                        }
+                    }
+                }
+                // Trap temp space
+                else if (fileName.ToLower().Equals("tmp_space.txt"))
+                {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    string[] strtmps = null;
+                    char[] deli1 = new char[] { ' ' };
+                    object[] objtmps = null;
+                    if (reader.ReadLine() != null)
+                    {
+                        if (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
+                        {
+                            strtmps = line.Split(deli1, 7, StringSplitOptions.RemoveEmptyEntries);
+                            if ((strtmps != null) && (strtmps.Length > 1) && (strtmps[1].Length > 0))
+                            {
+                                objtmps = new object[2];
+                                objtmps[1] = "Tmp size: " + strtmps[1] + " Megabytes";
+                                osTmp = objtmps[1].ToString();
+                            }
+                        }
+                    }
+                }
+                // Trap java version
+                else if (fileName.ToLower().Equals("java_version.txt")) {
+                    TextReader reader = File.OpenText(filePath);
+                    string line;
+                    object[] objtmps;
+                    if ((line = reader.ReadLine()) != null)
+                        {
+                            string strtmp = line.Trim();
+                            while (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
+                            {
+                                strtmp += "\n" + line.Trim();
+                            }
+                            objtmps = new object[2];                           
+                            objtmps[1] = strtmp;
+                            osJava = objtmps[1].ToString();
+                        }
+                }
             }
-            else
-            {
-                globalChk = false;
-            }
+            // Search text fro environment information.
+            oracleOwner_login = searchTextEnvironment(environmentList, "LOGNAME");
+            oracleOwner_homeDirectory = searchTextEnvironment(environmentList, "HOME");
+            oracleOwner_shell = searchTextEnvironment(environmentList, "SHELL");
+            osMemSize = searchTextEnvironment(hardwareList, "Memory Size");
 
-
-            reader.Close();
-            objConn.Close();
-        }
- 
-
-        protected void Finish_Click(object sender, EventArgs e)
-        {
-            string projectCode = projCodeInput.Text;
-            string quarter = quarterInput.Text;
-            osConfigGen();
-            projectCode = projCodeInput.Text;
-            quarter = quarterInput.Text;
-            databaseConfigGen(projectCode, quarter);  
-            pmInfoConfig();
-        }
-
-
-        public void personInfoConfig() {
-            string projCode = projCodeInput.Text;
-            string quarter = quarterInput.Text;
-            string cusName = CustFName.Text;
-            string cusLName = CustLName.Text;
-            string cusEmail = CustEmail.Text;
-            string cusPhone = CustPhone.Text;
-            string saleName = SaleFName.Text;
-            string saleLName = SaleLName.Text;
-            string saleEmail = SaleEmail.Text;
-            string salePhone = SalePhone.Text;
-            string enName = EGFName.Text;
-            string enLName = EGLName.Text;
-            string enEmail = EGEmail.Text;
-            string enPhone = EGPhone.Text;
-
-            string infPerson = "INSERT INTO [PM].[dbo].[Personinfo]([projectCode],[projectQuarter],[personName],[personLastName],[personEmail],[personPhone],[personType]) VALUES";
-            infPerson = infPerson + "('"+ projCode+ "'+'"+ quarter+"'+'" + cusName + "','" + cusLName + "','" + cusEmail + "','" + cusPhone + "','customer'),";
-            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + saleName + "','" + saleLName + "','" + saleEmail + "','" + salePhone + "','sale'),";
-            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + enName + "','" + enLName + "','" + enEmail + "','" + enPhone + "','engineer'),";
+            // Database insert handle.
+            // Check server machine spec.
+            string ChkServerMacSpecStr = "INSERT INTO [PM].[dbo].[ChkServerMacSpec]([projectCode] ,[projectQuarter],[hostname],[ipAddress],[oracleOwner_login],[oracleOwner_homeDirectory],[oracleOwner_shell],[oracleGroup_firstGroup],[oracleGroup_secondGroup]) VALUES";
+            ChkServerMacSpecStr = ChkServerMacSpecStr + "('"+ projectcode + "', '"+ quarter +"' ,'" + hostname + "','" + ipAddress + "','" + oracleOwner_login + "','" + oracleOwner_homeDirectory + "','" + oracleOwner_shell + "','" + oracleGroup_firstGroup + "','" + oracleGroup_secondGroup + "')";
+            objConn = new SqlConnection(strConnString);
             objConn.Open();
-            SqlCommand infoInsert = new SqlCommand(infPerson, objConn);
-            infoInsert.ExecuteNonQuery();
-            objConn.Close();  
-        }
+            SqlCommand ChkServerMacSpecCmd = new SqlCommand(ChkServerMacSpecStr, objConn);
+            ChkServerMacSpecCmd.ExecuteNonQuery();
+            
+            // Check disk space.
+            string diskSpaceStr = "INSERT INTO [PM].[dbo].[OSDiskSpace]([projectCode],[projectQuarter],[node],[fileSystem],[mbBlocks],[free],[percentUsed],[iUsed],[percentIUsed],[mountedOn])VALUES";
+            for (int j = 0; j < diskList.Count; j++)
+            {
+                diskSpaceStr = diskSpaceStr + "('"+projectcode+"','"+quarter+"',1,'" + diskList[j].getDiskObject()[0].ToString() + "','" + diskList[j].getDiskObject()[1].ToString() + "','" + diskList[j].getDiskObject()[2].ToString() + "','" + diskList[j].getDiskObject()[3].ToString() + "','" + diskList[j].getDiskObject()[4].ToString() + "','" + diskList[j].getDiskObject()[5].ToString() + "','" + diskList[j].getDiskObject()[6].ToString() + "')";
+                if (j != diskList.Count)
+                {
+                    diskSpaceStr = diskSpaceStr + ",";
+                }
+            }
+            diskSpaceStr = diskSpaceStr.Substring(0, diskSpaceStr.Length - 1);
+            diskSpaceStr = diskSpaceStr + ";";
+            SqlCommand diskSpaceCmd = new SqlCommand(diskSpaceStr, objConn);
+            diskSpaceCmd.ExecuteNonQuery();
 
-        public void pmInfoConfig() {
+            // Compare oracle requirement.
+            osKernel = "AIXTHREAD_SCOPE=" + searchTextEnvironment(environmentList, "AIXTHREAD_SCOPE");
+            string compareRequirementStr = "INSERT INTO [PM].[dbo].[CompareOracleRequirement]([projectCode],[projectQuarter],[osNode],[osType],[osInfo],[osMemSize],[osSwap],[osTmp],[osJava],[osKernel])";
+            compareRequirementStr = compareRequirementStr + "VALUES('"+ projectcode +"','"+ quarter +"',"+ osNode +",'"+ osType +"','"+ osInfo +"','"+ osMemSize +"','"+ osSwap +"','"+ osTmp +"','"+ osJava +"','"+ osKernel +"')";
+            SqlCommand compareRequirementCmd = new SqlCommand(compareRequirementStr, objConn);
+            compareRequirementCmd.ExecuteNonQuery();
+
+            // Hardware Configuration.
+            string hardwareStr = "INSERT INTO [PM].[dbo].[HardwareConfiguration]([projectCode],[projectQuarter],[node],[systemModel],[machineSerialNumber],[processorType],[processorImplementationMode],[processorVersion],[numOfProc],[procClockSpeed],[cpuType],[kernelType],[ipaddress],[subNetMask],[crontab])VALUES";
+            hardwareStr = hardwareStr + "('"+projectcode+"','"+quarter+"', "+ osNode +" , '"+systemModel+"','"+machineSerialNumber+"','"+processorType+"','"+processorImplementationMode+"','"+processorVersion+"','"+numOfProc+"','"+procClockSpeed+"','"+cpuType+"','"+kernelType+"','"+ipaddress+"','"+subNetMask+"','"+ crontab + "')";
+            SqlCommand hardwareCmd = new SqlCommand(hardwareStr, objConn);
+            hardwareCmd.ExecuteNonQuery();
+
+            // Environment configuration.
+            string environmentStr = "INSERT INTO [PM].[dbo].[UserEnvironment]([projectCode],[projectQuarter],[header],[value]) VALUES ";
+            for (int j = 0; j < environmentList.Count; j++) {
+                environmentStr = environmentStr + "('"+ projectcode +"','"+ quarter +"','"+ environmentList[j].getHeader() +"','"+ environmentList[j].getValue() +"'),";             
+            }
+            environmentStr = environmentStr.Substring(0, environmentStr.Length - 1);
+            environmentStr = environmentStr + ";";
+            SqlCommand environmentCmd = new SqlCommand(environmentStr, objConn);
+            environmentCmd.ExecuteNonQuery();
+
+            // Close object connection.
+            objConn.Close();
+            foreach (string file in Files_Init)
+            {
+                //File.Delete(file);
+            }
+            //Directory.Delete(tempPath);
+
+            Assert.True(true);
+
+        }// End of OS Generator.
+
+        // Function that set and get PM Information and insert to database.
+        public void pmInfoConfig()
+        {
             string projCode = projCodeInput.Text;
             string quarter = quarterInput.Text;
             string customerCompanyFull = custComFull.Text;
@@ -171,53 +419,59 @@ namespace WebBasePM
             if (!reader.HasRows)
             {
                 string intStr = "INSERT INTO [PM].[dbo].[PmInfo]([projectCode],[customerCompanyFull],[customerAbbv],[projectName],[quater],[pmstatus],[Reviewer],[Authun],[databaseName])";
-                intStr = intStr + "VALUES('" + projCode + "','" + customerCompanyFull + "','" + customerCompanyAbbv + "','" + projectName + "','" + quarter + "','In Progess','"+ docReviewed + "','"+ authun  + "','"+ databaseNamed + "');";
+                intStr = intStr + "VALUES('" + projCode + "','" + customerCompanyFull + "','" + customerCompanyAbbv + "','" + projectName + "','" + quarter + "','In Progess','" + docReviewed + "','" + authun + "','" + databaseNamed + "');";
                 reader.Close();
                 SqlCommand infoInsert = new SqlCommand(intStr, objConn);
                 infoInsert.ExecuteReader();
-                
+
             }
-            else {
+            else
+            {
                 globalChk = true;
             }
-            
-            objConn.Close();
-        }
 
+            objConn.Close();
+        }// End of PM configuration
+        
+        // Function that set and get Database config file and insert to database.
         public void databaseConfigGen(string projectCode, string quarter)
         {
-            CuteWebUI.AttachmentItem dbFile = DBCONFILE.Items[0];
-            string fileName = dbFile.FileName;
-            string filePath = dbFile.GetTempFilePath().ToString();
-            SetOfTableList tables = null;
-            OracleInformation oracleInfo = new OracleInformation();
+            string timeStamp = GetTimestamp(DateTime.Now);
+            string tempPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory.ToString(), "TEMP", "DB_" + timeStamp);
+            Directory.CreateDirectory(tempPath);
+            string fileName = DBConfigUpload.FileName.ToString();
+            string filePath = Path.Combine(tempPath, fileName);
+            DBConfigUpload.PostedFile.SaveAs(Path.Combine(tempPath, fileName));
             
+            SetOfTableList tables = null;
+
+            OracleInformation oracleInfo = new OracleInformation();
             objConn = new SqlConnection(strConnString);
 
             using (TextReader logFile = File.OpenText(filePath))
             {
                 tables = oracleInfo.readInputLog(logFile);
             }
-            tableListWord tableWord;
-            string binFolderPath = Server.MapPath("bin");
-            string path = binFolderPath+ "/Debug/config/4_1.txt";
+                tableListWord tableWord;
+                string binFolderPath = Server.MapPath("bin");
+                string path = binFolderPath + "/Debug/config/4_1.txt";
+
             using (TextReader inFile = File.OpenText(path))
             {
-                tableWord = oracleInfo.readOutputTable(inFile, tables);                
+                tableWord = oracleInfo.readOutputTable(inFile, tables);
                 string database4_1 = "INSERT INTO [PM].[dbo].[DatabaseConfiguration]([projectCode],[projectQuarter],[header],[value])VALUES";
-                
-                for (int k = 0; k < tableWord.getRowNumber(); k++) {
-
+                for (int k = 0; k < tableWord.getRowNumber(); k++)
+                {
                     if (tableWord.getRow(k)[0].Equals("Temp tablespace size"))
                     {
                         object[] obj1 = (object[])tableWord.getRows()[k];
                         tableListWord obj2 = (tableListWord)obj1[1];
                         string database4_1_1 = "INSERT INTO [PM].[dbo].[TempTableSize]([projectCode],[projectQuarter],[tempTableSpace],[size])VALUES";
-                        for (int z = 0; z < obj2.getRows().Count; z++) {
+                        for (int z = 0; z < obj2.getRows().Count; z++)
+                        {
                             object[] subDetail = (object[])obj2.getRows()[z];
                             database4_1_1 = database4_1_1 + "('" + projectCode + "','" + quarter + "','" + subDetail[0].ToString() + "','" + subDetail[1].ToString() + "'),";
                         }
-
                         database4_1_1 = database4_1_1.Substring(0, database4_1_1.Length - 1);
                         database4_1_1 = database4_1_1 + ";";
                         objConn.Open();
@@ -242,7 +496,8 @@ namespace WebBasePM
                         db4_1_2.ExecuteNonQuery();
                         objConn.Close();
                     }
-                    else {
+                    else
+                    {
                         database4_1 = database4_1 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "'),";
                     }
                 }
@@ -302,7 +557,7 @@ namespace WebBasePM
                 tableWord = new tableListWord(tableTmp);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_4 = database4_4 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] +  "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "','" + tableWord.getRow(k)[4] + "','" + tableWord.getRow(k)[5] +"'),";
+                    database4_4 = database4_4 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "','" + tableWord.getRow(k)[4] + "','" + tableWord.getRow(k)[5] + "'),";
                 }
 
                 database4_4 = database4_4.Substring(0, database4_4.Length - 1);
@@ -313,16 +568,15 @@ namespace WebBasePM
                 objConn.Close();
             }
 
-
             tableTmp = null;
             tableTmp = tables.getTableList("4_5@Temp file@1");
             if (tableTmp != null)
             {
-               string database4_5 = "INSERT INTO [PM].[dbo].[TempFile]([projectCode],[projectQuarter],[tbsName],[fileName],[size],[max],[aut],[inc]) VALUES";
-               tableWord = new tableListWord(tableTmp);
+                string database4_5 = "INSERT INTO [PM].[dbo].[TempFile]([projectCode],[projectQuarter],[tbsName],[fileName],[size],[max],[aut],[inc]) VALUES";
+                tableWord = new tableListWord(tableTmp);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_5 = database4_5 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] +  "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "','" + tableWord.getRow(k)[4] + "','" + tableWord.getRow(k)[5] + "'),";
+                    database4_5 = database4_5 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "','" + tableWord.getRow(k)[4] + "','" + tableWord.getRow(k)[5] + "'),";
                 }
                 database4_5 = database4_5.Substring(0, database4_5.Length - 1);
                 database4_5 = database4_5 + ";";
@@ -338,7 +592,7 @@ namespace WebBasePM
             {
                 string database4_6 = "INSERT INTO [PM].[dbo].[RedoLogFile]([projectCode],[projectQuarter],[groupMember],[member],[size]) VALUES";
                 tableWord = new tableListWord(tableTmp);
-                                
+
                 /// Convert B to MB (***warning: available only MB is string that represent integer)
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
@@ -418,11 +672,8 @@ namespace WebBasePM
                 objConn.Close();
             }
 
-
             //////////////////////////////////////////////////////////    O5    ////////////////////////////////////////////////////////// 
-
-
-
+            
             path = binFolderPath + "/Debug/config/5_1.txt";
             using (TextReader inFile = File.OpenText(path))
             {
@@ -491,13 +742,12 @@ namespace WebBasePM
                 }
                 database5_1 = database5_1.Substring(0, database5_1.Length - 1);
                 database5_1 = database5_1 + ";";
-                
+
                 objConn.Open();
                 SqlCommand db5_1 = new SqlCommand(database5_1, objConn);
                 db5_1.ExecuteNonQuery();
                 objConn.Close();
             }
-
 
             //////////////////////////////////////////////////////////    O6    ////////////////////////////////////////////////////////// 
             tableTmp = null;
@@ -539,7 +789,6 @@ namespace WebBasePM
                 objConn.Close();
             }
 
-
             //////////////////////////////////////////////////////////    O8    ////////////////////////////////////////////////////////// 
 
             tableTmp = null;
@@ -559,359 +808,11 @@ namespace WebBasePM
                 db8_1.ExecuteNonQuery();
                 objConn.Close();
             }
-
+            //Delete Folder temp.
+            Directory.Delete(tempPath);
         }
 
-       
-        public string parseSpecialSymbol(string text)
-        {
-            string[] splits = text.Split(new string[] { "\\n" }, StringSplitOptions.None);
-            string join = string.Join("\n", splits);
-
-            splits = join.Split(new string[] { "\\t" }, StringSplitOptions.None);
-            join = string.Join("\t", splits);
-
-            return join;
-        }
-
-        public string rearrangeNumber(string text)
-        {
-            int tmpInt;
-            if (int.TryParse(text, out tmpInt))
-            {
-                return tmpInt.ToString();
-            }
-            return text;
-        }
-
-        protected string getCenter(string text, int pass, char ch)
-        {
-            string tmp = text.Trim();
-            int i, j;
-            for (i = pass; i < tmp.Length && tmp[i] == ch; i++) ;
-            for (j = tmp.Length - pass - 1; j > 0 && tmp[j] == ch; j--) ;
-            return tmp.Substring(i, j - i + 1);     //fixed
-        }
-
-        private int checkCase(string text)
-        {
-            if (text.Length > 2)
-            {
-                string tmp = text.Substring(0, 3);
-                if (tmp.Equals(">O<"))
-                { //header
-                    return 1;
-                }
-                else if (tmp.Equals("^o^"))
-                { //begin table
-                    return 2;
-                }
-                else if (tmp.Equals("*8*") || tmp.Equals("T^T"))
-                { //end table
-                    return 3;
-                }
-            }
-            return 0;
-        }
-
-
-
-
-        public void osConfigGen()
-        {
-            string projectcode = projCodeInput.Text;
-            string quarter = quarterInput.Text;
-            string osTypeIn = OSType.Text;
-            List<environment> environmentList = new List<ProductionGenerator.environment>();
-            List<Hardware> hardwareList = new List<ProductionGenerator.Hardware>();
-            List<DiskSpace> diskList = new List<ProductionGenerator.DiskSpace>();
-            // Checking server machine specification
-            string hostname = "", ipAddress = "", oracleOwner_login = "", oracleOwner_homeDirectory = "", oracleOwner_shell = "", oracleGroup_firstGroup = "", oracleGroup_secondGroup = "";
-            string osNode = "1", osType = osTypeIn, osInfo = "", osMemSize = "", osSwap = "", osTmp = "", osJava = "", osKernel = "";
-            string systemModel = "", machineSerialNumber = "", processorType = "", processorImplementationMode = "", processorVersion = "", numOfProc = "", procClockSpeed = "", cpuType = "", kernelType = "", ipaddress = "", subNetMask = "", crontab = "";
-            List<CuteWebUI.AttachmentItem> osFilesList = new List<CuteWebUI.AttachmentItem>();
-            foreach (CuteWebUI.AttachmentItem item in OSFILES.Items)
-            {
-                osFilesList.Add(item);
-            }
-
-            for (int i = 0; i < osFilesList.Count(); i++)
-            {
-                string fileName = osFilesList[i].FileName;
-                string filePath = osFilesList[i].GetTempFilePath().ToString();
-                if (fileName.ToLower().Equals("user_environments.txt"))
-                {
-                    /// Load Environment
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    string[] strtmps = null;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (line.Trim().Length > 0)
-                        {
-                            strtmps = line.Trim().Split(new char[] { '=' }, 2);
-                            environmentList.Add(new environment(strtmps[0].ToString(), strtmps[1].ToString()));
-                        }
-                    }
-                }
-                else if (fileName.ToLower().Equals("user_id.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        string[] strtmps2 = line.Trim().Split(new char[] { '(', ')' });
-                        string[] strtmps = new string[2];
-
-                        strtmps[0] = "";
-                        strtmps[1] = "";
-
-                        if (strtmps2.Length > 3)
-                        {
-                            strtmps[0] = strtmps2[3];
-                        }
-                        if (strtmps2.Length > 5)
-                        {
-                            strtmps[1] = strtmps2[5];
-                            for (int j = 7; j < strtmps2.Length; j += 2)
-                            {
-                                strtmps[1] += "," + strtmps2[j];
-                                oracleGroup_firstGroup = strtmps[1].ToString();
-                                oracleGroup_secondGroup = strtmps2[j].ToString();
-                            }
-                        }
-                    }
-                }
-                else if (fileName.ToLower().Equals("crontab.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-
-                    string line;
-                    string[] strtmps = null;
-                    if ((line = reader.ReadToEnd()) != null && line.Trim().Length > 0)
-                    {
-                        strtmps = line.Trim().Split(new char[] { }, 1);
-                    }
-                    else
-                    {
-                        strtmps = new string[] { "-" };
-                    }
-
-                    crontab = strtmps[0].ToString();
-                }
-                else if (fileName.ToLower().Equals("hostname.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-
-                    string line;
-                    object[] objtmps = null;
-                    if ((line = reader.ReadLine()) != null)
-                    {
-                        objtmps = new object[2];
-                        objtmps[0] = "Hostname";
-                        objtmps[1] = line.Trim();
-                        hostname = objtmps[1].ToString();
-                    }
-
-                }
-                else if (fileName.ToLower().Equals("ip.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    bool notFirst = false;
-                    string ipTmp = null;
-                    object[] objtmps = null;
-                    string[] strtmps = null;
-                    char[] deli1 = new char[] { ' ' };
-
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if ((strtmps = line.Trim().Split(deli1)).Length > 1 && strtmps[0].Equals("inet") && !strtmps[1].Equals("127.0.0.1"))
-                        {
-                            if (notFirst)
-                            {
-                                ipTmp += "," + strtmps[1];
-                            }
-                            else
-                            {
-                                ipTmp = strtmps[1];
-                                notFirst = true;
-                            }
-                        }
-                    }
-                    objtmps = new object[2];
-                    objtmps[0] = "IP Address";
-                    objtmps[1] = ipTmp;
-                    ipAddress = objtmps[1].ToString();
-                }
-                else if (fileName.ToLower().Equals("os_info.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    object[] objtmps = null;
-                    if ((line = reader.ReadLine()) != null)
-                    {
-                        objtmps = new object[2];
-                        objtmps[1] = line.Trim();
-                        osInfo = objtmps[1].ToString();
-                    }
-
-                }
-                else if (fileName.ToLower().Equals("disk.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-
-                    string line;
-                    object[] objtmps = null;
-                    char[] deli1 = new char[] { ' ' };
-                    if (reader.ReadLine() != null)
-                    {
-                        while (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
-                        {
-                            objtmps = line.Split(deli1, 7, StringSplitOptions.RemoveEmptyEntries);
-                            diskList.Add(new DiskSpace(objtmps[0].ToString(), objtmps[1].ToString(), objtmps[2].ToString(), objtmps[3].ToString(), objtmps[4].ToString(), objtmps[5].ToString(), objtmps[6].ToString()));
-                        }
-                    }
-                }
-                else if (fileName.ToLower().Equals("system_info.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    string[] strtmps = null;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (line.Trim().Length > 0)
-                        {
-                            strtmps = line.Trim().Split(new char[] { ':' }, 2);
-                            if (strtmps.Length > 1)
-                            {
-                                hardwareList.Add(new Hardware(strtmps[0].ToString(), strtmps[1].ToString()));
-                            }
-                          
-                        }
-                    }
-                    systemModel = searchTextEnvironment(hardwareList, "System Model");
-                    machineSerialNumber = searchTextEnvironment(hardwareList, "Machine Serial Number"); 
-                    processorType = searchTextEnvironment(hardwareList, "Processor Type");
-                    processorImplementationMode = searchTextEnvironment(hardwareList, "Processor Implementation Mode");
-                    processorVersion = searchTextEnvironment(hardwareList, "Processor Version");
-                    numOfProc = searchTextEnvironment(hardwareList, "Number Of Processors");
-                    procClockSpeed = searchTextEnvironment(hardwareList, "Processor Clock Speed");
-                    cpuType = searchTextEnvironment(hardwareList, "CPU Type");
-                    kernelType = searchTextEnvironment(hardwareList, "Kernel Type");
-                    ipaddress = searchTextEnvironment(hardwareList, "IP Address");
-                    subNetMask = searchTextEnvironment(hardwareList, "Sub Netmask");
-
-
-                }
-                else if (fileName.ToLower().Equals("swap.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    string[] strtmps = null;
-                    char[] deli1 = new char[] { ' ' };
-                    object[] objtmps = null;
-                    if (reader.ReadLine() != null)
-                    {
-                        if (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
-                        {
-                            strtmps = line.Split(deli1, 9, StringSplitOptions.RemoveEmptyEntries);
-                            if ((strtmps != null) && (strtmps.Length > 3) && (strtmps[3].Length > 0))
-                            {
-                                objtmps = new object[2];
-                                objtmps[1] = "Paging Space Information\n   Total Paging Space : " + strtmps[3];
-                                osSwap = objtmps[1].ToString();
-                            }
-                        }
-                    }
-                }
-                else if (fileName.ToLower().Equals("tmp_space.txt"))
-                {
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    string[] strtmps = null;
-                    char[] deli1 = new char[] { ' ' };
-                    object[] objtmps = null;
-                    if (reader.ReadLine() != null)
-                    {
-                        if (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
-                        {
-                            strtmps = line.Split(deli1, 7, StringSplitOptions.RemoveEmptyEntries);
-                            if ((strtmps != null) && (strtmps.Length > 1) && (strtmps[1].Length > 0))
-                            {
-                                objtmps = new object[2];
-
-                                objtmps[1] = "Tmp size: " + strtmps[1] + " Megabytes";
-                                osTmp = objtmps[1].ToString();
-                            }
-                        }
-                    }
-                }
-                else if (fileName.ToLower().Equals("java_version.txt")) {
-                    TextReader reader = File.OpenText(filePath);
-                    string line;
-                    object[] objtmps;
-                    if ((line = reader.ReadLine()) != null)
-                        {
-                            string strtmp = line.Trim();
-                            while (((line = reader.ReadLine()) != null) && (line.Trim().Length > 0))
-                            {
-                                strtmp += "\n" + line.Trim();
-                            }
-
-                            objtmps = new object[2];
-                           
-                            objtmps[1] = strtmp;
-                        osJava = objtmps[1].ToString();
-                        }
-                }
-            }
-            oracleOwner_login = searchTextEnvironment(environmentList, "LOGNAME");
-            oracleOwner_homeDirectory = searchTextEnvironment(environmentList, "HOME");
-            oracleOwner_shell = searchTextEnvironment(environmentList, "SHELL");
-            osMemSize = searchTextEnvironment(hardwareList, "Memory Size");
-            string insertStr = "INSERT INTO [PM].[dbo].[ChkServerMacSpec]([projectCode] ,[projectQuarter],[hostname],[ipAddress],[oracleOwner_login],[oracleOwner_homeDirectory],[oracleOwner_shell],[oracleGroup_firstGroup],[oracleGroup_secondGroup]) VALUES";
-            insertStr = insertStr + "('"+ projectcode + "', '"+ quarter +"' ,'" + hostname + "','" + ipAddress + "','" + oracleOwner_login + "','" + oracleOwner_homeDirectory + "','" + oracleOwner_shell + "','" + oracleGroup_firstGroup + "','" + oracleGroup_secondGroup + "')";
-            objConn = new SqlConnection(strConnString);
-            objConn.Open();
-            SqlCommand cmd1 = new SqlCommand(insertStr, objConn);
-            cmd1.ExecuteNonQuery();
-
-            string diskInsrtStr = "INSERT INTO [PM].[dbo].[OSDiskSpace]([projectCode],[projectQuarter],[node],[fileSystem],[mbBlocks],[free],[percentUsed],[iUsed],[percentIUsed],[mountedOn])VALUES";
-            for (int j = 0; j < diskList.Count; j++)
-            {
-                diskInsrtStr = diskInsrtStr + "('"+projectcode+"','"+quarter+"',1,'" + diskList[j].getDiskObject()[0].ToString() + "','" + diskList[j].getDiskObject()[1].ToString() + "','" + diskList[j].getDiskObject()[2].ToString() + "','" + diskList[j].getDiskObject()[3].ToString() + "','" + diskList[j].getDiskObject()[4].ToString() + "','" + diskList[j].getDiskObject()[5].ToString() + "','" + diskList[j].getDiskObject()[6].ToString() + "')";
-                if (j != diskList.Count)
-                {
-                    diskInsrtStr = diskInsrtStr + ",";
-                }
-            }
-            diskInsrtStr = diskInsrtStr.Substring(0,diskInsrtStr.Length - 1);
-            diskInsrtStr = diskInsrtStr + ";";
-            SqlCommand cmd2 = new SqlCommand(diskInsrtStr, objConn);
-            cmd2.ExecuteNonQuery();
-            osKernel = "AIXTHREAD_SCOPE=" + searchTextEnvironment(environmentList, "AIXTHREAD_SCOPE");
-            string osCompare = "INSERT INTO [PM].[dbo].[CompareOracleRequirement]([projectCode],[projectQuarter],[osNode],[osType],[osInfo],[osMemSize],[osSwap],[osTmp],[osJava],[osKernel])";
-            osCompare = osCompare + "VALUES('"+ projectcode +"','"+ quarter +"',"+ osNode +",'"+ osType +"','"+ osInfo +"','"+ osMemSize +"','"+ osSwap +"','"+ osTmp +"','"+ osJava +"','"+ osKernel +"')";
-            SqlCommand cmd3 = new SqlCommand(osCompare, objConn);
-            cmd3.ExecuteNonQuery();
-            string hardwareStr = "INSERT INTO [PM].[dbo].[HardwareConfiguration]([projectCode],[projectQuarter],[node],[systemModel],[machineSerialNumber],[processorType],[processorImplementationMode],[processorVersion],[numOfProc],[procClockSpeed],[cpuType],[kernelType],[ipaddress],[subNetMask],[crontab])VALUES";
-            hardwareStr = hardwareStr + "('"+projectcode+"','"+quarter+"', "+ osNode +" , '"+systemModel+"','"+machineSerialNumber+"','"+processorType+"','"+processorImplementationMode+"','"+processorVersion+"','"+numOfProc+"','"+procClockSpeed+"','"+cpuType+"','"+kernelType+"','"+ipaddress+"','"+subNetMask+"','"+ crontab + "')";
-            SqlCommand cmd4 = new SqlCommand(hardwareStr, objConn);
-            cmd4.ExecuteNonQuery();
-            string environmentStr = "INSERT INTO [PM].[dbo].[UserEnvironment]([projectCode],[projectQuarter],[header],[value]) VALUES ";
-
-            for (int j = 0; j < environmentList.Count; j++) {
-                environmentStr = environmentStr + "('"+ projectcode +"','"+ quarter +"','"+ environmentList[j].getHeader() +"','"+ environmentList[j].getValue() +"'),";
-                
-            }
-            environmentStr = environmentStr.Substring(0, environmentStr.Length - 1);
-            environmentStr = environmentStr + ";";
-            SqlCommand cmd5 = new SqlCommand(environmentStr, objConn);
-            cmd5.ExecuteNonQuery();
-            objConn.Close();
-        }
-
+        // Searching funtion that need environment list and keyword it will return value
         public string searchTextEnvironment(List<environment> list, string keyword)
         {
             string result = "";
@@ -927,10 +828,9 @@ namespace WebBasePM
                     result = null;
                 }
             }
-
             return result;
         }
-
+        // Searching funtion that need Hardware list and keyword it will return value
         public string searchTextEnvironment(List<Hardware> list, string keyword)
         {
             string result = "";
@@ -946,15 +846,14 @@ namespace WebBasePM
                     result = null;
                 }
             }
-
             return result;
         }
 
+        // Environment Class.
         public class environment
         {
             public string header;
             public string value;
-
             public environment(string hearder, string value)
             {
                 this.header = hearder;
@@ -970,11 +869,11 @@ namespace WebBasePM
             }
         }
 
+        // Hardware Class.
         public class Hardware
         {
             public string header;
             public string value;
-
             public Hardware(string hearder, string value)
             {
                 this.header = hearder;
@@ -990,6 +889,7 @@ namespace WebBasePM
             }
         }
 
+        // Disk space Class.
         public class DiskSpace
         {
             public string fileSystem;
@@ -1024,8 +924,195 @@ namespace WebBasePM
                 return this.diskStroage;
             }
         }
+        
+        // Function is part of generating Folder Name. 
+        public static string GetTimestamp(DateTime value)
+        {
+            return value.ToString("yyyyMMddHHmmssffff");
+        }
+        // Search information by project code. (Optional Choice)
+        protected void srhProjCode_Click(object sender, EventArgs e)
+        {
+            string projCode = projCodeInput.Text;
+            custComFull.Text = "";
+            custComAbbv.Text = "";
+            string projectCodeQuery = "SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';";
+            objConn = new SqlConnection(strConnString);
+            SqlDataReader reader;
+            objCmd = new SqlCommand(projectCodeQuery, objConn);
+            objConn.Open();
+            reader = objCmd.ExecuteReader();
+            if (reader.HasRows)
+            {
+                globalChk = true;
+                while (reader.Read())
+                {
+                    if (reader["projectCode"].ToString() == projCode)
+                    {
+                        custComFull.Text = reader["customerCompanyFull"].ToString();
+                        custComAbbv.Text = reader["customerAbbv"].ToString();
+                    }
+                    else
+                    {
+                        custComFull.Text = "None";
+                        custComAbbv.Text = "None";
+                    }
+                }
 
-       
-    }
-}
- 
+                CustFName.Text = "";
+                CustLName.Text = "";
+                CustEmail.Text = "";
+                CustPhone.Text = "";
+                SaleFName.Text = "";
+                SaleLName.Text = "";
+                SaleEmail.Text = "";
+                SalePhone.Text = "";
+                EGFName.Text = "";
+                EGLName.Text = "";
+                EGEmail.Text = "";
+                EGPhone.Text = "";
+
+
+                string personInFoQuery = "SELECT Personinfo.*, PmInfo_PersonInfo.* FROM Personinfo JOIN PmInfo_PersonInfo ON Personinfo.personID = PmInfo_PersonInfo.personinfo_personID";
+                objConn = new SqlConnection(strConnString);
+                SqlDataReader readerPerson;
+                objCmd = new SqlCommand(personInFoQuery, objConn);
+                readerPerson = objCmd.ExecuteReader();
+                if (readerPerson.HasRows)
+                {
+                    while (readerPerson.Read())
+                    {
+                        if (readerPerson["personType"].ToString().Equals("customer"))
+                        {
+                            CustFName.Text = readerPerson["personName"].ToString();
+                            CustLName.Text = readerPerson["personLastName"].ToString();
+                            CustEmail.Text = readerPerson["personPhone"].ToString();
+                            CustPhone.Text = readerPerson["customerCompanyFull"].ToString();
+                        }
+                        else if (readerPerson["personType"].ToString().Equals("sale"))
+                        {
+                            SaleFName.Text = readerPerson["personName"].ToString();
+                            SaleLName.Text = readerPerson["personLastName"].ToString();
+                            SaleEmail.Text = readerPerson["personPhone"].ToString();
+                            SalePhone.Text = readerPerson["customerCompanyFull"].ToString();
+                        }
+                        else if (readerPerson["personType"].ToString().Equals("engineer"))
+                        {
+                            EGFName.Text = readerPerson["personName"].ToString();
+                            EGLName.Text = readerPerson["personLastName"].ToString();
+                            EGEmail.Text = readerPerson["personPhone"].ToString();
+                            EGPhone.Text = readerPerson["customerCompanyFull"].ToString();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                globalChk = false;
+            }
+
+
+            reader.Close();
+            objConn.Close();
+        }
+
+        // Finish function will call stack of function work.
+        protected void Finish_Click(object sender, EventArgs e)
+        {
+            string projectCode = projCodeInput.Text;
+            string quarter = quarterInput.Text;
+
+            string osPath = OSInput.Text;
+
+            osConfigGen(osPath);
+            //projectCode = projCodeInput.Text;
+            //quarter = quarterInput.Text;
+            //databaseConfigGen(projectCode, quarter);  
+            //pmInfoConfig();
+        }
+
+        // Function that get person information and Insert to database.
+        public void personInfoConfig()
+        {
+            string projCode = projCodeInput.Text;
+            string quarter = quarterInput.Text;
+            string cusName = CustFName.Text;
+            string cusLName = CustLName.Text;
+            string cusEmail = CustEmail.Text;
+            string cusPhone = CustPhone.Text;
+            string saleName = SaleFName.Text;
+            string saleLName = SaleLName.Text;
+            string saleEmail = SaleEmail.Text;
+            string salePhone = SalePhone.Text;
+            string enName = EGFName.Text;
+            string enLName = EGLName.Text;
+            string enEmail = EGEmail.Text;
+            string enPhone = EGPhone.Text;
+
+            string infPerson = "INSERT INTO [PM].[dbo].[Personinfo]([projectCode],[projectQuarter],[personName],[personLastName],[personEmail],[personPhone],[personType]) VALUES";
+            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + cusName + "','" + cusLName + "','" + cusEmail + "','" + cusPhone + "','customer'),";
+            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + saleName + "','" + saleLName + "','" + saleEmail + "','" + salePhone + "','sale'),";
+            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + enName + "','" + enLName + "','" + enEmail + "','" + enPhone + "','engineer'),";
+            objConn.Open();
+            SqlCommand infoInsert = new SqlCommand(infPerson, objConn);
+            infoInsert.ExecuteNonQuery();
+            objConn.Close();
+        }
+            
+        // Function that check conditation to trap the special symbol use in OSGenerator and DBGenerator.
+        public string parseSpecialSymbol(string text)
+        {
+            string[] splits = text.Split(new string[] { "\\n" }, StringSplitOptions.None);
+            string join = string.Join("\n", splits);
+
+            splits = join.Split(new string[] { "\\t" }, StringSplitOptions.None);
+            join = string.Join("\t", splits);
+
+            return join;
+        }
+
+        // Function that rearrange number of text input line use in OSGenerator and DBGenerator.
+        public string rearrangeNumber(string text)
+        {
+            int tmpInt;
+            if (int.TryParse(text, out tmpInt))
+            {
+                return tmpInt.ToString();
+            }
+            return text;
+        }
+
+        // Function that check the center of special symbol.
+        protected string getCenter(string text, int pass, char ch)
+        {
+            string tmp = text.Trim();
+            int i, j;
+            for (i = pass; i < tmp.Length && tmp[i] == ch; i++) ;
+            for (j = tmp.Length - pass - 1; j > 0 && tmp[j] == ch; j--) ;
+            return tmp.Substring(i, j - i + 1);     //fixed
+        }
+
+        // Function that trap condition and return type of starting point.
+        private int checkCase(string text)
+        {
+            if (text.Length > 2)
+            {
+                string tmp = text.Substring(0, 3);
+                if (tmp.Equals(">O<"))
+                { //header
+                    return 1;
+                }
+                else if (tmp.Equals("^o^"))
+                { //begin table
+                    return 2;
+                }
+                else if (tmp.Equals("*8*") || tmp.Equals("T^T"))
+                { //end table
+                    return 3;
+                }
+            }
+            return 0;
+        }
+        
+    } // End of class.
+} // End of namespace.
