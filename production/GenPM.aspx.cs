@@ -388,12 +388,13 @@ namespace WebBasePM
 
             // Close object connection.
             objConn.Close();
-            foreach (string file in Files_Init)
+            try
             {
-                //File.Delete(file);
+                Directory.Delete(tempPath, true);
             }
-            //Directory.Delete(tempPath);
-
+            catch (Exception ex) {
+                Console.Write(ex);
+            }
             Assert.True(true);
 
         }// End of OS Generator.
