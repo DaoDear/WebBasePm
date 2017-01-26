@@ -83,7 +83,7 @@
               <ul class="nav navbar-nav navbar-right">
                 <li class="">
                   <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                    <img src="images/img.jpg" alt="">John Doe
+                    <img src="images/img.jpg" alt="" />Firstname Lastname
                     <span class=" fa fa-angle-down"></span>
                   </a>
                   <ul class="dropdown-menu dropdown-usermenu pull-right">
@@ -95,12 +95,12 @@
                 <li role="presentation" class="dropdown">
                   <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
                     <i class="fa fa-envelope-o"></i>
-                    <span class="badge bg-green">6</span>
+                    <span class="badge bg-green">1</span>
                   </a>
                   <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">
                     <li>
                       <a>
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image"></span>
+                        <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>
                         <span>
                           <span>John Smith</span>
                           <span class="time">3 mins ago</span>
@@ -109,43 +109,7 @@
                           Film festivals used to be do-or-die moments for movie makers. They were where...
                         </span>
                       </a>
-                    </li>
-                    <li>
-                      <a>
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image"></span>
-                        <span>
-                          <span>John Smith</span>
-                          <span class="time">3 mins ago</span>
-                        </span>
-                        <span class="message">
-                          Film festivals used to be do-or-die moments for movie makers. They were where...
-                        </span>
-                      </a>
-                    </li>
-                    <li>
-                      <a>
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image"></span>
-                        <span>
-                          <span>John Smith</span>
-                          <span class="time">3 mins ago</span>
-                        </span>
-                        <span class="message">
-                          Film festivals used to be do-or-die moments for movie makers. They were where...
-                        </span>
-                      </a>
-                    </li>
-                    <li>
-                      <a>
-                        <span class="image"><img src="images/img.jpg" alt="Profile Image"></span>
-                        <span>
-                          <span>John Smith</span>
-                          <span class="time">3 mins ago</span>
-                        </span>
-                        <span class="message">
-                          Film festivals used to be do-or-die moments for movie makers. They were where...
-                        </span>
-                      </a>
-                    </li>
+                    </li>           
                     <li>
                       <div class="text-center">
                         <a>
@@ -185,11 +149,9 @@
                     <h2>General Information</h2>
                     <!-- Action button setting -->
                     <ul class="nav navbar-right panel_toolbox">
-                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                      </li>
-                      <!-- Setting button 
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                     <!-- Button action
+                      <li class="dropdown" style="display:none;">
+                        <a href="#" class="dropdown-toggle"  data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
                           <li><a href="#">Settings 1</a>
                           </li>
@@ -197,8 +159,11 @@
                           </li>
                         </ul>
                       </li> 
-                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-                      </li> -->
+                      <li style="display:none;"><a class="close-link"><i class="fa fa-close"></i></a>
+                      </li> 
+                     -->
+                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                      </li>
                     </ul>
                     <div class="clearfix"></div>
                   </div>
@@ -224,10 +189,10 @@
 
                                       <!-- Upload image and data -->
                                       <div class="avatar-upload">
-                                        <input class="avatar-src" name="avatar_src" type="hidden">
-                                        <input class="avatar-data" name="avatar_data" type="hidden">
-                                        <label for="avatarInput">Local upload</label>
-                                        <input class="avatar-input" id="avatarInput" name="avatar_file" type="file">
+                                        <input class="avatar-src" name="avatar_src" type="hidden" />
+                                        <input class="avatar-data" name="avatar_data" type="hidden" />
+                                        <label for="avatarInput">Local upload</label> 
+                                        <input class="avatar-input" id="avatarInput" name="avatar_file" type="file" />
                                       </div>
 
                                       <!-- Crop and preview -->
