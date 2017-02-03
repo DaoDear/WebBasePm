@@ -4,17 +4,24 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using System.Web.UI.DataVisualization.Charting;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
+using WebBasePM;
 
 public partial class production_pm_info : System.Web.UI.Page
 {
+    
     SqlConnection objConn;
     SqlCommand objCmd;
     string projectCoded = "", projectQuarter = "";
+    protected DatabaseHelper dbHelper;
 
     protected void Page_Load(object sender, EventArgs e)
     {
+
+        dbHelper = new DatabaseHelper();
+
         string strConnString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
         objConn = new SqlConnection(strConnString);
         objConn.Open();
@@ -740,5 +747,78 @@ public partial class production_pm_info : System.Web.UI.Page
         }
         dbRegStrReader.Close();
 
+        /*  BACKUP SECTION   */
+        object[] backupFIle = dbHelper.GetSingleQueryObject("SELECT * FROM backupfile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (backupFIle[4].ToString() != null)
+        {
+            backupDB.Text = backupFIle[4].ToString();
+        }
+        else {
+            backupDB.Text = "";
+        }
+
+        if (backupFIle[3].ToString() != null)
+        {
+            backupAL.Text = backupFIle[3].ToString();
+        }
+        else
+        {
+            backupAL.Text = "";
+        }
+
+        if (backupFIle[2].ToString() != null)
+        {
+            backupCF.Text = backupFIle[2].ToString();
+        }
+        else
+        {
+            backupCF.Text = "";
+        }
+
+        /*  DATABASE GROWTH RATE    */
+        Object[] obj = dbHelper.GetSingleQueryObject("SELECT * FROM DBGrowthRate WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        double allocateSpace = double.Parse(obj[2].ToString());
+        double usedSpace = double.Parse(obj[3].ToString());
+        double growthDay = double.Parse(obj[4].ToString());
+        double growthMonth = double.Parse(obj[5].ToString());
+
+        double UsedGrowth = growthDay * 30;
+        double AllowGrowth = growthMonth * 30;
+
+
+
+        Chart1.Series.Clear();
+        Chart1.Series.Add("Series1");
+        Chart1.Series["Series1"].Points.AddXY(1, usedSpace);
+        Chart1.Series["Series1"].Points.AddXY(2, usedSpace += UsedGrowth);
+        Chart1.Series["Series1"].Points.AddXY(3, usedSpace += UsedGrowth);
+        Chart1.Series["Series1"].Points.AddXY(4, usedSpace += UsedGrowth);
+        Chart1.Series["Series1"].ChartType = SeriesChartType.Line;
+        Chart1.Series["Series1"].BorderWidth = 3;
+
+        Chart1.Series.Add("Series2");
+        Chart1.Series["Series2"].Points.AddXY(1, allocateSpace);
+        Chart1.Series["Series2"].Points.AddXY(2, allocateSpace += AllowGrowth);
+        Chart1.Series["Series2"].Points.AddXY(3, allocateSpace += AllowGrowth);
+        Chart1.Series["Series2"].Points.AddXY(4, allocateSpace += AllowGrowth);
+        Chart1.Series["Series2"].ChartType = SeriesChartType.Line;
+        Chart1.Series["Series2"].BorderWidth = 3;
+
+        
+        Chart1.ChartAreas[0].AxisX.Interval = 1;
+        Chart1.Width = 500;
+
+        /*
+        string[] monthNames = { "100", "75", "50", "25", "0" };
+        int startOffset = -2;
+        int endOffset = 2;
+        foreach (string monthName in monthNames)
+        {
+            CustomLabel monthLabel = new CustomLabel(startOffset, endOffset, monthName, 0, LabelMarkStyle.None);
+            Chart1.ChartAreas[0].AxisX.CustomLabels.Add(monthLabel);
+            startOffset = startOffset + 25;
+            endOffset = endOffset + 25;
+        }
+        */
     }
 }

@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
-using Cryp = System.Security.Cryptography;
+using WebBasePM;
 
 public partial class production_Login : System.Web.UI.Page
 {
+    protected DatabaseHelper dbHelper;
+
     protected void Page_Load(object sender, EventArgs e)
     {
-       
+        dbHelper = new DatabaseHelper();
     }
 
     protected void LoginSubmit_Click(object sender, EventArgs e)
@@ -20,42 +18,23 @@ public partial class production_Login : System.Web.UI.Page
         string user = username.Text;
         string pass = password.Text;
 
-        string title = ""
-              , firstName = ""
-              , lastName = ""
-              , email = ""
-              , phone = ""
-              , position = "";
-        int permission = -1;
+        string title
+              , firstName
+              , lastName
+              , email
+              , phone
+              , position;
+        int permission,personID;
 
-        string connectionStr = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
-        SqlConnection objConn;
-        SqlCommand objCmd;
-        objConn = new SqlConnection(connectionStr);
-        objConn.Open();
-        string authentication = "SELECT * FROM Person WHERE Username LIKE '" + user + "' AND Password LIKE '" + pass + "';";
-        SqlDataReader reader;
-        objCmd = new SqlCommand(authentication, objConn);
-        reader = objCmd.ExecuteReader();
-        if (reader.HasRows)
-        {
-            while (reader.Read())
-            {
-                title = reader["Title"].ToString();
-                firstName = reader["Firstname"].ToString();
-                lastName = reader["Lastname"].ToString();
-                email = reader["Email"].ToString();
-                phone = reader["Phone"].ToString();
-                position = reader["Position"].ToString();
-                permission = int.Parse(reader["Permission"].ToString());
-            }
-            reader.Close();
-            reader = null;
-            MessageBox.Show("Login Success", "My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
-        }
-        else
-        {
-            MessageBox.Show("Login Fail", "My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
-        }
+        Object[] obj  = dbHelper.GetSingleQueryObject("SELECT * FROM Person WHERE Username LIKE '" + user + "' AND Password LIKE '" + pass + "';");
+        personID = (int)int.Parse(obj[0].ToString());
+        title = (string)obj[1];
+        firstName = (string)obj[2]; 
+        lastName = (string)obj[3];
+        email = (string)obj[6];
+        phone = (string)obj[7];
+        position = (string)obj[8];
+        permission = (int)int.Parse(obj[10].ToString()); 
+                             
     }
 }

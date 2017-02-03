@@ -59,7 +59,7 @@
               <div class="menu_section">
                 <h3>Monday 24 August 2016</h3>
 					<ul class="nav side-menu">
-					  <li><a><i class="fa fa-home"></i> Home</a>
+					  <li><a href="index.aspx"><i class="fa fa-home"></i> Home</a>
 					  </li>
 					  <li><a href="GenPm.aspx"><i class="fa fa-edit"></i> Generate PM</a>
 					  </li>

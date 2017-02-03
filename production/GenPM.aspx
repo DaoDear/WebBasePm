@@ -54,10 +54,10 @@
                                 <h3>Monday 24 August 2016</h3>
                                 <ul class="nav side-menu">
                                     <li>
-                                        <a><i class="fa fa-home"></i>Home</a>
+                                        <a href="index.aspx"><i class="fa fa-home"></i>Home</a>
                                     </li>
                                     <li>
-                                        <a><i class="fa fa-edit"></i>Generate PM</a>
+                                        <a href="GenPM.aspx"><i class="fa fa-edit"></i>Generate PM</a>
                                     </li>
                                     <li>
                                         <a><i class="fa fa-desktop"></i>Search PM</a>
@@ -325,22 +325,50 @@
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbcon">Configruation</label>
                                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                                            <asp:FileUpload ID="DBConfigUpload" runat="server" />
-                                                         </div>
+                                                        </div>
                                                     </div>
 
                                                     <div class="form-group">
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbgrowth">Growth Rate</label>
                                                         <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <div class="row">
+                                                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                                                <asp:TextBox CssClass="form-control" Placeholder="Curr Allocate (GB)" ID="currAlloc" runat="server"></asp:TextBox>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                                                <asp:TextBox CssClass="form-control" Placeholder="Used Allocate (GB)" ID="usedAlloc" runat="server"></asp:TextBox>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                                                <asp:TextBox CssClass="form-control" Placeholder="Alloc Growth (GB)" ID="allocGrowth" runat="server"></asp:TextBox>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                                                <asp:TextBox CssClass="form-control" Placeholder="Used Growth (GB)" ID="usedGrowth" runat="server"></asp:TextBox>
+                                                                </div>
                                                             </div>
+                                                        </div>
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbback">Backup Database</span></label>
+                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbback">Backup Database</label>
                                                          <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <asp:FileUpload ID="BackupDatabaseFile" runat="server" />
                                                          </div>
                                                        
                                                     </div>
-
+                                                    <div class="form-group">
+                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbback">Backup Controlfile</label>
+                                                         <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <asp:FileUpload ID="BackupControlFile" runat="server" />
+                                                         </div>
+                                                       
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbback">Backup Archieve</label>
+                                                         <div class="col-md-6 col-sm-6 col-xs-12">
+                                                            <asp:FileUpload ID="BackupArchieveFile" runat="server" />
+                                                         </div>s
+                                                       
+                                                    </div>
                                                     <div class="form-group">
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbalert">Alert Log</label>
                                                            <div class="col-md-6 col-sm-6 col-xs-12">

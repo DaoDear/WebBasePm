@@ -1,4 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="pm_info.aspx.cs" Inherits="production_pm_info" %>
+<%@ Register Assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI.DataVisualization.Charting" TagPrefix="asp" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -57,10 +58,10 @@
                                       <h3>Monday 24 August 2016</h3>
                                       <ul class="nav side-menu">
                                           <li>
-                                              <a><i class="fa fa-home"></i> Home</a>
+                                              <a href="index.aspx"><i class="fa fa-home"></i> Home</a>
                                           </li>
                                           <li>
-                                              <a><i class="fa fa-edit"></i> Generate PM</a>
+                                              <a href="GenPM.aspx"><i class="fa fa-edit"></i> Generate PM</a>
                                           </li>
                                           <li>
                                               <a><i class="fa fa-desktop"></i> Search PM</a>
@@ -154,6 +155,9 @@
                                                   </li>
                                                   <li role="presentation" class="">
                                                       <a href="#tab_content12" role="tab" id="profile-tab11" data-toggle="tab" aria-expanded="false">11</a>
+                                                  </li>
+                                                  <li role="presentation" class="">
+                                                      <a href="#tab_content13" role="tab" id="profile-tab12" data-toggle="tab" aria-expanded="false">12</a>
                                                   </li>
                                               </ul>
                                               <!-- End Head Tab -->
@@ -841,7 +845,7 @@
                                                           </thead>
                                                           <tbody>
                                                               <tr>
-                                                                  <td>Backup</td>
+                                                                  <td><asp:Label ID="backupDB" runat="server"></asp:Label></td>
                                                               </tr>
                                                           </tbody>
                                                       </table>
@@ -856,7 +860,7 @@
                                                           </thead>
                                                           <tbody>
                                                               <tr>
-                                                                  <td>Backup</td>
+                                                                  <td><asp:Label ID="backupAL" runat="server"></asp:Label></td>
                                                               </tr>
                                                           </tbody>
                                                       </table>
@@ -871,13 +875,29 @@
                                                           </thead>
                                                           <tbody>
                                                               <tr>
-                                                                  <td>Backup</td>
+                                                                  <td><asp:Label ID="backupCF" runat="server"></asp:Label></td>
                                                               </tr>
                                                           </tbody>
-                                                      </table>
+                                                      </table>                                                      
                                                       <!-- End Backup Controlfile -->
                                                   </div>
                                                   <!-- End Tab 11 -->
+                                                  <!-- Tab 12 -->
+                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content13" aria-labelledby="profile-tab">
+                                                      <h4><b>12. Chart</b></h4>
+                                                      <!-- Backup Database -->
+                                                      <h5><b>Chart</b></h5>
+                                                       <asp:Chart ID="Chart1" runat="server">
+                                                          <Series>
+                                                              <asp:Series Name="Series1"></asp:Series>
+                                                          </Series>
+                                                          <ChartAreas>
+                                                              <asp:ChartArea Name="ChartArea1">
+                                                              </asp:ChartArea>
+                                                          </ChartAreas>
+                                                      </asp:Chart>
+                                                  </div>
+                                                  <!-- End Tab 12 -->
                                               </div>
                                               <!-- End Content on Tab -->
                                           </div>

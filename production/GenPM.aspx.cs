@@ -7,11 +7,11 @@ using System.Threading;
 using System.Windows.Forms;
 using NUnit.Framework;
 
-
 namespace WebBasePM
 {
     public partial class ProductionGenerator : System.Web.UI.Page
     {
+        protected DatabaseHelper dbHelper;
         string strConnString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
         SqlConnection objConn;
         SqlCommand objCmd;
@@ -19,7 +19,7 @@ namespace WebBasePM
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            
+            dbHelper = new DatabaseHelper();
         }
 
         // To open folder.
@@ -341,53 +341,62 @@ namespace WebBasePM
 
             // Database insert handle.
             // Check server machine spec.
-            string ChkServerMacSpecStr = "INSERT INTO [PM].[dbo].[ChkServerMacSpec]([projectCode] ,[projectQuarter],[hostname],[ipAddress],[oracleOwner_login],[oracleOwner_homeDirectory],[oracleOwner_shell],[oracleGroup_firstGroup],[oracleGroup_secondGroup]) VALUES";
-            ChkServerMacSpecStr = ChkServerMacSpecStr + "('"+ projectcode + "', '"+ quarter +"' ,'" + hostname + "','" + ipAddress + "','" + oracleOwner_login + "','" + oracleOwner_homeDirectory + "','" + oracleOwner_shell + "','" + oracleGroup_firstGroup + "','" + oracleGroup_secondGroup + "')";
-            objConn = new SqlConnection(strConnString);
-            objConn.Open();
-            SqlCommand ChkServerMacSpecCmd = new SqlCommand(ChkServerMacSpecStr, objConn);
-            ChkServerMacSpecCmd.ExecuteNonQuery();
-            
+            List<object> chkList = new List<object>();
+            chkList.Add(hostname);
+            chkList.Add(ipAddress);
+            chkList.Add(oracleOwner_login);
+            chkList.Add(oracleOwner_homeDirectory);
+            chkList.Add(oracleOwner_shell);
+            chkList.Add(oracleGroup_firstGroup);
+            chkList.Add(oracleGroup_secondGroup);
+           
+            dbHelper.InsertChkServerMacSpec(projectcode, quarter, chkList);
+
             // Check disk space.
-            string diskSpaceStr = "INSERT INTO [PM].[dbo].[OSDiskSpace]([projectCode],[projectQuarter],[node],[fileSystem],[mbBlocks],[free],[percentUsed],[iUsed],[percentIUsed],[mountedOn])VALUES";
+            List<object[]> diskSpaceList = new List<object[]>();
             for (int j = 0; j < diskList.Count; j++)
             {
-                diskSpaceStr = diskSpaceStr + "('"+projectcode+"','"+quarter+"',1,'" + diskList[j].getDiskObject()[0].ToString() + "','" + diskList[j].getDiskObject()[1].ToString() + "','" + diskList[j].getDiskObject()[2].ToString() + "','" + diskList[j].getDiskObject()[3].ToString() + "','" + diskList[j].getDiskObject()[4].ToString() + "','" + diskList[j].getDiskObject()[5].ToString() + "','" + diskList[j].getDiskObject()[6].ToString() + "')";
-                if (j != diskList.Count)
-                {
-                    diskSpaceStr = diskSpaceStr + ",";
-                }
+                diskSpaceList.Add(new object[] {"1", diskList[j].getDiskObject()[0].ToString(), diskList[j].getDiskObject()[1].ToString(), diskList[j].getDiskObject()[2].ToString(), diskList[j].getDiskObject()[3].ToString(), diskList[j].getDiskObject()[4].ToString(), diskList[j].getDiskObject()[5].ToString(), diskList[j].getDiskObject()[6].ToString()});
             }
-            diskSpaceStr = diskSpaceStr.Substring(0, diskSpaceStr.Length - 1);
-            diskSpaceStr = diskSpaceStr + ";";
-            SqlCommand diskSpaceCmd = new SqlCommand(diskSpaceStr, objConn);
-            diskSpaceCmd.ExecuteNonQuery();
+            dbHelper.InsertOsDiskSpace(projectcode, quarter, diskSpaceList);
 
             // Compare oracle requirement.
             osKernel = "AIXTHREAD_SCOPE=" + searchTextEnvironment(environmentList, "AIXTHREAD_SCOPE");
-            string compareRequirementStr = "INSERT INTO [PM].[dbo].[CompareOracleRequirement]([projectCode],[projectQuarter],[osNode],[osType],[osInfo],[osMemSize],[osSwap],[osTmp],[osJava],[osKernel])";
-            compareRequirementStr = compareRequirementStr + "VALUES('"+ projectcode +"','"+ quarter +"',"+ osNode +",'"+ osType +"','"+ osInfo +"','"+ osMemSize +"','"+ osSwap +"','"+ osTmp +"','"+ osJava +"','"+ osKernel +"')";
-            SqlCommand compareRequirementCmd = new SqlCommand(compareRequirementStr, objConn);
-            compareRequirementCmd.ExecuteNonQuery();
+            List<object> compareList = new List<object>();
+            compareList.Add(osNode);
+            compareList.Add(osType);
+            compareList.Add(osInfo);
+            compareList.Add(osMemSize);
+            compareList.Add(osSwap);
+            compareList.Add(osTmp);
+            compareList.Add(osJava);
+            compareList.Add(osKernel);
+            dbHelper.InsertCompareRequirement(projectcode, quarter, compareList);
 
             // Hardware Configuration.
-            string hardwareStr = "INSERT INTO [PM].[dbo].[HardwareConfiguration]([projectCode],[projectQuarter],[node],[systemModel],[machineSerialNumber],[processorType],[processorImplementationMode],[processorVersion],[numOfProc],[procClockSpeed],[cpuType],[kernelType],[ipaddress],[subNetMask],[crontab])VALUES";
-            hardwareStr = hardwareStr + "('"+projectcode+"','"+quarter+"', "+ osNode +" , '"+systemModel+"','"+machineSerialNumber+"','"+processorType+"','"+processorImplementationMode+"','"+processorVersion+"','"+numOfProc+"','"+procClockSpeed+"','"+cpuType+"','"+kernelType+"','"+ipaddress+"','"+subNetMask+"','"+ crontab + "')";
-            SqlCommand hardwareCmd = new SqlCommand(hardwareStr, objConn);
-            hardwareCmd.ExecuteNonQuery();
+            List<object> hardwareConfigList = new List<object>();
+            hardwareConfigList.Add(osNode);
+            hardwareConfigList.Add(systemModel);
+            hardwareConfigList.Add(machineSerialNumber);
+            hardwareConfigList.Add(processorType);
+            hardwareConfigList.Add(processorImplementationMode);
+            hardwareConfigList.Add(processorVersion);
+            hardwareConfigList.Add(numOfProc);
+            hardwareConfigList.Add(procClockSpeed);
+            hardwareConfigList.Add(cpuType);
+            hardwareConfigList.Add(kernelType);
+            hardwareConfigList.Add(ipaddress);
+            hardwareConfigList.Add(subNetMask);
+            hardwareConfigList.Add(crontab);
+            dbHelper.InsertHardware(projectcode, quarter, hardwareConfigList);
 
             // Environment configuration.
-            string environmentStr = "INSERT INTO [PM].[dbo].[UserEnvironment]([projectCode],[projectQuarter],[header],[value]) VALUES ";
+            List<object[]> environmentConfigList = new List<object[]>();
             for (int j = 0; j < environmentList.Count; j++) {
-                environmentStr = environmentStr + "('"+ projectcode +"','"+ quarter +"','"+ environmentList[j].getHeader() +"','"+ environmentList[j].getValue() +"'),";             
+                environmentConfigList.Add(new object[] { environmentList[j].getHeader(), environmentList[j].getValue() });        
             }
-            environmentStr = environmentStr.Substring(0, environmentStr.Length - 1);
-            environmentStr = environmentStr + ";";
-            SqlCommand environmentCmd = new SqlCommand(environmentStr, objConn);
-            environmentCmd.ExecuteNonQuery();
+            dbHelper.InsertEnvironment(projectcode, quarter, environmentConfigList);           
 
-            // Close object connection.
-            objConn.Close();
             try
             {
                 Directory.Delete(tempPath, true);
@@ -410,6 +419,7 @@ namespace WebBasePM
             string authun = docAut.Text;
             string docReviewed = docReview.Text;
             string databaseNamed = databaseName.Text;
+            object[] pminfoObj = new object[] { projCode, customerCompanyFull, customerCompanyAbbv, projectName, quarter, docReviewed,authun, databaseNamed };
 
             string projectCodeQuery = "SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';";
             objConn = new SqlConnection(strConnString);
@@ -419,12 +429,7 @@ namespace WebBasePM
             reader = objCmd.ExecuteReader();
             if (!reader.HasRows)
             {
-                string intStr = "INSERT INTO [PM].[dbo].[PmInfo]([projectCode],[customerCompanyFull],[customerAbbv],[projectName],[quater],[pmstatus],[Reviewer],[Authun],[databaseName])";
-                intStr = intStr + "VALUES('" + projCode + "','" + customerCompanyFull + "','" + customerCompanyAbbv + "','" + projectName + "','" + quarter + "','In Progess','" + docReviewed + "','" + authun + "','" + databaseNamed + "');";
-                reader.Close();
-                SqlCommand infoInsert = new SqlCommand(intStr, objConn);
-                infoInsert.ExecuteReader();
-
+                dbHelper.InsertPMConfiguration(pminfoObj);
             }
             else
             {
@@ -443,7 +448,44 @@ namespace WebBasePM
             string fileName = DBConfigUpload.FileName.ToString();
             string filePath = Path.Combine(tempPath, fileName);
             DBConfigUpload.PostedFile.SaveAs(Path.Combine(tempPath, fileName));
-            
+
+            string backupDatabaseFile = BackupDatabaseFile.FileName.ToString();
+            string backupDatabaseFilePath = Path.Combine(tempPath, backupDatabaseFile);
+            BackupDatabaseFile.PostedFile.SaveAs(Path.Combine(tempPath, backupDatabaseFile));
+
+            string backupControlFile = BackupControlFile.FileName.ToString();
+            string backupControlFilePath = Path.Combine(tempPath, backupControlFile);
+            BackupControlFile.PostedFile.SaveAs(Path.Combine(tempPath, backupControlFile));
+
+            string backupArcheiveFile = BackupArchieveFile.FileName.ToString();
+            string backupArcheiveFilePath = Path.Combine(tempPath, backupArcheiveFile);
+            BackupArchieveFile.PostedFile.SaveAs(Path.Combine(tempPath, backupArcheiveFile));
+            string backupDBF, backupCFF, backupALF;
+
+            using (TextReader reader = File.OpenText(backupDatabaseFilePath)) {                
+                while ((backupDBF = reader.ReadLine()) != null)
+                {
+                    String.Concat(backupDBF, backupDBF);
+                }
+            }
+
+            using (TextReader reader = File.OpenText(backupDatabaseFilePath))
+            {
+                while ((backupCFF = reader.ReadLine()) != null)
+                {
+                    String.Concat(backupCFF, backupCFF);
+                }
+            }
+
+            using (TextReader reader = File.OpenText(backupArcheiveFilePath))
+            {
+                while ((backupALF = reader.ReadLine()) != null)
+                {
+                    String.Concat(backupALF, backupALF);
+                }
+            }
+            dbHelper.InsertBackupDatabase(projectCode,quarter, backupDBF, backupCFF, backupALF);
+
             SetOfTableList tables = null;
 
             OracleInformation oracleInfo = new OracleInformation();
@@ -460,74 +502,51 @@ namespace WebBasePM
             using (TextReader inFile = File.OpenText(path))
             {
                 tableWord = oracleInfo.readOutputTable(inFile, tables);
-                string database4_1 = "INSERT INTO [PM].[dbo].[DatabaseConfiguration]([projectCode],[projectQuarter],[header],[value])VALUES";
+                List<object[]> database4_1Obj = new List<object[]>();
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
                     if (tableWord.getRow(k)[0].Equals("Temp tablespace size"))
                     {
                         object[] obj1 = (object[])tableWord.getRows()[k];
                         tableListWord obj2 = (tableListWord)obj1[1];
-                        string database4_1_1 = "INSERT INTO [PM].[dbo].[TempTableSize]([projectCode],[projectQuarter],[tempTableSpace],[size])VALUES";
+                        List<object[]> database4_1_1Obj = new List<object[]>();
                         for (int z = 0; z < obj2.getRows().Count; z++)
                         {
                             object[] subDetail = (object[])obj2.getRows()[z];
-                            database4_1_1 = database4_1_1 + "('" + projectCode + "','" + quarter + "','" + subDetail[0].ToString() + "','" + subDetail[1].ToString() + "'),";
+                            database4_1_1Obj.Add(new object[] { subDetail[0].ToString(), subDetail[1].ToString()});
                         }
-                        database4_1_1 = database4_1_1.Substring(0, database4_1_1.Length - 1);
-                        database4_1_1 = database4_1_1 + ";";
-                        objConn.Open();
-                        SqlCommand db4_1_1 = new SqlCommand(database4_1_1, objConn);
-                        db4_1_1.ExecuteNonQuery();
-                        objConn.Close();
+                        dbHelper.InsertTempTableSize(projectCode, quarter, database4_1_1Obj);
                     }
                     else if (tableWord.getRow(k)[0].Equals("Tablespace size"))
                     {
                         object[] obj1 = (object[])tableWord.getRows()[k];
                         tableListWord obj2 = (tableListWord)obj1[1];
-                        string database4_1_2 = "INSERT INTO [PM].[dbo].[TablespaceName]([projectCode],[projectQuarter],[tablespaceName],[size])VALUES";
+                        List<object[]> database4_1_2Obj = new List<object[]>();
                         for (int z = 0; z < obj2.getRows().Count; z++)
                         {
                             object[] subDetail = (object[])obj2.getRows()[z];
-                            database4_1_2 = database4_1_2 + "('" + projectCode + "','" + quarter + "','" + subDetail[0].ToString() + "','" + subDetail[1].ToString() + "'),";
+                            database4_1_2Obj.Add(new object[] { subDetail[0].ToString(), subDetail[1].ToString() });
                         }
-                        database4_1_2 = database4_1_2.Substring(0, database4_1_2.Length - 1);
-                        database4_1_2 = database4_1_2 + ";";
-                        objConn.Open();
-                        SqlCommand db4_1_2 = new SqlCommand(database4_1_2, objConn);
-                        db4_1_2.ExecuteNonQuery();
-                        objConn.Close();
+                        dbHelper.InsertTempTableSize(projectCode, quarter, database4_1_2Obj);
                     }
                     else
                     {
-                        database4_1 = database4_1 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "'),";
+                        database4_1Obj.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1] });
                     }
                 }
-                database4_1 = database4_1.Substring(0, database4_1.Length - 1);
-                database4_1 = database4_1 + ";";
-
-                objConn.Open();
-                SqlCommand db4_1 = new SqlCommand(database4_1, objConn);
-                db4_1.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertDatabaseConfiguration(projectCode, quarter, database4_1Obj);
             }
 
             path = binFolderPath + "/Debug/config/4_2.txt";
             using (TextReader inFile = File.OpenText(path))
             {
                 tableWord = oracleInfo.readOutputTable(inFile, tables);
-                string database4_2 = "INSERT INTO [PM].[dbo].[DatabaseParameter]([projectCode],[projectQuarter],[header],[value])VALUES";
-
+                List<object[]> database4_2Obj = new List<object[]>();
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_2 = database4_2 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "'),";
+                    database4_2Obj.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1] });
                 }
-                database4_2 = database4_2.Substring(0, database4_2.Length - 1);
-                database4_2 = database4_2 + ";";
-
-                objConn.Open();
-                SqlCommand db4_2 = new SqlCommand(database4_2, objConn);
-                db4_2.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertDatabaseParameter(projectCode, quarter, database4_2Obj);
             }
             /*
             path = binFolderPath + "/Debug/config/4_3.txt";
@@ -549,49 +568,37 @@ namespace WebBasePM
 
             }
             */
-
             tableList tableTmp = null;
             tableTmp = tables.getTableList("4_4@Database file@1");
             if (tableTmp != null)
             {
-                string database4_4 = "INSERT INTO [PM].[dbo].[DatabaseFile]([projectCode],[projectQuarter],[tbsName],[fileName],[size],[max],[aut],[inc])VALUES";
+                List<object[]> databaseFileList = new List<object[]>();
                 tableWord = new tableListWord(tableTmp);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_4 = database4_4 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "','" + tableWord.getRow(k)[4] + "','" + tableWord.getRow(k)[5] + "'),";
+                    databaseFileList.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2], tableWord.getRow(k)[3], tableWord.getRow(k)[4], tableWord.getRow(k)[5] });
                 }
-
-                database4_4 = database4_4.Substring(0, database4_4.Length - 1);
-                database4_4 = database4_4 + ";";
-                objConn.Open();
-                SqlCommand db4_4 = new SqlCommand(database4_4, objConn);
-                db4_4.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertDatabaseFile(projectCode, quarter, databaseFileList);
             }
 
             tableTmp = null;
             tableTmp = tables.getTableList("4_5@Temp file@1");
             if (tableTmp != null)
             {
-                string database4_5 = "INSERT INTO [PM].[dbo].[TempFile]([projectCode],[projectQuarter],[tbsName],[fileName],[size],[max],[aut],[inc]) VALUES";
+                List<object[]> tempFileList = new List<object[]>();
                 tableWord = new tableListWord(tableTmp);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_5 = database4_5 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "','" + tableWord.getRow(k)[4] + "','" + tableWord.getRow(k)[5] + "'),";
+                    tempFileList.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2], tableWord.getRow(k)[3], tableWord.getRow(k)[4], tableWord.getRow(k)[5] });
                 }
-                database4_5 = database4_5.Substring(0, database4_5.Length - 1);
-                database4_5 = database4_5 + ";";
-                objConn.Open();
-                SqlCommand db4_5 = new SqlCommand(database4_5, objConn);
-                db4_5.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertTempFile(projectCode, quarter, tempFileList);
             }
 
             tableTmp = null;
             tableTmp = tables.getTableList("4_6@Redo log file@1");
             if (tableTmp != null)
             {
-                string database4_6 = "INSERT INTO [PM].[dbo].[RedoLogFile]([projectCode],[projectQuarter],[groupMember],[member],[size]) VALUES";
+                List<object[]> redoLogList = new List<object[]>();
                 tableWord = new tableListWord(tableTmp);
 
                 /// Convert B to MB (***warning: available only MB is string that represent integer)
@@ -601,76 +608,53 @@ namespace WebBasePM
                     if (rowTmp[2] is string)
                     {
                         rowTmp[2] = (float.Parse((string)(rowTmp[2])) / (1024 * 1024)).ToString();
-                        database4_6 = database4_6 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + rowTmp[2] + "'),";
+                        redoLogList.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], rowTmp[2]});
                     }
                     else
                     {
-                        database4_6 = database4_6 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "'),";
+                        redoLogList.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2] });
                     }
                 }
-                database4_6 = database4_6.Substring(0, database4_6.Length - 1);
-                database4_6 = database4_6 + ";";
-                objConn.Open();
-                SqlCommand db4_6 = new SqlCommand(database4_6, objConn);
-                db4_6.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertRedoLogFile(projectCode, quarter, redoLogList);
             }
 
             tableTmp = null;
             tableTmp = tables.getTableList("4_7@Controlfile@1");
             if (tableTmp != null)
             {
-                string database4_7 = "INSERT INTO [PM].[dbo].[ControlFile]([projectCode],[projectQuarter],[controlFileName]) VALUES";
+                List<object> controlFileList = new List<object>();
                 tableWord = new tableListWord(tableTmp);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_7 = database4_7 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "'),";
+                    controlFileList.Add(tableWord.getRow(k)[0]);
                 }
-                database4_7 = database4_7.Substring(0, database4_7.Length - 1);
-                database4_7 = database4_7 + ";";
-                objConn.Open();
-                SqlCommand db4_7 = new SqlCommand(database4_7, objConn);
-                db4_7.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertControlFile(projectCode, quarter, controlFileList);
             }
 
             tableTmp = null;
             tableTmp = tables.getTableList("4_8@Jobs@1");
             if (tableTmp != null)
             {
-                string database4_8 = "INSERT INTO [PM].[dbo].[DailyCalendarWorksheet]([projectCode],[projectQuarter],[timeDay],[descOfHouse],[estimatedDuration]) VALUES";
-
+                List<object[]> dailyList = new List<object[]>();
                 int[] indexA = { 1024, 3, 1024 };
                 tableWord = new tableListWord(tableTmp, indexA);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_8 = database4_8 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "'),";
+                    dailyList.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2] });
                 }
-                database4_8 = database4_8.Substring(0, database4_8.Length - 1);
-                database4_8 = database4_8 + ";";
-                objConn.Open();
-                SqlCommand db4_8 = new SqlCommand(database4_8, objConn);
-                db4_8.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertDiaryWorksheet(projectCode, quarter, dailyList);
             }
 
             path = binFolderPath + "/Debug/config/4_9.txt";
             using (TextReader inFile = File.OpenText(path))
             {
                 tableWord = oracleInfo.readOutputTable(inFile, tables);
-                string database4_9 = "INSERT INTO [PM].[dbo].[MonthlyCalendarWorksheet]([projectCode],[projectQuarter],[dayProject],[descpOfHouse],[estimatedDur]) VALUES";
-
+                List<object[]> monthLyList = new List<object[]>();
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database4_9 = database4_9 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "'),";
+                    monthLyList.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2] });
                 }
-                database4_9 = database4_9.Substring(0, database4_9.Length - 1);
-                database4_9 = database4_9 + ";";
-
-                objConn.Open();
-                SqlCommand db4_9 = new SqlCommand(database4_9, objConn);
-                db4_9.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertMonthlyWorksheet(projectCode, quarter, monthLyList);
             }
 
             //////////////////////////////////////////////////////////    O5    ////////////////////////////////////////////////////////// 
@@ -679,7 +663,7 @@ namespace WebBasePM
             using (TextReader inFile = File.OpenText(path))
             {
                 tableWord = oracleInfo.readOutputTable(inFile, tables);
-                string database5_1 = "INSERT INTO [PM].[dbo].[performanceReview]([projectCode],[projectQuarter],[header],[value]) VALUES";
+                List<object[]> performanceReview = new List<object[]>();
 
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
@@ -687,130 +671,102 @@ namespace WebBasePM
                     {
                         object[] obj1 = (object[])tableWord.getRows()[k];
                         tableListWord obj2 = (tableListWord)obj1[1];
-                        string database5_1_1 = "INSERT INTO [PM].[dbo].[getHitRatio]([projectCode],[projectQuarter],[nameSpace],[getHitRatio]) VALUES";
+                        List<object[]> hitRatioList = new List<object[]>();
                         for (int z = 0; z < obj2.getRows().Count; z++)
                         {
                             object[] subDetail = (object[])obj2.getRows()[z];
-                            database5_1_1 = database5_1_1 + "('" + projectCode + "','" + quarter + "','" + subDetail[0].ToString() + "','" + subDetail[1].ToString() + "'),";
+                            hitRatioList.Add(new object[] {subDetail[0].ToString(), subDetail[1].ToString()});
                         }
-
-                        database5_1_1 = database5_1_1.Substring(0, database5_1_1.Length - 1);
-                        database5_1_1 = database5_1_1 + ";";
-                        objConn.Open();
-                        SqlCommand db5_1_1 = new SqlCommand(database5_1_1, objConn);
-                        db5_1_1.ExecuteNonQuery();
-                        objConn.Close();
+                        dbHelper.InsertHitRatio(projectCode, quarter, hitRatioList);
                     }
                     else if (k == 1)
                     {
                         object[] obj1 = (object[])tableWord.getRows()[k];
                         tableListWord obj2 = (tableListWord)obj1[1];
-                        string database5_1_2 = "INSERT INTO [PM].[dbo].[PinRatio]([projectCode],[projectQuarter],[execution],[cacheMisses],[sumPin]) VALUES";
+                        List<object[]> pinRatioList = new List<object[]>();
                         for (int z = 0; z < obj2.getRows().Count; z++)
                         {
                             object[] subDetail = (object[])obj2.getRows()[z];
-                            database5_1_2 = database5_1_2 + "('" + projectCode + "','" + quarter + "','" + subDetail[0].ToString() + "','" + subDetail[1].ToString() + "','" + subDetail[1].ToString() + "'),";
-
+                            pinRatioList.Add(new object[] {subDetail[0].ToString(), subDetail[1].ToString(), subDetail[2].ToString() });
                         }
-                        database5_1_2 = database5_1_2.Substring(0, database5_1_2.Length - 1);
-                        database5_1_2 = database5_1_2 + ";";
-                        objConn.Open();
-                        SqlCommand db5_1_2 = new SqlCommand(database5_1_2, objConn);
-                        db5_1_2.ExecuteNonQuery();
-                        objConn.Close();
+                        dbHelper.InsertHitRatio(projectCode, quarter, pinRatioList);
                     }
                     else if (k == 14)
                     {
                         object[] obj1 = (object[])tableWord.getRows()[k];
                         tableListWord obj2 = (tableListWord)obj1[1];
-                        string database5_1_3 = "INSERT INTO [PM].[dbo].[undoSegmentsSize]([projectCode],[projectQuarter],[amount],[segmentType],[size])  VALUES";
+                        List<object[]> undoList = new List<object[]>();
                         for (int z = 0; z < obj2.getRows().Count; z++)
                         {
                             object[] subDetail = (object[])obj2.getRows()[z];
-                            database5_1_3 = database5_1_3 + "('" + projectCode + "','" + quarter + "','" + subDetail[0].ToString() + "','" + subDetail[1].ToString() + "','" + subDetail[2].ToString() + "'),";
+                            undoList.Add(new object[] { subDetail[0].ToString(), subDetail[1].ToString(), subDetail[2].ToString() });
                         }
-                        database5_1_3 = database5_1_3.Substring(0, database5_1_3.Length - 1);
-                        database5_1_3 = database5_1_3 + ";";
-                        objConn.Open();
-                        SqlCommand db5_1_3 = new SqlCommand(database5_1_3, objConn);
-                        db5_1_3.ExecuteNonQuery();
-                        objConn.Close();
+                        dbHelper.InsertUndoSegmentsSize(projectCode, quarter, undoList);
                     }
                     else
                     {
-                        database5_1 = database5_1 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "'),";
+                        performanceReview.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1] });
                     }
                 }
-                database5_1 = database5_1.Substring(0, database5_1.Length - 1);
-                database5_1 = database5_1 + ";";
-
-                objConn.Open();
-                SqlCommand db5_1 = new SqlCommand(database5_1, objConn);
-                db5_1.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertPerformanceReview(projectCode, quarter, performanceReview);
             }
 
-            //////////////////////////////////////////////////////////    O6    ////////////////////////////////////////////////////////// 
+            // Table fress space.
             tableTmp = null;
             tableTmp = tables.getTableList("6_1@Table free space@1");
             if (tableTmp != null)
             {
-                string database6_1 = "INSERT INTO [PM].[dbo].[TablespaceFreespace]([projectCode],[projectQuarter],[tablespaceName],[maxBlocks],[countBlock],[sumFreeBlock],[pct_free]) VALUES";
                 tableWord = new tableListWord(tableTmp);
+                List<object[]> list = new List<object[]>();
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database6_1 = database6_1 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "','" + tableWord.getRow(k)[4] + "'),";
+                    list.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2], tableWord.getRow(k)[3], tableWord.getRow(k)[4] });
                 }
-
-                database6_1 = database6_1.Substring(0, database6_1.Length - 1);
-                database6_1 = database6_1 + ";";
-                objConn.Open();
-                SqlCommand db6_1 = new SqlCommand(database6_1, objConn);
-                db6_1.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertTablespaceFreespace(projectCode, quarter, list);
             }
 
-            //////////////////////////////////////////////////////////    O7    ////////////////////////////////////////////////////////// 
-
+            // Temptable and tablespace
             tableTmp = null;
             tableTmp = tables.getTableList("7_1@default tbs/temp per user@1");
             if (tableTmp != null)
             {
-                string database7_1 = "INSERT INTO [PM].[dbo].[TablespaceAndTempTablespace]([projectCode],[projectQuarter],[userName],[defaultTablespace],[temporaryTablespace]) VALUES";
+                List<object[]> list = new List<object[]>();
                 tableWord = new tableListWord(tableTmp);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database7_1 = database7_1 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "'),";
+                    list.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2]});
                 }
-                database7_1 = database7_1.Substring(0, database7_1.Length - 1);
-                database7_1 = database7_1 + ";";
-                objConn.Open();
-                SqlCommand db7_1 = new SqlCommand(database7_1, objConn);
-                db7_1.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertTablespaceAndTempTablespace(projectCode, quarter, list);
             }
 
-            //////////////////////////////////////////////////////////    O8    ////////////////////////////////////////////////////////// 
-
+            // Database registration Insert.
             tableTmp = null;
             tableTmp = tables.getTableList("8_1@dba registry@1");
             if (tableTmp != null)
             {
-                string database8_1 = "INSERT INTO [PM].[dbo].[DatabaseRegistry]([projectCode],[projectQuarter],[compId],[version],[status],[lastModified]) VALUES";
+                List<object[]> list = new List<object[]>();
                 tableWord = new tableListWord(tableTmp);
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
-                    database8_1 = database8_1 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "','" + tableWord.getRow(k)[2] + "','" + tableWord.getRow(k)[3] + "'),";
+                    list.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1], tableWord.getRow(k)[2], tableWord.getRow(k)[3] });
                 }
-                database8_1 = database8_1.Substring(0, database8_1.Length - 1);
-                database8_1 = database8_1 + ";";
-                objConn.Open();
-                SqlCommand db8_1 = new SqlCommand(database8_1, objConn);
-                db8_1.ExecuteNonQuery();
-                objConn.Close();
+                dbHelper.InsertDatabaseRegistry(projectCode, quarter, list);
             }
+
+            // Growth Rate Insert.
+            string currentAllocate, currentUsed, allocateGrowth, useGrowth;
+            currentAllocate = currAlloc.Text;
+            currentUsed = usedAlloc.Text;
+            allocateGrowth = allocGrowth.Text;
+            useGrowth = usedGrowth.Text;
+
+            object[] growthRateList = new object[] { currentAllocate, currentUsed, allocateGrowth, useGrowth };
+            dbHelper.InsertDatabaseGrowthRate(projectCode, quarter, growthRateList);
+
+
+
             //Delete Folder temp.
-            Directory.Delete(tempPath);
+            Directory.Delete(tempPath,true);
         }
 
         // Searching funtion that need environment list and keyword it will return value
@@ -831,6 +787,7 @@ namespace WebBasePM
             }
             return result;
         }
+        
         // Searching funtion that need Hardware list and keyword it will return value
         public string searchTextEnvironment(List<Hardware> list, string keyword)
         {
@@ -931,6 +888,7 @@ namespace WebBasePM
         {
             return value.ToString("yyyyMMddHHmmssffff");
         }
+        
         // Search information by project code. (Optional Choice)
         protected void srhProjCode_Click(object sender, EventArgs e)
         {
@@ -1026,10 +984,10 @@ namespace WebBasePM
             string osPath = OSInput.Text;
 
             osConfigGen(osPath);
-            //projectCode = projCodeInput.Text;
-            //quarter = quarterInput.Text;
-            //databaseConfigGen(projectCode, quarter);  
-            //pmInfoConfig();
+            projectCode = projCodeInput.Text;
+            quarter = quarterInput.Text;
+            databaseConfigGen(projectCode, quarter);  
+            pmInfoConfig();
         }
 
         // Function that get person information and Insert to database.
