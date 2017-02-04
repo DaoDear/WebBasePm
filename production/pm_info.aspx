@@ -156,9 +156,6 @@
                                                   <li role="presentation" class="">
                                                       <a href="#tab_content12" role="tab" id="profile-tab11" data-toggle="tab" aria-expanded="false">11</a>
                                                   </li>
-                                                  <li role="presentation" class="">
-                                                      <a href="#tab_content13" role="tab" id="profile-tab12" data-toggle="tab" aria-expanded="false">12</a>
-                                                  </li>
                                               </ul>
                                               <!-- End Head Tab -->
                                               <!-- Content on Tab -->
@@ -663,47 +660,21 @@
                                                       <!-- 5.1 -->
                                                       <h5><b>5.1 Performance Review</b></h5>
                                                       <asp:Table ID="perfReview" runat="server" CssClass ="table table-striped table-bordered">
-                                                                <asp:TableHeaderRow>
-                                                                    <asp:TableHeaderCell>Information Required to Tune Memory Allocation</asp:TableHeaderCell>
-                                                                    <asp:TableHeaderCell>Answer</asp:TableHeaderCell>
-                                                                </asp:TableHeaderRow>
-                                                                </asp:Table> 
-                                                     
-                                                      <!-- End 5.1 -->
-                                                      <!-- 5.2 -->
+                                                        <asp:TableHeaderRow>
+                                                            <asp:TableHeaderCell>Information Required to Tune Memory Allocation</asp:TableHeaderCell>
+                                                            <asp:TableHeaderCell>Answer</asp:TableHeaderCell>
+                                                        </asp:TableHeaderRow>
+                                                      </asp:Table> 
                                                       <h5><b>5.2 Database Growth Rate</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b></b></th>
-                                                                  <th><b>Values</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td><b>Instance Name</b></td>
-                                                                  <td> .. </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End 5.2 -->
-                                                      <!-- 5.3 -->
-                                                      <h5><b>5.3 Performance Analysis</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b></b></th>
-                                                                  <th><b>Values</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td><b>Instance Name</b></td>
-                                                                  <td> .. </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End 5.3 -->
+                                                         <asp:Chart ID="Chart1" runat="server">
+                                                              <Series>
+                                                                  <asp:Series Name="Series1"></asp:Series>
+                                                              </Series>
+                                                              <ChartAreas>
+                                                                  <asp:ChartArea Name="ChartArea1">
+                                                                  </asp:ChartArea>
+                                                              </ChartAreas>
+                                                          </asp:Chart>
                                                   </div>
                                                   <!-- End Tab 5 -->
                                                   <!-- Tab 6 -->
@@ -882,22 +853,6 @@
                                                       <!-- End Backup Controlfile -->
                                                   </div>
                                                   <!-- End Tab 11 -->
-                                                  <!-- Tab 12 -->
-                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content13" aria-labelledby="profile-tab">
-                                                      <h4><b>12. Chart</b></h4>
-                                                      <!-- Backup Database -->
-                                                      <h5><b>Chart</b></h5>
-                                                       <asp:Chart ID="Chart1" runat="server">
-                                                          <Series>
-                                                              <asp:Series Name="Series1"></asp:Series>
-                                                          </Series>
-                                                          <ChartAreas>
-                                                              <asp:ChartArea Name="ChartArea1">
-                                                              </asp:ChartArea>
-                                                          </ChartAreas>
-                                                      </asp:Chart>
-                                                  </div>
-                                                  <!-- End Tab 12 -->
                                               </div>
                                               <!-- End Content on Tab -->
                                           </div>

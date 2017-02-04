@@ -21,7 +21,7 @@ namespace WebBasePM
         }
                 
 
-        public Object[] GetSingleQueryObject(string query) {
+        public object[] GetSingleQueryObject(string query) {
             Object[] rowObject;
             SqlCommand commandObject;
             SqlDataReader reader;
@@ -47,6 +47,38 @@ namespace WebBasePM
             connectionObject.Close();            
 
             return rowObject;
+        }
+
+        public List<object[]> GetMultiQueryObject(string query)
+        {
+            List<object[]> rowsObject = new List<object[]>();
+            SqlCommand commandObject;
+            SqlDataReader reader;
+
+            connectionObject.Open();
+            commandObject = new SqlCommand(query, connectionObject);
+            reader = commandObject.ExecuteReader();
+            if (reader.HasRows)
+            {
+                int cols = reader.FieldCount;
+                while (reader.Read())
+                {
+                    object[] row = new object[cols];
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        row[i] = reader[i].ToString();
+                    }
+                    rowsObject.Add(row);
+                }
+            }
+            else
+            {
+                rowsObject = null;
+            }
+            reader.Close();
+            connectionObject.Close();
+
+            return rowsObject;
         }
 
         public void GetQueryInsertCommand(string query)
