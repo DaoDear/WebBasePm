@@ -12,9 +12,6 @@ namespace WebBasePM
     public partial class ProductionGenerator : System.Web.UI.Page
     {
         protected DatabaseHelper dbHelper;
-        string strConnString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
-        SqlConnection objConn;
-        SqlCommand objCmd;
         bool globalChk = false;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -41,6 +38,7 @@ namespace WebBasePM
         /* Function that generate the os information it need OS Path. 
         *  Use this function as a test.
         */
+
         [TestCase("D:\\oracle")]
         public void osConfigGen(string osPath)
         {
@@ -421,13 +419,9 @@ namespace WebBasePM
             string databaseNamed = databaseName.Text;
             object[] pminfoObj = new object[] { projCode, customerCompanyFull, customerCompanyAbbv, projectName, quarter, docReviewed,authun, databaseNamed };
 
-            string projectCodeQuery = "SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';";
-            objConn = new SqlConnection(strConnString);
-            SqlDataReader reader;
-            objCmd = new SqlCommand(projectCodeQuery, objConn);
-            objConn.Open();
-            reader = objCmd.ExecuteReader();
-            if (!reader.HasRows)
+            object[] projectCodeObj = dbHelper.GetSingleQueryObject("SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';");
+           
+            if (projectCodeObj != null)
             {
                 dbHelper.InsertPMConfiguration(pminfoObj);
             }
@@ -435,8 +429,7 @@ namespace WebBasePM
             {
                 globalChk = true;
             }
-
-            objConn.Close();
+            
         }// End of PM configuration
         
         // Function that set and get Database config file and insert to database.
@@ -487,9 +480,7 @@ namespace WebBasePM
             dbHelper.InsertBackupDatabase(projectCode,quarter, backupDBF, backupCFF, backupALF);
 
             SetOfTableList tables = null;
-
             OracleInformation oracleInfo = new OracleInformation();
-            objConn = new SqlConnection(strConnString);
 
             using (TextReader logFile = File.OpenText(filePath))
             {
@@ -892,87 +883,7 @@ namespace WebBasePM
         // Search information by project code. (Optional Choice)
         protected void srhProjCode_Click(object sender, EventArgs e)
         {
-            string projCode = projCodeInput.Text;
-            custComFull.Text = "";
-            custComAbbv.Text = "";
-            string projectCodeQuery = "SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';";
-            objConn = new SqlConnection(strConnString);
-            SqlDataReader reader;
-            objCmd = new SqlCommand(projectCodeQuery, objConn);
-            objConn.Open();
-            reader = objCmd.ExecuteReader();
-            if (reader.HasRows)
-            {
-                globalChk = true;
-                while (reader.Read())
-                {
-                    if (reader["projectCode"].ToString() == projCode)
-                    {
-                        custComFull.Text = reader["customerCompanyFull"].ToString();
-                        custComAbbv.Text = reader["customerAbbv"].ToString();
-                    }
-                    else
-                    {
-                        custComFull.Text = "None";
-                        custComAbbv.Text = "None";
-                    }
-                }
-
-                CustFName.Text = "";
-                CustLName.Text = "";
-                CustEmail.Text = "";
-                CustPhone.Text = "";
-                SaleFName.Text = "";
-                SaleLName.Text = "";
-                SaleEmail.Text = "";
-                SalePhone.Text = "";
-                EGFName.Text = "";
-                EGLName.Text = "";
-                EGEmail.Text = "";
-                EGPhone.Text = "";
-
-
-                string personInFoQuery = "SELECT Personinfo.*, PmInfo_PersonInfo.* FROM Personinfo JOIN PmInfo_PersonInfo ON Personinfo.personID = PmInfo_PersonInfo.personinfo_personID";
-                objConn = new SqlConnection(strConnString);
-                SqlDataReader readerPerson;
-                objCmd = new SqlCommand(personInFoQuery, objConn);
-                readerPerson = objCmd.ExecuteReader();
-                if (readerPerson.HasRows)
-                {
-                    while (readerPerson.Read())
-                    {
-                        if (readerPerson["personType"].ToString().Equals("customer"))
-                        {
-                            CustFName.Text = readerPerson["personName"].ToString();
-                            CustLName.Text = readerPerson["personLastName"].ToString();
-                            CustEmail.Text = readerPerson["personPhone"].ToString();
-                            CustPhone.Text = readerPerson["customerCompanyFull"].ToString();
-                        }
-                        else if (readerPerson["personType"].ToString().Equals("sale"))
-                        {
-                            SaleFName.Text = readerPerson["personName"].ToString();
-                            SaleLName.Text = readerPerson["personLastName"].ToString();
-                            SaleEmail.Text = readerPerson["personPhone"].ToString();
-                            SalePhone.Text = readerPerson["customerCompanyFull"].ToString();
-                        }
-                        else if (readerPerson["personType"].ToString().Equals("engineer"))
-                        {
-                            EGFName.Text = readerPerson["personName"].ToString();
-                            EGLName.Text = readerPerson["personLastName"].ToString();
-                            EGEmail.Text = readerPerson["personPhone"].ToString();
-                            EGPhone.Text = readerPerson["customerCompanyFull"].ToString();
-                        }
-                    }
-                }
-            }
-            else
-            {
-                globalChk = false;
-            }
-
-
-            reader.Close();
-            objConn.Close();
+           
         }
 
         // Finish function will call stack of function work.
@@ -993,29 +904,7 @@ namespace WebBasePM
         // Function that get person information and Insert to database.
         public void personInfoConfig()
         {
-            string projCode = projCodeInput.Text;
-            string quarter = quarterInput.Text;
-            string cusName = CustFName.Text;
-            string cusLName = CustLName.Text;
-            string cusEmail = CustEmail.Text;
-            string cusPhone = CustPhone.Text;
-            string saleName = SaleFName.Text;
-            string saleLName = SaleLName.Text;
-            string saleEmail = SaleEmail.Text;
-            string salePhone = SalePhone.Text;
-            string enName = EGFName.Text;
-            string enLName = EGLName.Text;
-            string enEmail = EGEmail.Text;
-            string enPhone = EGPhone.Text;
 
-            string infPerson = "INSERT INTO [PM].[dbo].[Personinfo]([projectCode],[projectQuarter],[personName],[personLastName],[personEmail],[personPhone],[personType]) VALUES";
-            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + cusName + "','" + cusLName + "','" + cusEmail + "','" + cusPhone + "','customer'),";
-            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + saleName + "','" + saleLName + "','" + saleEmail + "','" + salePhone + "','sale'),";
-            infPerson = infPerson + "('" + projCode + "'+'" + quarter + "'+'" + enName + "','" + enLName + "','" + enEmail + "','" + enPhone + "','engineer'),";
-            objConn.Open();
-            SqlCommand infoInsert = new SqlCommand(infPerson, objConn);
-            infoInsert.ExecuteNonQuery();
-            objConn.Close();
         }
             
         // Function that check conditation to trap the special symbol use in OSGenerator and DBGenerator.

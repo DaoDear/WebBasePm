@@ -17,6 +17,12 @@ public partial class production_index : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        /*
+        if (Session["personID"] == null) {
+            Response.Redirect("Login.aspx");
+        }
+        */
+
         string strConnString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
         objConn = new SqlConnection(strConnString);
         objConn.Open();
