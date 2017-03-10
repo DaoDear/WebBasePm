@@ -1,8 +1,0 @@
-4.3 Memory options Configuration
-What?	Values
-55	45
-AWE Enable	"%E"PM@MSSQL@sp_configure@0@awe enabled@4@0@No-Yes-Unknown;
-Minimum Server Memory (MB)	"%s"PM@MSSQL@sp_configure@min server memory (MB)@4;
-Maximum Server Memory (MB)	"%s"PM@MSSQL@sp_configure@max server memory (MB)@4;
-Index Creation Memory	"%s"PM@MSSQL@sp_configure@index create memory (KB)@4;
-Minimum memory per query (in KB)	"%s"PM@MSSQL@sp_configure@min memory per query (KB)@4;

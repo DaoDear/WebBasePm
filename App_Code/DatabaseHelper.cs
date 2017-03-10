@@ -12,6 +12,7 @@ namespace WebBasePM
     public class DatabaseHelper
     {
         protected string connectionString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
+        //protected string connectionString = "Server=localhost;Uid=pmreport_admin;PASSWORD=^wRpa814;database=pmreport_pm;Max Pool Size=400;Connect Timeout=600;";
         protected SqlConnection connectionObject;
 
 
@@ -54,7 +55,6 @@ namespace WebBasePM
             List<object[]> rowsObject = new List<object[]>();
             SqlCommand commandObject;
             SqlDataReader reader;
-
             connectionObject.Open();
             commandObject = new SqlCommand(query, connectionObject);
             reader = commandObject.ExecuteReader();
@@ -97,10 +97,45 @@ namespace WebBasePM
             string projectQuarter = projectQuarterStr;
             SqlCommand commandObject;
 
-            string environment = "INSERT INTO [PM].[dbo].[UserEnvironment]([projectCode],[projectQuarter],[header],[value]) VALUES ";
-            environment += environment + "('" + projectCode + "','" + projectQuarter + "','" + backupCF + "','" + backupAL + "','" + backupDB + "'),";
+            string backup = "INSERT INTO [PM].[dbo].[backupfile]([projectCode],[projectQuarter],[backupControlFile],[backupAchieve],[backupDatafile]) VALUES ";
+            backup += "('" + projectCode + "','" + projectQuarter + "','" + backupCF + "','" + backupAL + "','" + backupDB + "');";
+            connectionObject.Open();
+            commandObject = new SqlCommand(backup, connectionObject);
+            commandObject.ExecuteNonQuery();
+            connectionObject.Close();
+        }
+
+        public void InsertAlert(string projectCodeStr, string projectQuarterStr, string text)
+        {
+            string projectCode = projectCodeStr;
+            string projectQuarter = projectQuarterStr;
+            SqlCommand commandObject;
+
+
+            string environment = "INSERT INTO [PM].[dbo].[alert]([projectCode],[projectQuarter],[text]) values ";           
+            environment += "('" + projectCode + "','" + projectQuarter + "','" +  text + "');";          
             connectionObject.Open();
             commandObject = new SqlCommand(environment, connectionObject);
+            commandObject.ExecuteNonQuery();
+            connectionObject.Close();
+        }
+
+        public void InsertAlertLog(string projectCodeStr, string projectQuarterStr, List<object[]> list)
+        {
+            string projectCode = projectCodeStr;
+            string projectQuarter = projectQuarterStr;
+            SqlCommand commandObject;
+
+            string alertLog = "INSERT INTO [PM].[dbo].[AlertLog]([projectCode],[projectQuarter],[keyword],[fileSystem],[mbBlocks],[free],[percentUsed],[iUsed],[percentIUsed],[mountedOn])VALUES";
+            for (int i = 0; i < list.Count; i++)
+            {
+                alertLog = alertLog + "('" + projectCode + "','" + projectQuarter + "','" + (list[i])[0] + "','" + (list[i])[1] + "','" + (list[i])[2] + "','" + (list[i])[3]  + "'),";
+            }
+
+            alertLog = alertLog.Substring(0, alertLog.Length - 1);
+            alertLog = alertLog + ";";
+            connectionObject.Open();
+            commandObject = new SqlCommand(alertLog, connectionObject);
             commandObject.ExecuteNonQuery();
             connectionObject.Close();
         }

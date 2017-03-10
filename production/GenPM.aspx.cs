@@ -5,7 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using NUnit.Framework;
+using System.Text.RegularExpressions;
+using System.Net;
+using System.Text;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace WebBasePM
 {
@@ -35,11 +39,7 @@ namespace WebBasePM
             thread.Abort();            
         }
 
-        /* Function that generate the os information it need OS Path. 
-        *  Use this function as a test.
-        */
 
-        [TestCase("D:\\oracle")]
         public void osConfigGen(string osPath)
         {
             // Get the initial value for the project.
@@ -402,7 +402,7 @@ namespace WebBasePM
             catch (Exception ex) {
                 Console.Write(ex);
             }
-            Assert.True(true);
+           
 
         }// End of OS Generator.
 
@@ -431,7 +431,7 @@ namespace WebBasePM
             }
             
         }// End of PM configuration
-        
+
         // Function that set and get Database config file and insert to database.
         public void databaseConfigGen(string projectCode, string quarter)
         {
@@ -455,7 +455,11 @@ namespace WebBasePM
             BackupArchieveFile.PostedFile.SaveAs(Path.Combine(tempPath, backupArcheiveFile));
             string backupDBF, backupCFF, backupALF;
 
-            using (TextReader reader = File.OpenText(backupDatabaseFilePath)) {                
+            string alertFile = AlertLogFile.FileName.ToString();
+            string alertFilePath = Path.Combine(tempPath, alertFile);
+            AlertLogFile.PostedFile.SaveAs(Path.Combine(tempPath, alertFile));
+
+            using (TextReader reader = File.OpenText(backupDatabaseFilePath)) {
                 while ((backupDBF = reader.ReadLine()) != null)
                 {
                     String.Concat(backupDBF, backupDBF);
@@ -477,7 +481,64 @@ namespace WebBasePM
                     String.Concat(backupALF, backupALF);
                 }
             }
-            dbHelper.InsertBackupDatabase(projectCode,quarter, backupDBF, backupCFF, backupALF);
+            dbHelper.InsertBackupDatabase(projectCode, quarter, backupDBF, backupCFF, backupALF);
+
+            string alertLog;
+            List<object> alertObj = new List<object>();
+            using (TextReader reader = File.OpenText(alertFilePath))
+            {
+                while ((alertLog = reader.ReadLine()) != null)
+                {
+                    string pattern = @"ora-\d{5}:";
+                    //alertObj.Add(alertLog);
+                    Match m = Regex.Match(alertLog, pattern, RegexOptions.IgnoreCase);
+                    if (m.Success) {
+                        alertObj.Add(alertLog);
+                    }
+
+                }
+            }
+            string postData = "  {\"searchSet\" : [";
+            for (int al = 0; al < alertObj.Count(); al++) {
+                postData += "{\"searchKey\" : \"" + alertObj[al].ToString() + "\"}";
+                if (al != alertObj.Count() - 1) {
+                    postData += ",";
+                }
+            }
+            postData += "]}";
+            
+            WebRequest request = WebRequest.Create("http://localhost:3000/api/v1/findByOraId");
+            request.Method = "POST";           
+            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+            request.ContentType = "application/json";
+            request.ContentLength = byteArray.Length;
+            Stream dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+            WebResponse response = request.GetResponse();
+            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            dataStream = response.GetResponseStream();
+            StreamReader reader1 = new StreamReader(dataStream);
+            string responseFromServer = reader1.ReadToEnd();
+            Console.WriteLine(responseFromServer);
+            dbHelper.InsertAlert(projectCode, quarter, responseFromServer);
+
+            Root jsonObject = JsonConvert.DeserializeObject<Root>(responseFromServer);
+
+            List<object[]> alertList = new List<object[]>();
+
+            for (int ai = 0; ai < jsonObject.RootWord.Count; ai++)
+            {
+                for (int aj = 0; aj < jsonObject.RootWord[ai].Results[0].ObjResults.Count(); aj++)
+                {
+                    alertList.Add(new object[] { jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score });
+                    Console.WriteLine("Keysearch: {0} \n action: {1} \n caused: ({2} \n Score : {3} \n\n", jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score);
+                }
+            }
+            reader1.Close();
+            dataStream.Close();
+            response.Close();
+            dbHelper.InsertAlertLog(projectCode, quarter, alertList);
 
             SetOfTableList tables = null;
             OracleInformation oracleInfo = new OracleInformation();
@@ -539,26 +600,7 @@ namespace WebBasePM
                 }
                 dbHelper.InsertDatabaseParameter(projectCode, quarter, database4_2Obj);
             }
-            /*
-            path = binFolderPath + "/Debug/config/4_3.txt";
-            using (TextReader inFile = File.OpenText(path))
-            {
-                tableWord = oracleInfo.readOutputTable(inFile, tables);
-                string database4_3 = "INSERT INTO [PM].[dbo].[MajorSecurityInitailization]([projectCode],[projectQuarter],[header],[value])VALUES";
-                for (int k = 0; k < tableWord.getRowNumber(); k++)
-                {
-                    database4_3 = database4_3 + "('" + projectCode + "','" + quarter + "','" + tableWord.getRow(k)[0] + "','" + tableWord.getRow(k)[1] + "'),";
-                }
-                database4_3 = database4_3.Substring(0, database4_3.Length - 1);
-                database4_3 = database4_3 + ";";
-
-                objConn.Open();
-                //SqlCommand db4_3 = new SqlCommand(database4_3, objConn);
-                //db4_3.ExecuteNonQuery();
-                objConn.Close();
-
-            }
-            */
+   
             tableList tableTmp = null;
             tableTmp = tables.getTableList("4_4@Database file@1");
             if (tableTmp != null)
@@ -798,6 +840,40 @@ namespace WebBasePM
             return result;
         }
 
+        // Alert log Class.
+        public class KeySearch
+        {
+            public string ora_id { get; set; }
+        }
+
+        public class Word
+        {
+            public string caused { get; set; }
+            public string actions { get; set; }
+            public double score { get; set; }
+        }
+
+        public class ObjResult
+        {
+            public IList<Word> word { get; set; }
+        }
+
+        public class Result
+        {
+            public IList<KeySearch> KeySearch { get; set; }
+            public IList<ObjResult> ObjResults { get; set; }
+        }
+
+        public class RootWord
+        {
+            public IList<Result> Results { get; set; }
+        }
+
+        public class Root
+        {
+            public IList<RootWord> RootWord { get; set; }
+        }
+
         // Environment Class.
         public class environment
         {
@@ -891,14 +967,14 @@ namespace WebBasePM
         {
             string projectCode = projCodeInput.Text;
             string quarter = quarterInput.Text;
-
             string osPath = OSInput.Text;
 
-            osConfigGen(osPath);
             projectCode = projCodeInput.Text;
             quarter = quarterInput.Text;
-            databaseConfigGen(projectCode, quarter);  
+
             pmInfoConfig();
+            osConfigGen(osPath);            
+            databaseConfigGen(projectCode, quarter);             
         }
 
         // Function that get person information and Insert to database.
@@ -963,4 +1039,6 @@ namespace WebBasePM
         }
         
     } // End of class.
+
+    
 } // End of namespace.

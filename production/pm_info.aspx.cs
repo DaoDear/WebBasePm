@@ -10,21 +10,13 @@ using System.Web.UI.WebControls;
 using WebBasePM;
 
 public partial class production_pm_info : System.Web.UI.Page
-{
-    
-    SqlConnection objConn;
-    SqlCommand objCmd;
+{   
     string projectCoded = "", projectQuarter = "";
     protected DatabaseHelper dbHelper;
 
     protected void Page_Load(object sender, EventArgs e)
     {
-
-        dbHelper = new DatabaseHelper();
-
-        string strConnString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
-        objConn = new SqlConnection(strConnString);
-        objConn.Open();
+        dbHelper = new DatabaseHelper();       
         string os = "";
         projectCoded = Request.QueryString["project"];
         projectQuarter = Request.QueryString["quarter"];
@@ -666,6 +658,12 @@ public partial class production_pm_info : System.Web.UI.Page
         else
         {
             backupCF.Text = "";
+        }
+
+        Object[] alertObj = dbHelper.GetSingleQueryObject("SELECT * FROM alert WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (alertObj != null)
+        {
+            alertMsg.Text = alertObj[2].ToString();
         }
 
         /*  DATABASE GROWTH RATE  */

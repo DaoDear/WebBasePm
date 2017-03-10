@@ -1,6 +1,0 @@
-bos.adt.base
-bos.adt.lib
-bos.adt.libm
-bos.perf.perfstat
-bos.perf.libperfstat
-bos.perf.proctools

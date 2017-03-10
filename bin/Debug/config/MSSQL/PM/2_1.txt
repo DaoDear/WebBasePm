@@ -1,8 +1,0 @@
-2.1 Checking Server Machine Specification
-	Values
-25	75
-Domainname	"%s"PM@MSSQL@systeminfo@Domain@1;
-Computer Name:	"%s"PM@MSSQL@systeminfo@Host Name@1;
-Full computer name:	"%s"PM@MSSQL@systeminfo@Full computer name@1;
-Workgroup	"%s"PM@MSSQL@systeminfo@Workgroup@1;
-IP Address	"%s"PM@MSSQL@etc@IP Address@1;

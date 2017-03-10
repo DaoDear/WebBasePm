@@ -1,5 +1,0 @@
-
-Component	Path
-45	55
-Shared feature directory	"%s"PM@MSSQL@summarySetting@INSTALLSHAREDDIR@1;
-Shared feature directory(x86)	"%s"PM@MSSQL@summarySetting@INSTALLSHAREDWOWDIR@1;

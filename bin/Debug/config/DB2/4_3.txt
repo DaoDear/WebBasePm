@@ -1,7 +1,0 @@
-4.3 Network Information
-What?	Values?
-45	55
-IP address	"%s"OS@.@etc@IP Address@1;
-TCP/IP Service name	"%s"db2support@DB2CONFIG@dbm.supp_cfg@TCP/IP Service name@2;
-Port number	"%s"OS@.@service@Port number@1;
-FCM port	"%s"OS@.@service@FCM port@1;

@@ -1,8 +1,0 @@
-4.4 Processors Configuration
-What?	Values
-55	45
-Automatically set processor affinity mask for all process	"%E"PM@MSSQL@sp_configure@0@affinity mask@4@|-1@Yes-No-Unknown;	
-Automatically set I/O affinity mask or all processors	"%E"PM@MSSQL@sp_configure@0@affinity I/O mask@4@|-1@Yes-No-Unknown;
-Maximum Worker Threads:	"%s"PM@MSSQL@sp_configure@max worker threads@4;
-Boot SQL Server Priority	"%E"PM@MSSQL@sp_configure@0@priority boost@4@0-1@No-Yes-Unknown;
-Use Windows fibers	"No";

@@ -8,39 +8,22 @@ using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using WebBasePM;
 
 public partial class production_index : System.Web.UI.Page
 {
-    SqlConnection objConn;
-    SqlCommand objCmd;
     string projectCoded = "", projectQuarter = "";
+    DatabaseHelper databaseHelper;
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        /*
-        if (Session["personID"] == null) {
-            Response.Redirect("Login.aspx");
-        }
-        */
-
-        string strConnString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
-        objConn = new SqlConnection(strConnString);
-        objConn.Open();
-        projectCoded = "BFSI160002";
-        projectQuarter = "1/2016";
-
-        /* Load */
-        string initShow = "SELECT * FROM PmInfo;";
-        SqlDataReader initShowReader;
-        objCmd = new SqlCommand(initShow, objConn);
-        initShowReader = objCmd.ExecuteReader();
-
-        while (initShowReader.Read())
+        databaseHelper = new DatabaseHelper();
+        List<object[]> docList = databaseHelper.GetMultiQueryObject("SELECT * FROM PmInfo;");
+        /* Load */        
+        for(int i = 0; i < docList.Count; i++)
         {
             TableRow tRow = new TableRow();
-
-            string cmdPrj = initShowReader["projectCode"].ToString() +","+ initShowReader["quater"].ToString();
-
+            string cmdPrj = (docList[i])[0].ToString() +","+ (docList[i])[4].ToString();
             Button viewBtn = new Button();
             viewBtn.Text = "View Report";
             viewBtn.CssClass = "btn btn-success";
@@ -50,13 +33,13 @@ public partial class production_index : System.Web.UI.Page
 
 
             TableCell value1 = new TableCell();
-            value1.Text = initShowReader["databaseName"].ToString();
+            value1.Text = (docList[i])[8].ToString();
             TableCell value2 = new TableCell();
-            value2.Text = initShowReader["customerCompanyFull"].ToString() + "("+ initShowReader["customerAbbv"].ToString()  + ")";
+            value2.Text = (docList[i])[1].ToString() + "("+ (docList[i])[2].ToString()  + ")";
             TableCell value3 = new TableCell();
-            value3.Text = initShowReader["projectCode"].ToString();
+            value3.Text = (docList[i])[0].ToString();
             TableCell value4 = new TableCell();
-            value4.Text = initShowReader["pmstatus"].ToString();
+            value4.Text = (docList[i])[5].ToString();
             TableCell value5 = new TableCell();
             value5.Controls.Add(viewBtn);
 
@@ -68,8 +51,6 @@ public partial class production_index : System.Web.UI.Page
             showPmTable.Rows.Add(tRow);
 
         }
-        initShowReader.Close();
-
     }
 
     protected void RePageDirect(object sender, CommandEventArgs e)
@@ -78,8 +59,6 @@ public partial class production_index : System.Web.UI.Page
         {
             string code = e.CommandArgument.ToString();
             string[] cmd = code.Split(',');
-
-            //ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "alertMessage", "alert('"+ cmd[0].ToString() +" " + cmd[1].ToString() + "')", true);
 
             Response.Redirect("pm_info.aspx?project=" + cmd[0].ToString() + "&quarter=" + cmd[1].ToString());
 

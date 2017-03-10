@@ -1,4 +1,0 @@
-
-Disk usage summary	Values
-40	60
-Drive C:	"";

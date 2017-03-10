@@ -32,32 +32,9 @@
       <div class="login_wrapper">
         <div class="animate form login_form">
           <section class="login_content">
-            <form runat="server">
+            <form name="LoginForm" runat="server">
               <h1>Login Form</h1>
-              <div>
-                <asp:RequiredFieldValidator ID="UsernameRequired" runat="server" ControlToValidate="username" ErrorMessage="Please input username" ForeColor="Red"></asp:RequiredFieldValidator>
-                <asp:TextBox CssClass="form-control" Placeholder="Username" ValidateRequestMode="Enabled" ID="username" runat="server"></asp:TextBox>
-                </div>
-              <div>
-                <asp:RequiredFieldValidator CssClass="form-inline" ID="PasswordRequired" runat="server" ControlToValidate="password" ErrorMessage="Please input password" ForeColor="Red"></asp:RequiredFieldValidator>
-                <asp:TextBox CssClass="form-control" Placeholder="Password" ValidateRequestMode="Enabled" ID="password" runat="server" TextMode="Password"></asp:TextBox>
-                </div>
-              <div>
-                <asp:Button CssClass="btn btn-default" Text="Log in" runat="server" ID="LoginSubmit" OnClick="LoginSubmit_Click" />
-              </div>
-
-              <div class="clearfix"></div>
-
-              <div class="separator">
-                <p class="change_link">New to site?
-                </p>                 
-                <div class="clearfix"></div>
-                <br />
-
-                <div>
-                  <p>©2016 All Rights Reserved. Gentelella Alela! is a Bootstrap 3 template. Privacy and Terms</p>
-                </div>
-              </div>
+                <asp:Login ID = "Login1" runat = "server" OnAuthenticate= "ValidateUser"></asp:Login>
             </form>
           </section>
         </div>        

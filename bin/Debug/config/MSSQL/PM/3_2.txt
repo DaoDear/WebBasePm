@@ -1,5 +1,0 @@
-3.2 Operating configuration
-What	Values
-30	70
-/3gb or PAE is set ?	"";
-Virtual Memory setting	"";

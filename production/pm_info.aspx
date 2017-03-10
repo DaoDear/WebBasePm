@@ -666,7 +666,7 @@
                                                         </asp:TableHeaderRow>
                                                       </asp:Table> 
                                                       <h5><b>5.2 Database Growth Rate</b></h5>
-                                                         <asp:Chart ID="Chart1" runat="server">
+                                                         <asp:Chart ID="Chart1"  runat="server">
                                                               <Series>
                                                                   <asp:Series Name="Series1"></asp:Series>
                                                               </Series>
@@ -789,6 +789,7 @@
                                                               </tr>
                                                           </thead>
                                                           <tbody>
+                                                              <!-- 
                                                               <tr>
                                                                   <td>Message: </td>
                                                               </tr>
@@ -797,6 +798,13 @@
                                                               </tr>
                                                               <tr>
                                                                   <td>Action:</td>
+                                                              </tr>
+                                                                  -->
+                                                               <tr>
+                                                                  <td>Message: </td>
+                                                              </tr>
+                                                               <tr>
+                                                                  <td><asp:Label ID="alertMsg" runat="server"></asp:Label> </td>
                                                               </tr>
                                                           </tbody>
                                                       </table>
