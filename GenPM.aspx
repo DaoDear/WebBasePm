@@ -43,7 +43,7 @@
                             </div>
                             <div class="profile_info">
                                 <span>Welcome,</span>
-                                <h2>John Doe</h2>
+                                <h2><asp:Label ID="nameHeader" runat="server"></asp:Label></h2>
                             </div>
                         </div>
                         <!-- /menu profile quick info -->
@@ -82,7 +82,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="">
                                 <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <img src="images/img.jpg" alt="">John Doe
+                                    <img src="images/img.jpg" alt=""><asp:Label ID="nameHeader2" runat="server"></asp:Label>
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu pull-right">

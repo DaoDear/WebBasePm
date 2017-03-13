@@ -566,5 +566,19 @@ namespace WebBasePM
             commandObject.ExecuteNonQuery();
             connectionObject.Close();
         }
+
+        public void InsertPerson(string projectCodeStr, string projectQuarterStr, object[] list)
+        {
+            string projectCode = projectCodeStr;
+            string projectQuarter = projectQuarterStr;
+            SqlCommand commandObject;
+
+            string personInfo = "INSERT INTO [PM].[dbo].[Personinfo]([projectCode],[projectQuarter],[personID],[personName],[personLastName],[personEmail],[personPhone],[personType]) VALUES";
+            personInfo = personInfo + "('" + projectCode + "','" + projectQuarter + "','" + list[0] + "','" + list[1] + "','" + list[2] + "','" + list[3] + "','" + list[4] + "','" + list[5] + "');";
+            connectionObject.Open();
+            commandObject = new SqlCommand(personInfo, connectionObject);
+            commandObject.ExecuteNonQuery();
+            connectionObject.Close();
+        }
     }
 }

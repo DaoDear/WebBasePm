@@ -20,8 +20,11 @@ public partial class production_index : System.Web.UI.Page
         Session["PreviousPage"] = Request.Url.AbsoluteUri;
 
         if (Session["personID"] == null) {
-            Response.Redirect("Login.aspx");
+            Response.Redirect("Login.aspx");            
         }
+
+        nameHeader.Text = Session["Name"].ToString();
+        nameHeader2.Text = Session["Name"].ToString();
 
 
         databaseHelper = new DatabaseHelper();

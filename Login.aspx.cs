@@ -30,7 +30,7 @@ public partial class production_Login : System.Web.UI.Page
                 Response.Redirect("index.aspx");
             }            
         }
-        Session["PreviousPage"] = Request.Url;
+        
         dbHelper = new DatabaseHelper();
     }
 
@@ -64,8 +64,10 @@ public partial class production_Login : System.Web.UI.Page
             permission = (int)int.Parse(obj[10].ToString());
 
             Session["personID"] = personID;
+            Session["Name"] = firstName + " " + lastName;
+            
             if (Session["PreviousPage"] != null)  //Check if the ViewState 
-                                                    //contains Previous page URL
+                                                  //contains Previous page URL
             {
                 Response.Redirect(Session["PreviousPage"].ToString());
             }

@@ -47,7 +47,7 @@
                                   </div>
                                   <div class="profile_info">
                                       <span>Welcome,</span>
-                                      <h2>John Doe</h2>
+                                      <h2><asp:Label ID="nameHeader" runat="server"></asp:Label></h2>
                                   </div>
                               </div>
                               <!-- /menu profile quick info -->
@@ -86,7 +86,7 @@
                               <ul class="nav navbar-nav navbar-right">
                                   <li class="">
                                       <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                          <img src="images/img.jpg" alt="">John Doe
+                                          <img src="images/img.jpg" alt=""><asp:Label ID="nameHeader2" runat="server"></asp:Label>
                                           <span class=" fa fa-angle-down"></span>
                                       </a>
                                       <ul class="dropdown-menu dropdown-usermenu pull-right">
@@ -112,7 +112,7 @@
                               <div class="col-md-12 col-sm-12 col-xs-12">
                                   <div class="x_panel">
                                       <div class="x_title">
-                                          <h2>BKI DBBKIINS Q2/2016</h2>
+                                          <h2><asp:Label ID="hostTitle" runat="server"></asp:Label></h2>
                                           <div class="clearfix"></div>
                                       </div>
                                       <div class="x_content">
@@ -255,28 +255,16 @@
                                                           <tbody>
                                                               <tr>
                                                                   <td><b>Customer Name</b></td>
-                                                                  <td>K.Kamolporn Wiriyathanagorn</td>
+                                                                  <td><asp:Label ID="cusName" runat="server"></asp:Label></td>
                                                               </tr>
                                                               <tr>
                                                                   <td><b>Phone Number</b></td>
-                                                                  <td>087-797-7733</td>
+                                                                  <td><asp:Label ID="cusPhone" runat="server"></asp:Label></td>
                                                               </tr>
                                                               <tr>
                                                                   <td><b>Email Address</b></td>
-                                                                  <td>kamolporn.w@bangkokinsurance.com</td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td><b>Customer Name</b></td>
-                                                                  <td>K.Preecha Laochamnankit</td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td><b>Phone Number</b></td>
-                                                                  <td>086-703-2434</td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td><b>Email Address</b></td>
-                                                                  <td>preecha.l@bangkokinsurance.com</td>
-                                                              </tr>
+                                                                  <td><asp:Label ID="cusEmail" runat="server"></asp:Label></td>
+                                                              </tr>                                                              
                                                           </tbody>
                                                       </table>
                                                       <!-- End 1.2 -->
@@ -286,15 +274,15 @@
                                                           <tbody>
                                                               <tr>
                                                                   <td><b>Engineer Name</b></td>
-                                                                  <td>K.Supaporn Rattanapan</td>
+                                                                  <td><asp:Label ID="engName" runat="server"></asp:Label></td>
                                                               </tr>
                                                               <tr>
                                                                   <td><b>Phone Number</b></td>
-                                                                  <td>084-160-8910</td>
+                                                                  <td><asp:Label ID="engPhone" runat="server"></asp:Label></td>
                                                               </tr>
                                                               <tr>
                                                                   <td><b>Email Address</b></td>
-                                                                  <td>supaporn_r@mfec.co.th</td>
+                                                                  <td><asp:Label ID="engEmail" runat="server"></asp:Label></td>
                                                               </tr>
                                                           </tbody>
                                                       </table>

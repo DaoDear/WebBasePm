@@ -22,7 +22,11 @@ public partial class production_pm_info : System.Web.UI.Page
         if (Session["personID"] == null)
         {
             Response.Redirect("Login.aspx");
+            
         }
+
+        nameHeader.Text = Session["Name"].ToString();
+        nameHeader2.Text = Session["Name"].ToString();
 
         dbHelper = new DatabaseHelper();       
         string os = "";
@@ -41,10 +45,40 @@ public partial class production_pm_info : System.Web.UI.Page
             }
         }
 
+        object[] pminfo = dbHelper.GetSingleQueryObject("SELECT * FROM PmInfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        hostTitle.Text = pminfo[2] + " " + pminfo[3] + " " + pminfo[4];
+
+        object[] saleObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Sale';");
+        object[] cusObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Customer';");
+        object[] engObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Engineer';");
+
+        projectName.Text = pminfo[3].ToString();
+        projectCode.Text = pminfo[0].ToString();
+        if (saleObj != null)
+        {
+            salePerson.Text = saleObj[3].ToString() + " " + saleObj[4].ToString();
+            salePhone.Text = saleObj[6].ToString();
+            saleEmail.Text = saleObj[5].ToString();
+        }
+
+        if (cusObj != null)
+        {
+            cusName.Text = cusObj[3].ToString() + " " + cusObj[4].ToString();
+            cusPhone.Text = cusObj[6].ToString();
+            cusEmail.Text = cusObj[5].ToString();
+        }
+
+        if (engObj != null)
+        {
+            engName.Text = engObj[3].ToString() + " " + engObj[4].ToString();
+            engPhone.Text = engObj[6].ToString();
+            engEmail.Text = engObj[5].ToString();
+        }
+
         /*  Check server    */
         object[] chkServerObj = dbHelper.GetSingleQueryObject("SELECT * FROM ChkServerMacSpec WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
-        hostname.Text = chkServerObj[2].ToString();
+        hostname.Text  = chkServerObj[2].ToString();
         hostname2.Text = chkServerObj[2].ToString();
         hostname3.Text = chkServerObj[2].ToString();
         hostname4.Text = chkServerObj[2].ToString();

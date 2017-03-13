@@ -24,7 +24,7 @@ namespace WebBasePM
 
             if (!IsPostBack) //check if the webpage is loaded for the first time.
             {
-                ViewState["PreviousPage"] = Request.Url.AbsoluteUri; //Saves the Previous page url in ViewState
+                Session["PreviousPage"] = Request.Url.AbsoluteUri; //Saves the Previous page url in ViewState
             }
 
             if (Session["personID"] == null)
@@ -32,6 +32,8 @@ namespace WebBasePM
                 Response.Redirect("Login.aspx");
             }
 
+            nameHeader.Text = Session["Name"].ToString();
+            nameHeader2.Text = Session["Name"].ToString();
         }
 
         // To open folder.
@@ -989,7 +991,37 @@ namespace WebBasePM
         // Function that get person information and Insert to database.
         public void personInfoConfig()
         {
+            string customerName, customerLastname, customerEmail, customerPhone;
+            string saleName, saleLastname, saleEmail, salePhone;
+            string engineerName, engineerLastname, engineerEmail, engineerPhone,personId;
 
+            string projCode = projCodeInput.Text;
+            string quarter = quarterInput.Text;
+
+            customerName = CustFName.Text;
+            customerLastname = CustLName.Text;
+            customerEmail = CustEmail.Text;
+            customerPhone = CustPhone.Text;
+
+            saleName = SaleFName.Text;
+            saleLastname = SaleLName.Text;
+            saleEmail = SaleEmail.Text;
+            salePhone = SalePhone.Text;
+            personId = Session["personID"].ToString();
+            object[] engineerObj = dbHelper.GetSingleQueryObject("select * from Person where Person_id = " + personId);
+
+            engineerName = engineerObj[2].ToString();
+            engineerLastname = engineerObj[3].ToString();
+            engineerEmail = engineerObj[6].ToString();
+            engineerPhone = engineerObj[7].ToString();
+
+            object[] customerList = new object[] {null, customerName, customerLastname,customerEmail, customerPhone,"Customer"};
+            object[] saleList = new object[] {null, saleName, saleLastname, saleEmail, salePhone, "Sale"};
+            object[] engineerList = new object[] {personId, engineerName, engineerLastname, engineerEmail, engineerPhone, "Engineer"};
+
+            dbHelper.InsertPerson(projCode, quarter, customerList);
+            dbHelper.InsertPerson(projCode, quarter, saleList);
+            dbHelper.InsertPerson(projCode, quarter, engineerList);
         }
             
         // Function that check conditation to trap the special symbol use in OSGenerator and DBGenerator.
