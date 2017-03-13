@@ -149,15 +149,7 @@
                                                             <small>Database Configuration</small>
                                                         </span>
                                                     </a>
-                                                </li>
-                                                <li>
-                                                    <a href="#step-5">
-                                                        <span class="step_no">5</span>
-                                                        <span class="step_descr">Step 5<br />
-                                                            <small>Generate Document</small>
-                                                        </span>
-                                                    </a>
-                                                </li>
+                                                </li>                                                
                                             </ul>
 
                                             <div id="step-1">
@@ -251,25 +243,7 @@
                                                     <div class="col-md-6 col-sm-6 col-xs-12 form-group has-feedback">
                                                         <asp:TextBox ID="SalePhone" runat="server" class="form-control has-feedback-right" placeholder="Phone"></asp:TextBox>
                                                         <span class="fa fa-phone form-control-feedback right" aria-hidden="true"></span>
-                                                    </div>
-
-                                                    <h4><b>Engineer </b></h4>
-                                                    <div class="col-md-6 col-sm-6 col-xs-12 form-group has-feedback">
-                                                        <asp:TextBox ID="EGFName" runat="server" class="form-control has-feedback-left" placeholder="First Name"></asp:TextBox>
-                                                        <span class="fa fa-user form-control-feedback left" aria-hidden="true"></span>
-                                                    </div>
-                                                    <div class="col-md-6 col-sm-6 col-xs-12 form-group has-feedback">
-                                                        <asp:TextBox ID="EGLName" runat="server" class="form-control has-feedback-right" placeholder="Last Name"></asp:TextBox>
-                                                        <span class="fa fa-user form-control-feedback right" aria-hidden="true"></span>
-                                                    </div>
-                                                    <div class="col-md-6 col-sm-6 col-xs-12 form-group has-feedback">
-                                                        <asp:TextBox ID="EGEmail" runat="server" class="form-control has-feedback-left" placeholder="Email"></asp:TextBox>
-                                                        <span class="fa fa-envelope form-control-feedback left" aria-hidden="true"></span>
-                                                    </div>
-                                                    <div class="col-md-6 col-sm-6 col-xs-12 form-group has-feedback">
-                                                        <asp:TextBox ID="EGPhone" runat="server" class="form-control has-feedback-right" placeholder="Phone"></asp:TextBox>
-                                                        <span class="fa fa-phone form-control-feedback right" aria-hidden="true"></span>
-                                                    </div>
+                                                    </div>                                                    
                                                 </div>
                                             </div>
                                             
@@ -366,7 +340,7 @@
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dbback">Backup Archieve</label>
                                                          <div class="col-md-6 col-sm-6 col-xs-12">
                                                             <asp:FileUpload ID="BackupArchieveFile" runat="server" />
-                                                         </div>s
+                                                         </div>
                                                        
                                                     </div>
                                                     <div class="form-group">
@@ -378,28 +352,7 @@
 
                                                 </div>
                                             </div>
-                                            <div id="step-5">
-                                                <div class="form-horizontal form-label-left">
-                                                    <div class="x_title">
-                                                        <h2>Summary Information</h2>
-                                                        <div class="clearfix"></div>
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="doc-aut">Author</span></label>
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            <asp:TextBox ID="docAut" runat="server" CssClass="form-control col-md-7 col-xs-12"></asp:TextBox>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group">
-                                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="doc-review">Reviewer</label>
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            <asp:TextBox ID="docReview" runat="server" CssClass="form-control col-md-7 col-xs-12"></asp:TextBox>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+               
                                              <div style="display: none;">
                                              <asp:Button OnClick="Finish_Click" ID="finishBtn" Text="FINISH" runat="server"  /> 
                                            

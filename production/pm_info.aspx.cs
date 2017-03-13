@@ -16,10 +16,30 @@ public partial class production_pm_info : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+
+        Session["PreviousPage"] = Request.Url.AbsoluteUri;
+
+        if (Session["personID"] == null)
+        {
+            Response.Redirect("Login.aspx");
+        }
+
         dbHelper = new DatabaseHelper();       
         string os = "";
         projectCoded = Request.QueryString["project"];
         projectQuarter = Request.QueryString["quarter"];
+
+        if (projectCoded == null || projectQuarter == null) {
+            if (ViewState["PreviousPage"] != null) //check if the webpage is loaded for the first time.
+            {
+                var prevState = ViewState["PreviousPage"].ToString();
+                ViewState["PreviousPage"] = Request.Url.AbsoluteUri; //Saves the Previous page url in ViewState
+                Response.Redirect(prevState);
+            }
+            else {
+                Response.Redirect("index.aspx");
+            }
+        }
 
         /*  Check server    */
         object[] chkServerObj = dbHelper.GetSingleQueryObject("SELECT * FROM ChkServerMacSpec WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");

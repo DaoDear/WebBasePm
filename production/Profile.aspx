@@ -243,6 +243,9 @@
                         <li>
                           <p><h4>Position</h4></p>
                           <p>Database Engineer</p>
+                            <form runat="server">
+                                <asp:Button runat="server" id="LogoutButton" OnClick="LogoutButton_Click" />
+                            </form>
                         </li>
                       </ul>
                       <!-- end of skills -->

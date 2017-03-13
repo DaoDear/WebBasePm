@@ -11,7 +11,7 @@ namespace WebBasePM
 {
     public class DatabaseHelper
     {
-        protected string connectionString = "Server=localhost;Uid=sa;PASSWORD=08102535;database=PM;Max Pool Size=400;Connect Timeout=600;";
+        protected string connectionString = "Server=43R0HC2\\SQLEXPRESS;Uid=sa;PASSWORD=D36u84bg;database=PM;Max Pool Size=400;Connect Timeout=600;";
         //protected string connectionString = "Server=localhost;Uid=pmreport_admin;PASSWORD=^wRpa814;database=pmreport_pm;Max Pool Size=400;Connect Timeout=600;";
         protected SqlConnection connectionObject;
 

@@ -21,6 +21,17 @@ namespace WebBasePM
         protected void Page_Load(object sender, EventArgs e)
         {
             dbHelper = new DatabaseHelper();
+
+            if (!IsPostBack) //check if the webpage is loaded for the first time.
+            {
+                ViewState["PreviousPage"] = Request.Url.AbsoluteUri; //Saves the Previous page url in ViewState
+            }
+
+            if (Session["personID"] == null)
+            {
+                Response.Redirect("Login.aspx");
+            }
+
         }
 
         // To open folder.
@@ -414,10 +425,8 @@ namespace WebBasePM
             string customerCompanyFull = custComFull.Text;
             string customerCompanyAbbv = custComAbbv.Text;
             string projectName = projInput.Text;
-            string authun = docAut.Text;
-            string docReviewed = docReview.Text;
             string databaseNamed = databaseName.Text;
-            object[] pminfoObj = new object[] { projCode, customerCompanyFull, customerCompanyAbbv, projectName, quarter, docReviewed,authun, databaseNamed };
+            object[] pminfoObj = new object[] { projCode, customerCompanyFull, customerCompanyAbbv, projectName, quarter, "","", databaseNamed };
 
             object[] projectCodeObj = dbHelper.GetSingleQueryObject("SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';");
            

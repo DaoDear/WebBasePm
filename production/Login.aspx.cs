@@ -8,63 +8,74 @@ using System.Web;
 using System.Web.ModelBinding;
 using System.Web.Script.Serialization;
 using System.Web.Security;
+using System.Web.UI.WebControls;
 using System.Windows.Forms;
 using WebBasePM;
+
 
 public partial class production_Login : System.Web.UI.Page
 {
     protected DatabaseHelper dbHelper;
+    static string prevPage = String.Empty;
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (Session["personID"] != null)
+        { 
+            if (Session["PreviousPage"] != null) //check if the webpage is loaded for the first time.
+            {
+                Response.Redirect(Session["PreviousPage"].ToString()); //Saves the Previous page url in ViewState           
+            }
+            else{
+                Response.Redirect("index.aspx");
+            }            
+        }
+        Session["PreviousPage"] = Request.Url;
         dbHelper = new DatabaseHelper();
     }
 
-    protected void LoginSubmit_Click(object sender, EventArgs e)
+    protected void LoginSubmit_Click(object sender, AuthenticateEventArgs e)
     {
-        string user = "";
-        string pass = "";
-       
-
       
     }
 
-    protected void ValidateUser(object sender, EventArgs e)
+    protected void ValidateUser(object sender, AuthenticateEventArgs e)
     {
-        int userId = 0;
+           string title
+            , firstName
+            , lastName
+            , email
+            , phone
+            , position;
+        int permission, personID;
+        string user = LoginForm.UserName;
+        string pass = LoginForm.Password;
 
-            string title
-             , firstName
-             , lastName
-             , email
-             , phone
-             , position;
-            int permission, personID;
+        Object[] obj = dbHelper.GetSingleQueryObject("SELECT TOP 1 * FROM Person WHERE Username LIKE '" + user + "' AND Password LIKE '" + pass + "';");
+        if (obj != null)
+        {
+            personID = (int)int.Parse(obj[0].ToString());
+            title = (string)obj[1];
+            firstName = (string)obj[2];
+            lastName = (string)obj[3];
+            email = (string)obj[6];
+            phone = (string)obj[7];
+            position = (string)obj[8];
+            permission = (int)int.Parse(obj[10].ToString());
 
-            Object[] obj = dbHelper.GetSingleQueryObject("SELECT * FROM Person WHERE Username LIKE '" + user + "' AND Password LIKE '" + pass + "';");
-            if (obj != null)
+            Session["personID"] = personID;
+            if (Session["PreviousPage"] != null)  //Check if the ViewState 
+                                                    //contains Previous page URL
             {
-                personID = (int)int.Parse(obj[0].ToString());
-                title = (string)obj[1];
-                firstName = (string)obj[2];
-                lastName = (string)obj[3];
-                email = (string)obj[6];
-                phone = (string)obj[7];
-                position = (string)obj[8];
-                permission = (int)int.Parse(obj[10].ToString());
+                Response.Redirect(Session["PreviousPage"].ToString());
             }
-            switch (userId)
+            else
             {
-                case -1:
-                    Login1.FailureText = "Username and/or password is incorrect.";
-                    break;
-                case -2:
-                    Login1.FailureText = "Account has not been activated.";
-                    break;
-                default:
-                    FormsAuthentication.RedirectFromLoginPage(Login1.UserName, Login1.RememberMeSet);
-                    break;
+                Response.Redirect("index.aspx");
             }
-        
+        }
+        else {
+            e.Authenticated = false;
+        }         
     }
 }

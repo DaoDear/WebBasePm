@@ -33,8 +33,7 @@
         <div class="animate form login_form">
           <section class="login_content">
             <form name="LoginForm" runat="server">
-              <h1>Login Form</h1>
-                <asp:Login ID = "Login1" runat = "server" OnAuthenticate= "ValidateUser"></asp:Login>
+                <asp:Login ID = "LoginForm" createuserurl="CreateUser.aspx" createusertext="Create a New Account" runat = "server" OnAuthenticate= "ValidateUser"></asp:Login>
             </form>
           </section>
         </div>        

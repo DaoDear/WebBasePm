@@ -17,6 +17,13 @@ public partial class production_index : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        Session["PreviousPage"] = Request.Url.AbsoluteUri;
+
+        if (Session["personID"] == null) {
+            Response.Redirect("Login.aspx");
+        }
+
+
         databaseHelper = new DatabaseHelper();
         List<object[]> docList = databaseHelper.GetMultiQueryObject("SELECT * FROM PmInfo;");
         /* Load */        
