@@ -28,7 +28,7 @@ public partial class production_index : System.Web.UI.Page
 
 
         databaseHelper = new DatabaseHelper();
-        List<object[]> docList = databaseHelper.GetMultiQueryObject("SELECT * FROM PmInfo;");
+        List<object[]> docList = databaseHelper.GetMultiQueryObject("SELECT * FROM PmInfo  ORDER BY createdDate;");
         /* Load */        
         for(int i = 0; i < docList.Count; i++)
         {

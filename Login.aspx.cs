@@ -34,11 +34,6 @@ public partial class production_Login : System.Web.UI.Page
         dbHelper = new DatabaseHelper();
     }
 
-    protected void LoginSubmit_Click(object sender, AuthenticateEventArgs e)
-    {
-      
-    }
-
     protected void ValidateUser(object sender, AuthenticateEventArgs e)
     {
            string title

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
@@ -10,6 +11,8 @@ using System.Net;
 using System.Text;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using Microsoft.WindowsAPICodePack;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace WebBasePM
 {
@@ -36,24 +39,8 @@ namespace WebBasePM
             nameHeader2.Text = Session["Name"].ToString();
         }
 
-        // To open folder.
-        protected void OpenFolder_Click(object sender, EventArgs e)
-        {
-            FolderBrowserDialog folderBrowser = new FolderBrowserDialog();
-            Thread thread = new Thread(() => folderBrowser.ShowDialog(new Form() { TopMost = true, WindowState = FormWindowState.Maximized }));
-            thread.IsBackground = false;
-            
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            thread.Join();
 
-            string osPath = folderBrowser.SelectedPath;
-            OSInput.Text = osPath;
-            thread.Abort();            
-        }
-
-
-        public void osConfigGen(string osPath)
+        public void osConfigGen()
         {
             // Get the initial value for the project.
             string projectcode = projCodeInput.Text;
@@ -93,21 +80,23 @@ namespace WebBasePM
                    crontab = "";
 
             string timeStamp = GetTimestamp(DateTime.Now);
+            
             string tempPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory.ToString(), "TEMP", "OS_" + timeStamp);
 
             //Create temp directory after inserted data to database, it must remove this folder.
             Directory.CreateDirectory(tempPath);
+                     
+            for (int i = 0; i < FolderUpload.PostedFiles.Count; i++) {
+                string[] osFile = FolderUpload.PostedFiles[i].FileName.Split('/');
+                string osFilePath = Path.Combine(tempPath, osFile[osFile.Length -1]);
+                FolderUpload.PostedFiles[i].SaveAs(osFilePath);
 
-            string[] Files = Directory.GetFiles(osPath);
-           
-            List<FileInfo> osFilesList = new List<FileInfo>();
-                      
 
-            // Upload folder and files retrieve iteration.
-            for (int i = 0; i < Files.Length; i++)
-            {
-                File.Copy(Files[i], Path.Combine(tempPath, Path.GetFileName(Files[i])));
             }
+
+
+
+            List<FileInfo> osFilesList = new List<FileInfo>();
             string[] Files_Init = Directory.GetFiles(tempPath);
             // Add File into list of OS File.
             foreach (string file in Files_Init) {
@@ -428,18 +417,15 @@ namespace WebBasePM
             string customerCompanyAbbv = custComAbbv.Text;
             string projectName = projInput.Text;
             string databaseNamed = databaseName.Text;
-            object[] pminfoObj = new object[] { projCode, customerCompanyFull, customerCompanyAbbv, projectName, quarter, "","", databaseNamed };
+            object[] pminfoObj = new object[] { projCode, customerCompanyFull, customerCompanyAbbv, projectName, quarter, "","", databaseNamed, DateTime.Now };
 
-            object[] projectCodeObj = dbHelper.GetSingleQueryObject("SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';");
+           // object[] projectCodeObj = dbHelper.GetSingleQueryObject("SELECT * FROM [PM].[dbo].[PmInfo] WHERE [projectCode] = '" + projCode + "';");
            
-            if (projectCodeObj != null)
-            {
+           // if (projectCodeObj == null)
+          //  {
                 dbHelper.InsertPMConfiguration(pminfoObj);
-            }
-            else
-            {
-                globalChk = true;
-            }
+           // }
+
             
         }// End of PM configuration
 
@@ -471,26 +457,19 @@ namespace WebBasePM
             AlertLogFile.PostedFile.SaveAs(Path.Combine(tempPath, alertFile));
 
             using (TextReader reader = File.OpenText(backupDatabaseFilePath)) {
-                while ((backupDBF = reader.ReadLine()) != null)
-                {
-                    String.Concat(backupDBF, backupDBF);
-                }
+                backupDBF = reader.ReadToEnd();                
             }
 
-            using (TextReader reader = File.OpenText(backupDatabaseFilePath))
+            using (TextReader reader = File.OpenText(backupControlFilePath))
             {
-                while ((backupCFF = reader.ReadLine()) != null)
-                {
-                    String.Concat(backupCFF, backupCFF);
-                }
+               backupCFF = reader.ReadToEnd();
+
             }
 
             using (TextReader reader = File.OpenText(backupArcheiveFilePath))
             {
-                while ((backupALF = reader.ReadLine()) != null)
-                {
-                    String.Concat(backupALF, backupALF);
-                }
+               backupALF = reader.ReadToEnd();
+
             }
             dbHelper.InsertBackupDatabase(projectCode, quarter, backupDBF, backupCFF, backupALF);
 
@@ -501,14 +480,15 @@ namespace WebBasePM
                 while ((alertLog = reader.ReadLine()) != null)
                 {
                     string pattern = @"ora-\d{5}:";
-                    //alertObj.Add(alertLog);
-                    Match m = Regex.Match(alertLog, pattern, RegexOptions.IgnoreCase);
-                    if (m.Success) {
-                        alertObj.Add(alertLog);
-                    }
+                    alertObj.Add(alertLog);
+                   // Match m = Regex.Match(alertLog, pattern, RegexOptions.IgnoreCase);
+                    //if (m.Success) {
+                     //   alertObj.Add(alertLog);
+                    //}
 
                 }
             }
+            /*
             string postData = "  {\"searchSet\" : [";
             for (int al = 0; al < alertObj.Count(); al++) {
                 postData += "{\"searchKey\" : \"" + alertObj[al].ToString() + "\"}";
@@ -550,6 +530,8 @@ namespace WebBasePM
             dataStream.Close();
             response.Close();
             dbHelper.InsertAlertLog(projectCode, quarter, alertList);
+            */
+
 
             SetOfTableList tables = null;
             OracleInformation oracleInfo = new OracleInformation();
@@ -978,14 +960,13 @@ namespace WebBasePM
         {
             string projectCode = projCodeInput.Text;
             string quarter = quarterInput.Text;
-            string osPath = OSInput.Text;
-
             projectCode = projCodeInput.Text;
             quarter = quarterInput.Text;
-
             pmInfoConfig();
-            osConfigGen(osPath);            
-            databaseConfigGen(projectCode, quarter);             
+            personInfoConfig(); 
+            osConfigGen();            
+            databaseConfigGen(projectCode, quarter);
+            Response.Redirect("pm_info.aspx?project=" + projectCode + "&quarter=" + quarter);
         }
 
         // Function that get person information and Insert to database.
@@ -1018,10 +999,12 @@ namespace WebBasePM
             object[] customerList = new object[] {null, customerName, customerLastname,customerEmail, customerPhone,"Customer"};
             object[] saleList = new object[] {null, saleName, saleLastname, saleEmail, salePhone, "Sale"};
             object[] engineerList = new object[] {personId, engineerName, engineerLastname, engineerEmail, engineerPhone, "Engineer"};
+            object[] authorList = new object[] {DateTime.Now, engineerName + " " + engineerLastname, "1", "Channge Refference"};
 
             dbHelper.InsertPerson(projCode, quarter, customerList);
             dbHelper.InsertPerson(projCode, quarter, saleList);
             dbHelper.InsertPerson(projCode, quarter, engineerList);
+            dbHelper.InsertAuthor(projCode, quarter, authorList);
         }
             
         // Function that check conditation to trap the special symbol use in OSGenerator and DBGenerator.

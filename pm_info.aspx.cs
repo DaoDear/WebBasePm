@@ -47,6 +47,7 @@ public partial class production_pm_info : System.Web.UI.Page
 
         object[] pminfo = dbHelper.GetSingleQueryObject("SELECT * FROM PmInfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         hostTitle.Text = pminfo[2] + " " + pminfo[3] + " " + pminfo[4];
+        alertDatabaeName.Text = pminfo[8].ToString();
 
         object[] saleObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Sale';");
         object[] cusObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Customer';");
@@ -73,6 +74,52 @@ public partial class production_pm_info : System.Web.UI.Page
             engName.Text = engObj[3].ToString() + " " + engObj[4].ToString();
             engPhone.Text = engObj[6].ToString();
             engEmail.Text = engObj[5].ToString();
+        }
+
+        List<object[]> author = dbHelper.GetMultiQueryObject("SELECT *  FROM AuthorLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (author != null)
+        {
+            for (int row = 0; row < author.Count(); row++)
+            {
+                TableRow tRow = new TableRow();
+                TableCell dateCreated = new TableCell();
+                TableCell authorName = new TableCell();
+                TableCell version = new TableCell();
+                TableCell refference = new TableCell();
+
+                dateCreated.Text = (author[row])[2].ToString();
+                authorName.Text = (author[row])[3].ToString();
+                version.Text = (author[row])[4].ToString();
+                refference.Text = (author[row])[5].ToString();
+
+
+                tRow.Cells.Add(dateCreated);
+                tRow.Cells.Add(authorName);
+                tRow.Cells.Add(version);
+                tRow.Cells.Add(refference);
+                authorTable.Rows.Add(tRow);
+            }
+        }
+
+        List<object[]> reviewer = dbHelper.GetMultiQueryObject("SELECT *  FROM reviewerLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (reviewer != null)
+        {
+            for (int row = 0; row < author.Count(); row++)
+            {
+                TableRow tRow = new TableRow();
+                TableCell reviewDate = new TableCell();
+                TableCell reviewName = new TableCell();
+                TableCell position = new TableCell();
+
+                reviewDate.Text = (reviewer[row])[2].ToString();
+                reviewName.Text = (reviewer[row])[3].ToString();
+                position.Text = (reviewer[row])[4].ToString();
+
+
+                tRow.Cells.Add(reviewDate);
+                tRow.Cells.Add(reviewName);
+                tRow.Cells.Add(position);
+            }
         }
 
         /*  Check server    */
@@ -714,12 +761,58 @@ public partial class production_pm_info : System.Web.UI.Page
             backupCF.Text = "";
         }
 
-        Object[] alertObj = dbHelper.GetSingleQueryObject("SELECT * FROM alert WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        if (alertObj != null)
+        List<object[]> listOfAlert = dbHelper.GetMultiQueryObject("SELECT * FROM AlertLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        Panel alertpanel = (Panel)alertLogPanel;
+        if (listOfAlert != null)
         {
-            alertMsg.Text = alertObj[2].ToString();
-        }
+            for (int i = 0; i < listOfAlert.Count; i++)
+            {
+                Table alertTable = new Table();
+                TableRow tRowHeader = new TableRow();
+                TableRow tRowA1 = new TableRow();
+                TableRow tRowA2 = new TableRow();
+                TableRow tRowA3 = new TableRow();
 
+                TableCell alertTopic = new TableCell();
+                alertTopic.Text = "Key search: " + (listOfAlert[i])[2].ToString();
+                tRowHeader.Cells.Add(alertTopic);
+                tRowHeader.Cells[0].ColumnSpan = 3;
+                alertTable.Rows.Add(tRowHeader);
+
+                TableCell cause = new TableCell();
+                TableCell action = new TableCell();
+                TableCell score = new TableCell();
+
+
+                TableCell causeTopic = new TableCell();
+                TableCell actionTopic = new TableCell();
+                TableCell scoreTopic = new TableCell();
+
+                cause.Text = (listOfAlert[i])[3].ToString();
+                action.Text = (listOfAlert[i])[4].ToString();
+                score.Text = (listOfAlert[i])[5].ToString();
+
+                causeTopic.Text = "Caused";
+                actionTopic.Text = "Action";
+                scoreTopic.Text = "Score";
+
+                tRowA1.Cells.Add(causeTopic);
+                tRowA1.Cells.Add(cause);
+                tRowA2.Cells.Add(actionTopic);
+                tRowA2.Cells.Add(action);
+                tRowA3.Cells.Add(scoreTopic);
+                tRowA3.Cells.Add(score);
+
+                alertTable.Rows.Add(tRowA1);
+                alertTable.Rows.Add(tRowA2);
+                alertTable.Rows.Add(tRowA3);
+
+                alertpanel.Controls.Add(alertTable);
+
+                alertTable.CssClass = "table table-striped table-bordered";
+                tRowA1.Cells[0].Width = 200;
+            }
+        }
         /*  DATABASE GROWTH RATE  */
         Object[] obj = dbHelper.GetSingleQueryObject("SELECT * FROM DBGrowthRate WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (obj != null)

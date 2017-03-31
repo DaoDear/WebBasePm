@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="GenPM.aspx.cs" Inherits="WebBasePM.ProductionGenerator" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="GenPM.aspx.cs" Inherits="WebBasePM.ProductionGenerator" Debug="true" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -271,10 +271,7 @@
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ospath">Input Path</label>                                                        
                                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                                             <div class="input-group">
-                                                                <asp:TextBox ID="OSInput" CssClass="form-control" runat="server"></asp:TextBox>
-                                                                <span class="input-group-btn">
-                                                                    <asp:Button id="OpenFolder" OnClick="OpenFolder_Click" Text="BROWSE" CssClass="btn btn-primary" runat="server" />
-                                                                </span>
+                                                                  <asp:FileUpload ID="FolderUpload" webkitdirectory mozdirectory msdirectory odirectory directory AllowMultiple="true" runat="server" />
                                                             </div>
                                                         </div>                                                  
                                                     </div>
@@ -421,8 +418,22 @@
                 // all step validation logic     
                 return isStepValid;
             }
+
+            var inps = document.getElementById('uploadFolder');
+            [].forEach.call(inps, function (inp) {
+                inp.onchange = function (e) {
+                    console.log(this.files);
+                };
+            });
+
+          
+
          });
 
+            
+  
+
+        
 
     </script>
     <!-- /jQuery Smart Wizard -->    

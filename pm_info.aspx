@@ -146,15 +146,12 @@
                                                   </li>
                                                   <li role="presentation" class="">
                                                       <a href="#tab_content9" role="tab" id="profile-tab8" data-toggle="tab" aria-expanded="false">8</a>
+                                                  </li>                               
+                                                  <li role="presentation" class="">
+                                                      <a href="#tab_content10" role="tab" id="profile-tab10" data-toggle="tab" aria-expanded="false">9</a>
                                                   </li>
                                                   <li role="presentation" class="">
-                                                      <a href="#tab_content10" role="tab" id="profile-tab9" data-toggle="tab" aria-expanded="false">9</a>
-                                                  </li>
-                                                  <li role="presentation" class="">
-                                                      <a href="#tab_content11" role="tab" id="profile-tab10" data-toggle="tab" aria-expanded="false">10</a>
-                                                  </li>
-                                                  <li role="presentation" class="">
-                                                      <a href="#tab_content12" role="tab" id="profile-tab11" data-toggle="tab" aria-expanded="false">11</a>
+                                                      <a href="#tab_content11" role="tab" id="profile-tab11" data-toggle="tab" aria-expanded="false">10</a>
                                                   </li>
                                               </ul>
                                               <!-- End Head Tab -->
@@ -289,43 +286,25 @@
                                                       <!-- End 1.3 -->
                                                       <!-- 1.4 -->
                                                       <h5><b>1.4 Change Record</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Date</b></th>
-                                                                  <th><b>Author</b></th>
-                                                                  <th><b>Version</b></th>
-                                                                  <th><b>Change Reference</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td>29-JUNE-2016</td>
-                                                                  <td>K.Supaporn Rattanapan</td>
-                                                                  <td>1.0</td>
-                                                                  <td>Initial Document</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                        <asp:Table ID="authorTable" runat="server" CssClass ="table table-striped table-bordered">
+                                                        <asp:TableHeaderRow>
+                                                        <asp:TableHeaderCell>Date</asp:TableHeaderCell>
+                                                        <asp:TableHeaderCell>Author</asp:TableHeaderCell>
+                                                        <asp:TableHeaderCell>Version</asp:TableHeaderCell>
+                                                        <asp:TableHeaderCell>Change Reference</asp:TableHeaderCell>
+                                                        </asp:TableHeaderRow>
+                                                        </asp:Table>
+                                                     
                                                       <!-- End 1.4 -->
                                                       <!-- 1.5 -->
                                                       <h5><b>1.5 Reviewer</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Date</b></th>
-                                                                  <th><b>Name</b></th>
-                                                                  <th><b>Position</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td>29-JUNE-2016</td>
-                                                                  <td>K.Avika Sangpenprow</td>
-                                                                  <td>Database Administrator</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                        <asp:Table ID="reviewerTable" runat="server" CssClass ="table table-striped table-bordered">
+                                                            <asp:TableHeaderRow>
+                                                                <asp:TableHeaderCell>Date</asp:TableHeaderCell>
+                                                                <asp:TableHeaderCell>Name</asp:TableHeaderCell>
+                                                                <asp:TableHeaderCell>Position</asp:TableHeaderCell>
+                                                            </asp:TableHeaderRow>
+                                                        </asp:Table>                                                     
                                                       <!-- End 1.5 -->
                                                   </div>
                                                   <!-- End Tab 1 -->
@@ -714,93 +693,20 @@
                                                       <!-- End 8.1 -->
                                                   </div>
                                                   <!-- End Tab 8 -->
-                                                  <!-- Tab 9 -->
-                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content10" aria-labelledby="profile-tab">
-                                                      <h4><b>9. Invalid Object</b></h4>
-                                                      <!-- 9.1 -->
-                                                      <h5><b>9.1 Invalid Object Report</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Creator:</b></th>
-                                                              </tr>
-                                                              <tr>
-                                                                  <th><b>Object Name</b></th>
-                                                                  <th><b>Object Type</b></th>
-                                                                  <th><b>Status</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End 9.1 -->
-                                                      <!-- 9.2 -->
-                                                      <h5><b>9.2 Disabled Constraints</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Creator:</b></th>
-                                                              </tr>
-                                                              <tr>
-                                                                  <th><b>Object Name</b></th>
-                                                                  <th><b>Object Type</b></th>
-                                                                  <th><b>C</b></th>
-                                                                  <th><b>Status</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End 9.2 -->
-                                                  </div>
-                                                  <!-- End Tab 9 -->
                                                   <!-- Tab 10 -->
-                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content11" aria-labelledby="profile-tab">
+                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content10" aria-labelledby="profile-tab">
                                                       <h4><b>10. Information from Alert Log</b></h4>
                                                       <!-- 10.1 -->
-                                                      <h5><b>Alert Log of $DatabaseName</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <!-- 
-                                                              <tr>
-                                                                  <td>Message: </td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Posstble Cause: </td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Action:</td>
-                                                              </tr>
-                                                                  -->
-                                                               <tr>
-                                                                  <td>Message: </td>
-                                                              </tr>
-                                                               <tr>
-                                                                  <td><asp:Label ID="alertMsg" runat="server"></asp:Label> </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                      <h5><b>Alert Log of <asp:Label ID="alertDatabaeName" runat="server"></asp:Label></b></h5>
+                                                      <asp:Panel ID="alertLogPanel" runat="server">
+
+                                                      </asp:Panel>
+                                                      
                                                       <!-- End 10.1 -->
                                                   </div>
                                                   <!-- End Tab 10 -->
                                                   <!-- Tab 11 -->
-                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content12" aria-labelledby="profile-tab">
+                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content11" aria-labelledby="profile-tab">
                                                       <h4><b>11. Backup History</b></h4>
                                                       <!-- Backup Database -->
                                                       <h5><b>Backup Database</b></h5>
