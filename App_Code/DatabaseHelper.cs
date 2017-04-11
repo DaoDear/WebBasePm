@@ -20,7 +20,24 @@ namespace WebBasePM
         {
             connectionObject = new SqlConnection(connectionString);
         }
-                
+
+        public SqlDataAdapter getConnection(string query) {            
+            SqlCommand commandObject;
+            connectionObject.Open();
+            commandObject = new SqlCommand(query, connectionObject);
+            SqlDataAdapter da = new SqlDataAdapter(commandObject);
+            connectionObject.Close();
+            return da;
+        }
+
+        public void getUpdate(string query)
+        {
+            SqlCommand commandObject;
+            connectionObject.Open();
+            commandObject = new SqlCommand(query, connectionObject);
+            commandObject.ExecuteNonQuery();
+            connectionObject.Close();          
+        }
 
         public object[] GetSingleQueryObject(string query) {
             Object[] rowObject;
@@ -591,6 +608,20 @@ namespace WebBasePM
             authorInfo = authorInfo + "('" + projectCode + "','" + projectQuarter + "','" + list[0] + "','" + list[1] + "','" + list[2] + "','" + list[3] + "');";
             connectionObject.Open();
             commandObject = new SqlCommand(authorInfo, connectionObject);
+            commandObject.ExecuteNonQuery();
+            connectionObject.Close();
+        }
+
+        public void InsertReviewer(string projectCodeStr, string projectQuarterStr, object[] list)
+        {
+            string projectCode = projectCodeStr;
+            string projectQuarter = projectQuarterStr;
+            SqlCommand commandObject;
+
+            string reviewInfo = "INSERT INTO [dbo].[reviewerLog]([projectCode],[projectQuarter],[reviewDate],[reviewerName],[position]) VALUES";
+            reviewInfo = reviewInfo + "('" + projectCode + "','" + projectQuarter + "','" + list[0] + "','" + list[1] + "','" + list[2] + "');";
+            connectionObject.Open();
+            commandObject = new SqlCommand(reviewInfo, connectionObject);
             commandObject.ExecuteNonQuery();
             connectionObject.Close();
         }

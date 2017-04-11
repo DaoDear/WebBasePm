@@ -35,11 +35,25 @@ public partial class production_index : System.Web.UI.Page
             TableRow tRow = new TableRow();
             string cmdPrj = (docList[i])[0].ToString() +","+ (docList[i])[4].ToString();
             Button viewBtn = new Button();
+            Button updateBtn = new Button();
+            Button reviewBtn = new Button();
             viewBtn.Text = "View Report";
             viewBtn.CssClass = "btn btn-success";
             viewBtn.CommandName = "Reserve";
             viewBtn.CommandArgument = cmdPrj;
             viewBtn.Command += new CommandEventHandler(RePageDirect);
+
+            updateBtn.Text = "Edit Report";
+            updateBtn.CssClass = "btn btn-danger";
+            updateBtn.CommandName = "Update";
+            updateBtn.CommandArgument = cmdPrj;
+            updateBtn.Command += new CommandEventHandler(RePageDirect);
+
+            reviewBtn.Text = "Review Report";
+            reviewBtn.CssClass = "btn btn-warning";
+            reviewBtn.CommandName = "Review";
+            reviewBtn.CommandArgument = cmdPrj;
+            reviewBtn.Command += new CommandEventHandler(RePageDirect);
 
 
             TableCell value1 = new TableCell();
@@ -52,6 +66,8 @@ public partial class production_index : System.Web.UI.Page
             value4.Text = (docList[i])[5].ToString();
             TableCell value5 = new TableCell();
             value5.Controls.Add(viewBtn);
+            value5.Controls.Add(updateBtn);
+            value5.Controls.Add(reviewBtn);
 
             tRow.Cells.Add(value1);
             tRow.Cells.Add(value2);
@@ -71,6 +87,22 @@ public partial class production_index : System.Web.UI.Page
             string[] cmd = code.Split(',');
 
             Response.Redirect("pm_info.aspx?project=" + cmd[0].ToString() + "&quarter=" + cmd[1].ToString());
+
+        }
+        else if (e.CommandName == "Update")
+        {
+            string code = e.CommandArgument.ToString();
+            string[] cmd = code.Split(',');
+
+            Response.Redirect("pm_update.aspx?project=" + cmd[0].ToString() + "&quarter=" + cmd[1].ToString());
+
+        }
+        else if (e.CommandName == "Review")
+        {
+            string code = e.CommandArgument.ToString();
+            string[] cmd = code.Split(',');
+
+            Response.Redirect("pm_review.aspx?project=" + cmd[0].ToString() + "&quarter=" + cmd[1].ToString());
 
         }
     }

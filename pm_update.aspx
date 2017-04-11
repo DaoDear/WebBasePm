@@ -245,6 +245,7 @@
                                                               </tr>
                                                           </tbody>
                                                       </table>
+
                                                       <!-- End 1.1 -->
                                                       <!-- 1.2 -->
                                                       <h5><b>1.2 Customer Contact Information</b></h5>
@@ -285,44 +286,160 @@
                                                       </table>
                                                       <!-- End 1.3 -->
                                                       <!-- 1.4 -->
-                                                      <h5><b>1.4 Change Record</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Date</b></th>
-                                                                  <th><b>Author</b></th>
-                                                                  <th><b>Version</b></th>
-                                                                  <th><b>Change Reference</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td>29-JUNE-2016</td>
-                                                                  <td>K.Supaporn Rattanapan</td>
-                                                                  <td>1.0</td>
-                                                                  <td>Initial Document</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                      <h5><b>1.4 Change Record</b></h5>                                                    
+                                                      <asp:GridView ID="authorGridView" DataKeyNames="authorID" runat="server"
+                                                        AutoGenerateColumns="false" ShowFooter="true" HeaderStyle-Font-Bold="true"
+                                                        onrowcancelingedit="authorGridView_RowCancelingEdit"
+                                                        onrowdeleting="authorGridView_RowDeleting"
+                                                        onrowediting="authorGridView_RowEditing"
+                                                        onrowupdating="authorGridView_RowUpdating"
+                                                        onrowcommand="authorGridView_RowCommand"                                                       
+                                                        CssClass ="table table-striped table-bordered">
+                                                        <Columns>
+                                                         <asp:TemplateField HeaderText="AuthorID">
+                                                            <ItemTemplate>
+                                                                <asp:Label ID="lblauthorid" runat="server" Text='<%#Eval("authorID") %>'/>
+                                                            </ItemTemplate>
+                                                            <EditItemTemplate>
+                                                                <asp:Label ID="txtauthorid" runat="server" Text='<%#Eval("authorID") %>'/>
+                                                            </EditItemTemplate>
+                                                            <FooterTemplate>
+                                                                <asp:Label ID="inauthorid" runat="server" Text='Auto Generated'/>
+                                                            </FooterTemplate>
+                                                        </asp:TemplateField>
+                                                        <asp:TemplateField HeaderText="Date">
+                                                            <ItemTemplate>
+                                                                <asp:Label ID="lbldate" runat="server" Text='<%#Eval("date") %>'/>
+                                                            </ItemTemplate>
+                                                            <EditItemTemplate>
+                                                                <asp:TextBox ID="txtdate" ReadOnly="true" CssClass="form-control" runat="server" Text='<%#Eval("date") %>'/>
+                                                            </EditItemTemplate>
+                                                            <FooterTemplate>
+                                                                 <asp:Label ID="indate" runat="server" Text='Auto Generated'/>
+                                                               </FooterTemplate>
+                                                        </asp:TemplateField>
+                                                         <asp:TemplateField HeaderText="Author Name">
+                                                              <ItemTemplate>
+                                                                 <asp:Label ID="lblname" runat="server" Text='<%#Eval("author") %>'/>
+                                                             </ItemTemplate>
+                                                             <EditItemTemplate>
+                                                                 <asp:TextBox ID="txtname" CssClass="form-control"  runat="server" Text='<%#Eval("author") %>'/>
+                                                             </EditItemTemplate>
+                                                             <FooterTemplate>
+                                                                 <asp:TextBox ID="inname" CssClass="form-control"  runat="server"/>
+                                                                </FooterTemplate>
+                                                         </asp:TemplateField>
+                                                         <asp:TemplateField HeaderText="Document version">
+                                                             <ItemTemplate>
+                                                                 <asp:Label ID="lblversion" runat="server" Text='<%#Eval("version") %>'/>
+                                                             </ItemTemplate>
+                                                             <EditItemTemplate>
+                                                                 <asp:TextBox ID="txtversion" CssClass="form-control"  runat="server" Text='<%#Eval("version") %>'/>
+                                                             </EditItemTemplate>
+                                                            <FooterTemplate>
+                                                                <asp:TextBox ID="inversion" CssClass="form-control"  runat="server"/>
+                                                                </FooterTemplate>
+                                                         </asp:TemplateField>
+                                                          <asp:TemplateField HeaderText="Details">
+                                                               <ItemTemplate>
+                                                                 <asp:Label ID="lblchangeref" runat="server" Text='<%#Eval("changeReference") %>'/>
+                                                             </ItemTemplate>
+                                                             <EditItemTemplate>
+                                                                 <asp:TextBox ID="txtchangeref" CssClass="form-control" runat="server" Text='<%#Eval("changeReference") %>'/>
+                                                             </EditItemTemplate>
+                                                            <FooterTemplate>
+                                                                <asp:TextBox ID="inchangeref" CssClass="form-control" runat="server"/>
+                                                            </FooterTemplate>
+                                                         </asp:TemplateField>
+                                                            <asp:TemplateField HeaderText="Action">
+                                                            <EditItemTemplate>
+                                                                <asp:LinkButton ID="ButtonUpdate" runat="server" CommandName="Update"  CssClass="btn btn-primary" >Update</asp:LinkButton>
+                                                                <asp:LinkButton ID="ButtonCancel" runat="server" CommandName="Cancel"  CssClass="btn btn-warning" >Cancel</asp:LinkButton>
+                                                            </EditItemTemplate>
+                                                            <ItemTemplate>
+                                                                <asp:LinkButton ID="ButtonEdit" runat="server" CommandName="Edit"  OnClientClick="if (!validatePage()) {return false;}"  UseSubmitBehavior="false" CssClass="btn btn-warning" >Edit</asp:LinkButton>
+                                                                <asp:LinkButton ID="ButtonDelete" runat="server" CommandName="Delete" CssClass="btn btn-danger">Delete</asp:LinkButton>
+                                                            </ItemTemplate>
+                                                            <FooterTemplate>
+                                                                <asp:Button ID="ButtonAdd" runat="server" CommandName="AddNew"  Text="Add New Row" CssClass="btn btn-success" ValidationGroup="validaiton" />
+                                                            </FooterTemplate>
+                                                            </asp:TemplateField>
+                                                         </Columns>
+                                                        </asp:GridView>
+                                                        <!--
+                                                            <asp:CommandField ShowEditButton="True" ShowDeleteButton="True" ShowInsertButton="true" HeaderText="Action" ButtonType="Button" ControlStyle-CssClass="btn btn-primary"  /> 
+                                                        --> 
                                                       <!-- End 1.4 -->
                                                       <!-- 1.5 -->
                                                       <h5><b>1.5 Reviewer</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Date</b></th>
-                                                                  <th><b>Name</b></th>
-                                                                  <th><b>Position</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td>29-JUNE-2016</td>
-                                                                  <td>K.Avika Sangpenprow</td>
-                                                                  <td>Database Administrator</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                      <asp:GridView ID="reviewerGridView" DataKeyNames="reviewerID" runat="server"
+                                                        AutoGenerateColumns="false" ShowFooter="true" HeaderStyle-Font-Bold="true"
+                                                        onrowcancelingedit="reviewerGridView_RowCancelingEdit"
+                                                        onrowdeleting="reviewerGridView_RowDeleting"
+                                                        onrowediting="reviewerGridView_RowEditing"
+                                                        onrowupdating="reviewerGridView_RowUpdating"
+                                                        onrowcommand="reviewerGridView_RowCommand"                                                       
+                                                        CssClass ="table table-striped table-bordered">
+                                                        <Columns>
+                                                         <asp:TemplateField HeaderText="ReviewID">
+                                                            <ItemTemplate>
+                                                                <asp:Label ID="lblreviewerid" runat="server" Text='<%#Eval("reviewerID") %>'/>
+                                                            </ItemTemplate>
+                                                            <EditItemTemplate>
+                                                                <asp:Label ID="txtreviewerid" runat="server" Text='<%#Eval("reviewerID") %>'/>
+                                                            </EditItemTemplate>
+                                                            <FooterTemplate>
+                                                                <asp:Label ID="inreviewerid" runat="server" Text='Auto Generated'/>
+                                                            </FooterTemplate>
+                                                        </asp:TemplateField>
+                                                        <asp:TemplateField HeaderText="Date">
+                                                            <ItemTemplate>
+                                                                <asp:Label ID="lblreviewerdate" runat="server" Text='<%#Eval("reviewDate") %>'/>
+                                                            </ItemTemplate>
+                                                            <EditItemTemplate>
+                                                                <asp:TextBox ID="txtreviewerdate" ReadOnly="true" CssClass="form-control" runat="server" Text='<%#Eval("reviewDate") %>'/>
+                                                            </EditItemTemplate>
+                                                            <FooterTemplate>
+                                                                 <asp:Label ID="inreviewerdate" runat="server" Text='Auto Generated'/>
+                                                               </FooterTemplate>
+                                                        </asp:TemplateField>
+                                                         <asp:TemplateField HeaderText="Reviewer Name">
+                                                              <ItemTemplate>
+                                                                 <asp:Label ID="lblreviewername" runat="server" Text='<%#Eval("reviewerName") %>'/>
+                                                             </ItemTemplate>
+                                                             <EditItemTemplate>
+                                                                 <asp:TextBox ID="txtreviewername" CssClass="form-control"  runat="server" Text='<%#Eval("reviewerName") %>'/>
+                                                             </EditItemTemplate>
+                                                             <FooterTemplate>
+                                                                 <asp:TextBox ID="inreviewername" CssClass="form-control"  runat="server"/>
+                                                                </FooterTemplate>
+                                                         </asp:TemplateField>
+                                                         <asp:TemplateField HeaderText="Position">
+                                                             <ItemTemplate>
+                                                                 <asp:Label ID="lblreviewerposition" runat="server" Text='<%#Eval("position") %>'/>
+                                                             </ItemTemplate>
+                                                             <EditItemTemplate>
+                                                                 <asp:TextBox ID="txtreviewerposition" CssClass="form-control"  runat="server" Text='<%#Eval("position") %>'/>
+                                                             </EditItemTemplate>
+                                                            <FooterTemplate>
+                                                                <asp:TextBox ID="inreviewerposition" CssClass="form-control"  runat="server"/>
+                                                                </FooterTemplate>
+                                                         </asp:TemplateField>
+                                                        <asp:TemplateField HeaderText="Action">
+                                                        <EditItemTemplate>
+                                                            <asp:LinkButton ID="ButtonUpdate" runat="server" CommandName="Update"  CssClass="btn btn-primary" >Update</asp:LinkButton>
+                                                            <asp:LinkButton ID="ButtonCancel" runat="server" CommandName="Cancel"  CssClass="btn btn-warning" >Cancel</asp:LinkButton>
+                                                        </EditItemTemplate>
+                                                        <ItemTemplate>
+                                                            <asp:LinkButton ID="ButtonEdit" runat="server" CommandName="Edit"  OnClientClick="if (!validatePage()) {return false;}"  UseSubmitBehavior="false" CssClass="btn btn-warning" >Edit</asp:LinkButton>
+                                                            <asp:LinkButton ID="ButtonDelete" runat="server" CommandName="Delete" CssClass="btn btn-danger">Delete</asp:LinkButton>
+                                                        </ItemTemplate>
+                                                        <FooterTemplate>
+                                                            <asp:Button ID="ButtonAdd" runat="server" CommandName="AddNew"  Text="Add New Row" CssClass="btn btn-success" ValidationGroup="validaiton" />
+                                                        </FooterTemplate>
+                                                        </asp:TemplateField>
+                                                         </Columns>
+                                                        </asp:GridView>                                                     
                                                       <!-- End 1.5 -->
                                                   </div>
                                                   <!-- End Tab 1 -->
@@ -651,6 +768,37 @@
                                                         </asp:TableHeaderRow>
                                                       </asp:Table> 
                                                       <h5><b>5.2 Database Growth Rate</b></h5>
+                                                      <div>Current data information about space usage of database <asp:Label ID="DatabaseNameLabel" runat="server"></asp:Label> as below. <br /></div>
+                                                          <table class="table table-striped table-bordered">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th scope="row">Database Name</th>
+                                                                    <td><asp:TextBox ID="DatabaseNameLabel2" runat="server"></asp:TextBox></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Current Allocated (GB)</th>
+                                                                    <td><asp:TextBox ID="currAllocated" runat="server"></asp:TextBox></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Current Used data (GB) </th>
+                                                                    <td><asp:TextBox ID="currUsed" runat="server"></asp:TextBox></td>
+                                                                </tr>                                                                
+                                                                <tr>
+                                                                    <th scope="row">Allocated Growth(GB) per day </th>
+                                                                    <td><asp:TextBox ID="allocGrowth" runat="server"></asp:TextBox></td>
+                                                                </tr>
+                                                                 <tr>
+                                                                    <th scope="row">Used Growth(GB) per day  </th>
+                                                                    <td><asp:TextBox ID="usedGrowth" runat="server"></asp:TextBox></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th></th>
+                                                                    <th scope="row"> <asp:Button ID="growthSave" OnClick="growthSave_Click" Text="Save" CssClass="btn btn-primary" runat="server" /></th>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <div class="form-group">
+                                                        <center>
                                                          <asp:Chart ID="Chart1"  runat="server">
                                                               <Series>
                                                                   <asp:Series Name="Series1"></asp:Series>
@@ -660,6 +808,20 @@
                                                                   </asp:ChartArea>
                                                               </ChartAreas>
                                                           </asp:Chart>
+                                                            </center>
+                                                          </div>
+                                                          <table class="table table-striped table-bordered">
+                                                          <thead>
+                                                              <tr>
+                                                                  <th> Summary </th>
+                                                              </tr>
+                                                          </thead>
+                                                          <tbody>
+                                                              <tr>
+                                                                  <td><asp:Label ID="SummaryLabel" runat="server"></asp:Label></td>
+                                                              </tr>
+                                                          </tbody>
+                                                          </table>
                                                   </div>
                                                   <!-- End Tab 5 -->
                                                   <!-- Tab 6 -->
@@ -821,6 +983,15 @@
                   $('.buttonPrevious').addClass('btn btn-primary');
                   $('.buttonFinish').addClass('btn btn-default');
               });
+
+             
+
+              function jsfunction() {
+                  if (conditionForPostBack)
+                      return true;
+                  else
+                      return false;
+              }
           </script>
           <!-- /jQuery Smart Wizard -->
 </body>

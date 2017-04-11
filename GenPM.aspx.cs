@@ -90,8 +90,6 @@ namespace WebBasePM
                 string[] osFile = FolderUpload.PostedFiles[i].FileName.Split('/');
                 string osFilePath = Path.Combine(tempPath, osFile[osFile.Length -1]);
                 FolderUpload.PostedFiles[i].SaveAs(osFilePath);
-
-
             }
 
 
@@ -479,7 +477,7 @@ namespace WebBasePM
             {
                 while ((alertLog = reader.ReadLine()) != null)
                 {
-                    string pattern = @"ora-\d{5}:";
+                    //string pattern = @"ora-\d{5}:";
                     alertObj.Add(alertLog);
                    // Match m = Regex.Match(alertLog, pattern, RegexOptions.IgnoreCase);
                     //if (m.Success) {
@@ -488,7 +486,7 @@ namespace WebBasePM
 
                 }
             }
-            /*
+            
             string postData = "  {\"searchSet\" : [";
             for (int al = 0; al < alertObj.Count(); al++) {
                 postData += "{\"searchKey\" : \"" + alertObj[al].ToString() + "\"}";
@@ -530,8 +528,6 @@ namespace WebBasePM
             dataStream.Close();
             response.Close();
             dbHelper.InsertAlertLog(projectCode, quarter, alertList);
-            */
-
 
             SetOfTableList tables = null;
             OracleInformation oracleInfo = new OracleInformation();

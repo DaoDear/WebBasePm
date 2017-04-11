@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="pm_info.aspx.cs" Inherits="production_pm_info" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="pm_review.aspx.cs" Inherits="production_pm_info" %>
 <%@ Register Assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI.DataVisualization.Charting" TagPrefix="asp" %>
 
 <!DOCTYPE html>
@@ -112,10 +112,20 @@
                               <div class="col-md-12 col-sm-12 col-xs-12">
                                   <div class="x_panel">
                                       <div class="x_title">
-                                          <h2><asp:Label ID="hostTitle" runat="server"></asp:Label></h2>
+                                          <div class="row">
+                                          <div class="col-md-8 col-sm-8 col-xs-8">
+                                            <h2><asp:Label ID="hostTitle" runat="server"></asp:Label></h2>
+                                          </div>
+                                          <div class="col-md-4 col-sm-4 col-xs-4 right">
+                                            <div class="pull-right"> 
+                                            <asp:Button  CssClass="btn btn-success" runat="server" ID="approveButton" OnClick="approveButton_Click" Text="Approved" />
+                                            <asp:Button  CssClass="btn btn-warning" runat="server" ID="developButton" OnClick="developButton_Click" Text="Back to Develop" />
+                                            <asp:Button  CssClass="btn btn-danger" runat="server" ID="rejectButton" OnClick="rejectButton_Click" Text="Reject" />
+                                            </div>
+                                          </div>
+                                          </div>
                                           <div class="clearfix"></div>
                                       </div>
-                                      <div class="x_content">
                                           <!-- Flat -->
                                           <div class="" role="tabpanel" data-example-id="togglable-tabs">
                                               <!-- Head Tab -->

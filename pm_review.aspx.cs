@@ -76,6 +76,15 @@ public partial class production_pm_info : System.Web.UI.Page
             engEmail.Text = engObj[5].ToString();
         }
 
+        string engineerName, engineerLastname, personId;
+        personId = Session["personID"].ToString();
+        object[] engineerObj = dbHelper.GetSingleQueryObject("select * from Person where Person_id = " + personId);
+
+        engineerName = engineerObj[2].ToString();
+        engineerLastname = engineerObj[3].ToString();
+        object[] reviewerList = new object[] { DateTime.Now , engineerName + " " + engineerLastname, "Engineer" };
+        dbHelper.InsertReviewer(projectCoded, projectQuarter, reviewerList);
+
         List<object[]> author = dbHelper.GetMultiQueryObject("SELECT *  FROM AuthorLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (author != null)
         {
@@ -879,5 +888,26 @@ public partial class production_pm_info : System.Web.UI.Page
             SummaryLabel.Text = summarytxt;
 
         }
+    }
+
+    protected void approveButton_Click(object sender, EventArgs e)
+    {
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        dbHelper.getUpdate("UPDATE [dbo].[PmInfo] SET [pmstatus] = 'Approved' WHERE projectCode like '" + projectCoded + "' AND projectQuarter like '" + projectQuarter + "';");
+        Response.Redirect("index.aspx");
+    }
+
+    protected void rejectButton_Click(object sender, EventArgs e)
+    {
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        dbHelper.getUpdate("UPDATE [dbo].[PmInfo] SET [pmstatus] = 'Rejected' WHERE projectCode like '" + projectCoded + "' AND projectQuarter like '" + projectQuarter + "';");
+        Response.Redirect("index.aspx");
+    }
+
+    protected void developButton_Click(object sender, EventArgs e)
+    {
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        dbHelper.getUpdate("UPDATE [dbo].[PmInfo] SET [pmstatus] = 'In Progess' WHERE projectCode like '" + projectCoded + "' AND projectQuarter like '" + projectQuarter + "';");
+        Response.Redirect("index.aspx");
     }
 }
