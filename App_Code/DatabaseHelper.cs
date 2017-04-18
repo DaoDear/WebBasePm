@@ -143,7 +143,7 @@ namespace WebBasePM
             string projectQuarter = projectQuarterStr;
             SqlCommand commandObject;
 
-            string alertLog = "INSERT INTO [dbo].[AlertLog]([projectCode],[projectQuarter],[keyword],[fileSystem],[mbBlocks],[free],[percentUsed],[iUsed],[percentIUsed],[mountedOn])VALUES";
+            string alertLog = "INSERT INTO [dbo].[AlertLog]([projectCode],[projectQuarter],[keyword],[caused],[action],[score])VALUES";
             for (int i = 0; i < list.Count; i++)
             {
                 alertLog = alertLog + "('" + projectCode + "','" + projectQuarter + "','" + (list[i])[0] + "','" + (list[i])[1] + "','" + (list[i])[2] + "','" + (list[i])[3]  + "'),";

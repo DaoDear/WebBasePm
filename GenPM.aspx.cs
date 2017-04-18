@@ -477,57 +477,60 @@ namespace WebBasePM
             {
                 while ((alertLog = reader.ReadLine()) != null)
                 {
-                    //string pattern = @"ora-\d{5}:";
-                    alertObj.Add(alertLog);
-                   // Match m = Regex.Match(alertLog, pattern, RegexOptions.IgnoreCase);
-                    //if (m.Success) {
-                     //   alertObj.Add(alertLog);
-                    //}
-
+                    if(alertLog.Contains("ora-"))
+                        alertObj.Add(alertLog);
                 }
             }
-            
-            string postData = "  {\"searchSet\" : [";
-            for (int al = 0; al < alertObj.Count(); al++) {
-                postData += "{\"searchKey\" : \"" + alertObj[al].ToString() + "\"}";
-                if (al != alertObj.Count() - 1) {
-                    postData += ",";
-                }
-            }
-            postData += "]}";
-            
-            WebRequest request = WebRequest.Create("http://localhost:3000/api/v1/findByOraId");
-            request.Method = "POST";           
-            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-            request.ContentType = "application/json";
-            request.ContentLength = byteArray.Length;
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-            WebResponse response = request.GetResponse();
-            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-            dataStream = response.GetResponseStream();
-            StreamReader reader1 = new StreamReader(dataStream);
-            string responseFromServer = reader1.ReadToEnd();
-            Console.WriteLine(responseFromServer);
-            dbHelper.InsertAlert(projectCode, quarter, responseFromServer);
-
-            Root jsonObject = JsonConvert.DeserializeObject<Root>(responseFromServer);
-
-            List<object[]> alertList = new List<object[]>();
-
-            for (int ai = 0; ai < jsonObject.RootWord.Count; ai++)
+            try
             {
-                for (int aj = 0; aj < jsonObject.RootWord[ai].Results[0].ObjResults.Count(); aj++)
+                string postData = "  {\"searchSet\" : [";
+                for (int al = 0; al < alertObj.Count(); al++)
                 {
-                    alertList.Add(new object[] { jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score });
-                    Console.WriteLine("Keysearch: {0} \n action: {1} \n caused: ({2} \n Score : {3} \n\n", jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score);
+                    postData += "{\"searchKey\" : \"" + alertObj[al].ToString() + "\"}";
+                    if (al != alertObj.Count() - 1)
+                    {
+                        postData += ",";
+                    }
                 }
+                postData += "]}";
+
+                WebRequest request = WebRequest.Create("http://localhost:3000/api/v1/findByOraId");
+                request.Method = "POST";
+                byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+                request.ContentType = "application/json";
+                request.ContentLength = byteArray.Length;
+                Stream dataStream = request.GetRequestStream();
+                dataStream.Write(byteArray, 0, byteArray.Length);
+                dataStream.Close();
+                WebResponse response = request.GetResponse();
+                Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                dataStream = response.GetResponseStream();
+                StreamReader reader1 = new StreamReader(dataStream);
+                string responseFromServer = reader1.ReadToEnd();
+                Console.WriteLine(responseFromServer);
+                dbHelper.InsertAlert(projectCode, quarter, responseFromServer);
+
+                Root jsonObject = JsonConvert.DeserializeObject<Root>(responseFromServer);
+
+                List<object[]> alertList = new List<object[]>();
+
+                for (int ai = 0; ai < jsonObject.RootWord.Count; ai++)
+                {
+                    for (int aj = 0; aj < jsonObject.RootWord[ai].Results[0].ObjResults.Count(); aj++)
+                    {
+                        alertList.Add(new object[] { jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score });
+                        //Console.WriteLine("Keysearch: {0} \n action: {1} \n caused: ({2} \n Score : {3} \n\n", jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score);
+                    }
+                }
+                reader1.Close();
+                dataStream.Close();
+                response.Close();
+                dbHelper.InsertAlertLog(projectCode, quarter, alertList);
             }
-            reader1.Close();
-            dataStream.Close();
-            response.Close();
-            dbHelper.InsertAlertLog(projectCode, quarter, alertList);
+            catch (Exception)
+            {
+                throw;
+            }         
 
             SetOfTableList tables = null;
             OracleInformation oracleInfo = new OracleInformation();
@@ -568,7 +571,7 @@ namespace WebBasePM
                             object[] subDetail = (object[])obj2.getRows()[z];
                             database4_1_2Obj.Add(new object[] { subDetail[0].ToString(), subDetail[1].ToString() });
                         }
-                        dbHelper.InsertTempTableSize(projectCode, quarter, database4_1_2Obj);
+                        dbHelper.InsertTableSize(projectCode, quarter, database4_1_2Obj);
                     }
                     else
                     {
@@ -577,7 +580,6 @@ namespace WebBasePM
                 }
                 dbHelper.InsertDatabaseConfiguration(projectCode, quarter, database4_1Obj);
             }
-
             path = binFolderPath + "/Debug/config/4_2.txt";
             using (TextReader inFile = File.OpenText(path))
             {
@@ -588,8 +590,7 @@ namespace WebBasePM
                     database4_2Obj.Add(new object[] { tableWord.getRow(k)[0], tableWord.getRow(k)[1] });
                 }
                 dbHelper.InsertDatabaseParameter(projectCode, quarter, database4_2Obj);
-            }
-   
+            }   
             tableList tableTmp = null;
             tableTmp = tables.getTableList("4_4@Database file@1");
             if (tableTmp != null)
@@ -622,7 +623,6 @@ namespace WebBasePM
             {
                 List<object[]> redoLogList = new List<object[]>();
                 tableWord = new tableListWord(tableTmp);
-
                 /// Convert B to MB (***warning: available only MB is string that represent integer)
                 for (int k = 0; k < tableWord.getRowNumber(); k++)
                 {
@@ -639,7 +639,6 @@ namespace WebBasePM
                 }
                 dbHelper.InsertRedoLogFile(projectCode, quarter, redoLogList);
             }
-
             tableTmp = null;
             tableTmp = tables.getTableList("4_7@Controlfile@1");
             if (tableTmp != null)
@@ -666,7 +665,6 @@ namespace WebBasePM
                 }
                 dbHelper.InsertDiaryWorksheet(projectCode, quarter, dailyList);
             }
-
             path = binFolderPath + "/Debug/config/4_9.txt";
             using (TextReader inFile = File.OpenText(path))
             {

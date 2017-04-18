@@ -8,6 +8,10 @@ using System.Web.UI.DataVisualization.Charting;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using WebBasePM;
+using iTextSharp;
+using iTextSharp.text;
+using System.IO;
+using iTextSharp.text.pdf;
 
 public partial class production_pm_info : System.Web.UI.Page
 {   
@@ -186,10 +190,8 @@ public partial class production_pm_info : System.Web.UI.Page
             tRow.Cells.Add(mountedOn);
             diskTable.Rows.Add(tRow);
         }
-
-
-        List<object[]> userEnvObj = new List<object[]>();
-        userEnvObj = dbHelper.GetMultiQueryObject("SELECT * FROM UserEnvironment WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+                
+        List<object[]> userEnvObj = userEnvObj = dbHelper.GetMultiQueryObject("SELECT * FROM UserEnvironment WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         
         for(int row = 0; row < userEnvObj.Count(); row++) { 
             TableRow tRow = new TableRow();
@@ -215,9 +217,9 @@ public partial class production_pm_info : System.Web.UI.Page
             numOfProc.Text = (hardwareObj[row])[8].ToString();
             cpuType.Text = (hardwareObj[row])[9].ToString();
             kernelType.Text = (hardwareObj[row])[10].ToString();
-            ipaddresses.Text = (hardwareObj[row])[11].ToString();
-            subNetMask.Text = (hardwareObj[row])[12].ToString();
-            crontab.Text = (hardwareObj[row])[13].ToString();
+            ipaddresses.Text = (hardwareObj[row])[12].ToString();
+            subNetMask.Text = (hardwareObj[row])[13].ToString();
+            crontab.Text = (hardwareObj[row])[14].ToString();
         }
 
         /* Datbase Configuration */
@@ -425,7 +427,7 @@ public partial class production_pm_info : System.Web.UI.Page
             }
         }
 
-        /* 4.5 Redo Log File */
+        /* 4.6 Redo Log File */
         List<object[]> redoLogObj = dbHelper.GetMultiQueryObject("SELECT * FROM RedoLogFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (redoLogObj != null)
         {
@@ -879,5 +881,897 @@ public partial class production_pm_info : System.Web.UI.Page
             SummaryLabel.Text = summarytxt;
 
         }
+    }
+
+    protected void exportButton_Click(object sender, EventArgs e)
+    {
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        // Create a Document object
+        var document = new Document(PageSize.A4, 50, 50, 25, 25);
+
+        // Create a new PdfWriter object, specifying the output stream
+        string timeStamp = GetTimestamp(DateTime.Now);
+        string tempPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory.ToString(), "TEMP", "FILES_" + timeStamp);
+        Directory.CreateDirectory(tempPath);
+        string filePath = Path.Combine(tempPath, "mfec_report_" + projectCoded+".pdf");
+        var output = new FileStream(filePath, FileMode.Create);
+        var writer = PdfWriter.GetInstance(document, output);
+
+        var titleFont = FontFactory.GetFont("Microsoft Sans Serif", 18, Font.BOLD, BaseColor.BLUE);
+        var subTitleFont = FontFactory.GetFont("Microsoft Sans Serif", 14, Font.BOLD);
+        var boldTableFont = FontFactory.GetFont("Microsoft Sans Serif", 12, Font.BOLD);
+        var endingMessageFont = FontFactory.GetFont("Microsoft Sans Serif", 10, Font.ITALIC);
+        var bodyFont = FontFactory.GetFont("Microsoft Sans Serif", 12, Font.NORMAL);
+
+
+        object[] pminfo = dbHelper.GetSingleQueryObject("SELECT * FROM PmInfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        object[] saleObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Sale';");
+        object[] cusObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Customer';");
+        object[] engObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Engineer';");
+        List<object[]> author = dbHelper.GetMultiQueryObject("SELECT *  FROM AuthorLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        List<object[]> reviewer = dbHelper.GetMultiQueryObject("SELECT *  FROM reviewerLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+
+        // Open the Document for writing
+        document.Open();
+        document.Add(new Paragraph("1. General Project Information", titleFont));
+        Paragraph p = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p);
+        document.Add(new Paragraph("1.1 Project Information", subTitleFont));               
+        var pminfoPdf = new PdfPTable(2);
+        pminfoPdf.DefaultCell.BorderWidth = 1f;
+        pminfoPdf.HorizontalAlignment = 0;
+        pminfoPdf.SpacingBefore = 15;
+        pminfoPdf.SpacingAfter = 15;
+        pminfoPdf.SetWidths(new int[] { 3, 5 });
+
+        pminfoPdf.AddCell(new Phrase("Project Name:", boldTableFont));
+        pminfoPdf.AddCell(new Phrase(pminfo[3].ToString() , bodyFont));
+        pminfoPdf.AddCell(new Phrase("Project No:", boldTableFont));
+        pminfoPdf.AddCell(new Phrase(pminfo[0].ToString(), bodyFont));
+        if (saleObj != null)
+        {
+            pminfoPdf.AddCell(new Phrase("Sale Name:", boldTableFont));
+            pminfoPdf.AddCell(new Phrase(saleObj[3].ToString() ?? "" + " " + saleObj[4].ToString() ?? "", bodyFont));
+            pminfoPdf.AddCell(new Phrase("Phone Number:", boldTableFont));
+            pminfoPdf.AddCell(new Phrase(saleObj[6].ToString() ?? "", bodyFont));
+            pminfoPdf.AddCell(new Phrase("Email Address:", boldTableFont));
+            pminfoPdf.AddCell(new Phrase(saleObj[5].ToString() ?? "", bodyFont));
+        }
+        document.Add(pminfoPdf);
+
+        var cusInfoPdf = new PdfPTable(2);
+        cusInfoPdf.HorizontalAlignment = 0;
+        cusInfoPdf.SpacingBefore = 15;
+        cusInfoPdf.SpacingAfter = 15;
+        cusInfoPdf.DefaultCell.BorderWidth = 1f;
+        cusInfoPdf.SetWidths(new int[] { 3, 5 });
+
+        document.Add(new Paragraph("1.2 Customer Contact Information", subTitleFont));
+        if (cusObj != null)
+        {
+            cusInfoPdf.AddCell(new Phrase("Customer Name:", boldTableFont));
+            cusInfoPdf.AddCell(new Phrase(cusObj[3].ToString() ?? "" + " " + cusObj[4].ToString() ?? "", bodyFont));
+            cusInfoPdf.AddCell(new Phrase("Phone Number:", boldTableFont));
+            cusInfoPdf.AddCell(new Phrase(cusObj[6].ToString() ?? "", bodyFont));
+            cusInfoPdf.AddCell(new Phrase("Email Address:", boldTableFont));
+            cusInfoPdf.AddCell(new Phrase(cusObj[5].ToString() ?? "", bodyFont));
+        }
+        document.Add(cusInfoPdf);
+
+
+        var engInfoPdf = new PdfPTable(2);
+        engInfoPdf.HorizontalAlignment = 0;
+        engInfoPdf.SpacingBefore = 15;
+        engInfoPdf.SpacingAfter = 15;
+        engInfoPdf.DefaultCell.BorderWidth = 1f;
+        engInfoPdf.SetWidths(new int[] { 3, 5 });
+
+        document.Add(new Paragraph("1.3 MFEC Engineers' Information", subTitleFont));
+        if (cusObj != null)
+        {
+            engInfoPdf.AddCell(new Phrase("Engineer Name:", boldTableFont));
+            engInfoPdf.AddCell(new Phrase(engObj[3].ToString() ?? "" + " " + engObj[4].ToString() ?? "", boldTableFont));
+            engInfoPdf.AddCell(new Phrase("Phone Number:", bodyFont));
+            engInfoPdf.AddCell(new Phrase(engObj[6].ToString() ?? "", boldTableFont));
+            engInfoPdf.AddCell(new Phrase("Email Address:", boldTableFont));
+            engInfoPdf.AddCell(new Phrase(engObj[5].ToString() ?? "", bodyFont));
+        }
+        document.Add(engInfoPdf);
+
+        var changeInfo = new PdfPTable(4);
+        changeInfo.HorizontalAlignment = 0;
+        changeInfo.SpacingBefore = 15;
+        changeInfo.SpacingAfter = 15;
+        changeInfo.DefaultCell.BorderWidth = 1f;
+        changeInfo.SetWidths(new int[] { 3, 5, 2, 4 });
+
+        document.Add(new Paragraph("1.4 Change Record", subTitleFont));
+        if (author != null)
+        {
+            changeInfo.AddCell(new Phrase("Date", boldTableFont));
+            changeInfo.AddCell(new Phrase("Author", boldTableFont));
+            changeInfo.AddCell(new Phrase("Version", boldTableFont));
+            changeInfo.AddCell(new Phrase("Change Reference", boldTableFont));
+            for (int i = 0; i < author.Count; i++) {
+                changeInfo.AddCell(new Phrase((author[i])[3].ToString(), bodyFont));
+                changeInfo.AddCell(new Phrase((author[i])[4].ToString(), bodyFont));
+                changeInfo.AddCell(new Phrase((author[i])[5].ToString(), bodyFont));
+                changeInfo.AddCell(new Phrase((author[i])[6].ToString(), bodyFont));
+            }
+
+        }
+        document.Add(changeInfo);
+
+
+        var reviewInfo = new PdfPTable(3);
+        reviewInfo.HorizontalAlignment = 0;
+        reviewInfo.SpacingBefore = 15;
+        reviewInfo.SpacingAfter = 15;
+        reviewInfo.DefaultCell.BorderWidth = 1f;
+        reviewInfo.SetWidths(new int[] { 3, 5, 4 });
+
+        document.Add(new Paragraph("1.5 Reviewers", subTitleFont));
+        if (reviewer != null)
+        {
+            reviewInfo.AddCell(new Phrase("Date", boldTableFont));
+            reviewInfo.AddCell(new Phrase("Name", boldTableFont));
+            reviewInfo.AddCell(new Phrase("Postition", boldTableFont));
+            for (int i = 0; i < author.Count; i++)
+            {
+                reviewInfo.AddCell(new Phrase((reviewer[i])[3].ToString(), bodyFont));
+                reviewInfo.AddCell(new Phrase((reviewer[i])[4].ToString(), bodyFont));
+                reviewInfo.AddCell(new Phrase((reviewer[i])[5].ToString(), bodyFont));
+            }
+
+        }
+        document.Add(reviewInfo);
+
+        document.Add(new Paragraph("2. Oracle minimum requirement", titleFont));
+        Paragraph p2 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p2);
+        document.Add(new Paragraph("2.1 Checking server machine specification", subTitleFont));
+
+        object[] chkServerObj = dbHelper.GetSingleQueryObject("SELECT * FROM ChkServerMacSpec WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var csms = new PdfPTable(2);
+        csms.HorizontalAlignment = 0;
+        csms.SpacingBefore = 15;
+        csms.SpacingAfter = 15;
+        csms.DefaultCell.BorderWidth = 1f;
+        csms.SetWidths(new int[] { 3, 5 });
+
+        if (csms != null)
+        {
+            csms.AddCell(new Phrase("", boldTableFont));
+            csms.AddCell(new Phrase("Values", boldTableFont));
+            csms.AddCell(new Phrase("Hostname", boldTableFont));
+            csms.AddCell(new Phrase(chkServerObj[2].ToString(), bodyFont));
+            csms.AddCell(new Phrase("IP Address", boldTableFont));
+            csms.AddCell(new Phrase(chkServerObj[3].ToString(), bodyFont));
+
+            var oracleOwner = new PdfPTable(3);
+            oracleOwner.HorizontalAlignment = 0;
+            oracleOwner.SpacingBefore = 15;
+            oracleOwner.SpacingAfter = 15;
+            oracleOwner.DefaultCell.BorderWidth = 1f;
+            oracleOwner.SetWidths(new int[] { 3, 5, 5 });
+            oracleOwner.AddCell(new Phrase("Login", boldTableFont));
+            oracleOwner.AddCell(new Phrase("Home's directory", boldTableFont));
+            oracleOwner.AddCell(new Phrase("Shell", boldTableFont));
+            oracleOwner.AddCell(new Phrase(chkServerObj[4].ToString(), bodyFont));
+            oracleOwner.AddCell(new Phrase(chkServerObj[5].ToString(), bodyFont));
+            oracleOwner.AddCell(new Phrase(chkServerObj[6].ToString(), bodyFont));
+            csms.AddCell(new Phrase("Oracle Owner", boldTableFont));
+            csms.AddCell(oracleOwner);
+
+            var oracleGroup = new PdfPTable(2);
+            oracleGroup.HorizontalAlignment = 0;
+            oracleGroup.SpacingBefore = 15;
+            oracleGroup.SpacingAfter = 15;
+            oracleGroup.DefaultCell.BorderWidth = 1f;
+            oracleGroup.SetWidths(new int[] { 3, 5 });
+            oracleGroup.AddCell(new Phrase("First group", boldTableFont));
+            oracleGroup.AddCell(new Phrase("Second group", boldTableFont));
+            oracleGroup.AddCell(new Phrase(chkServerObj[7].ToString(), bodyFont));
+            oracleGroup.AddCell(new Phrase(chkServerObj[8].ToString(), bodyFont));
+            csms.AddCell(new Phrase("Oracle Group", boldTableFont));
+            csms.AddCell(oracleGroup);
+        }
+        document.Add(csms);
+        document.Add(new Paragraph("2.2 Compare to Oracle requirement for " + chkServerObj[2].ToString(), subTitleFont));
+        object[] oracleReqObj = dbHelper.GetSingleQueryObject("SELECT * FROM CompareOracleRequirement WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var oraReq = new PdfPTable(2);
+        oraReq.HorizontalAlignment = 0;
+        oraReq.SpacingBefore = 15;
+        oraReq.SpacingAfter = 15;
+        oraReq.DefaultCell.BorderWidth = 1f;
+        oraReq.SetWidths(new int[] { 3, 5 });
+
+        oraReq.AddCell(new Phrase("Requirement", boldTableFont));
+        oraReq.AddCell(new Phrase("Server Specification", boldTableFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[3].ToString()+" OS:", boldTableFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[4].ToString(), bodyFont));
+
+        List<object[]> diskSpaceObj = dbHelper.GetMultiQueryObject("SELECT * FROM OSDiskSpace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        var dspo = new PdfPTable(7);
+        dspo.HorizontalAlignment = 0;
+        dspo.SpacingBefore = 15;
+        dspo.SpacingAfter = 15;
+        dspo.DefaultCell.BorderWidth = 1f;
+        dspo.SetWidths(new int[] { 3,3,3,3,3,3,3 });
+
+        dspo.AddCell(new Phrase("Filesystem", boldTableFont));
+        dspo.AddCell(new Phrase("MB blocks", boldTableFont));
+        dspo.AddCell(new Phrase("Free", boldTableFont));
+        dspo.AddCell(new Phrase("%Used", boldTableFont));
+        dspo.AddCell(new Phrase("Iused", boldTableFont));
+        dspo.AddCell(new Phrase("%Iused", boldTableFont));
+        dspo.AddCell(new Phrase("Mounted on", boldTableFont));
+        if (diskSpaceObj.Count > 0) {
+            for (int i = 0; i < diskSpaceObj.Count; i++) {
+                dspo.AddCell(new Phrase((diskSpaceObj[i])[3].ToString(), bodyFont));
+                dspo.AddCell(new Phrase((diskSpaceObj[i])[4].ToString(), bodyFont));
+                dspo.AddCell(new Phrase((diskSpaceObj[i])[5].ToString(), bodyFont));
+                dspo.AddCell(new Phrase((diskSpaceObj[i])[6].ToString(), bodyFont));
+                dspo.AddCell(new Phrase((diskSpaceObj[i])[7].ToString(), bodyFont));
+                dspo.AddCell(new Phrase((diskSpaceObj[i])[8].ToString(), bodyFont));
+                dspo.AddCell(new Phrase((diskSpaceObj[i])[9].ToString(), bodyFont));
+            }
+        }
+        oraReq.AddCell(new Phrase(oracleReqObj[3].ToString() + " Disk Space:", boldTableFont));
+        oraReq.AddCell(dspo);
+        oraReq.AddCell(new Phrase(oracleReqObj[3].ToString() + " RAM:", boldTableFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[5].ToString(), bodyFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[3].ToString() + " Swap:", boldTableFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[6].ToString(), bodyFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[3].ToString() + " Tmp:", boldTableFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[7].ToString(), bodyFont));
+        oraReq.AddCell(new Phrase("JAVA", boldTableFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[8].ToString(), bodyFont));
+        oraReq.AddCell(new Phrase("Kernel", boldTableFont));
+        oraReq.AddCell(new Phrase(oracleReqObj[9].ToString(), bodyFont));
+        document.Add(oraReq);
+
+        document.Add(new Paragraph("2.3 User's environment for " + chkServerObj[2].ToString(), subTitleFont));
+        List<object[]> userEnvObj = dbHelper.GetMultiQueryObject("SELECT * FROM UserEnvironment WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var ueo = new PdfPTable(2);
+        ueo.HorizontalAlignment = 0;
+        ueo.SpacingBefore = 15;
+        ueo.SpacingAfter = 15;
+        ueo.DefaultCell.BorderWidth = 1f;
+        ueo.SetWidths(new int[] { 3, 5 });
+
+        ueo.AddCell(new Phrase("Parameter", boldTableFont));
+        ueo.AddCell(new Phrase("Value", boldTableFont));
+        if (userEnvObj.Count > 0) {
+            for (int i = 0; i < userEnvObj.Count; i++) {
+                ueo.AddCell(new Phrase((userEnvObj[i])[2].ToString(), bodyFont));
+                ueo.AddCell(new Phrase((userEnvObj[i])[3].ToString(), bodyFont));
+            }
+        }
+        document.Add(ueo);
+
+        document.Add(new Paragraph("3. System Checklist", titleFont));
+        Paragraph p3 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p3);
+        document.Add(new Paragraph("3.1 Hardware configuration for " + chkServerObj[2].ToString(), subTitleFont));
+        object[] hardwareObj = dbHelper.GetSingleQueryObject("SELECT * FROM HardwareConfiguration WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var systemCheck = new PdfPTable(2);
+        systemCheck.HorizontalAlignment = 0;
+        systemCheck.SpacingBefore = 15;
+        systemCheck.SpacingAfter = 15;
+        systemCheck.DefaultCell.BorderWidth = 1f;
+        systemCheck.SetWidths(new int[] { 3, 5 });
+
+        systemCheck.AddCell(new Phrase("", boldTableFont));
+        systemCheck.AddCell(new Phrase("Values", boldTableFont));
+        if (hardwareObj != null) {
+                systemCheck.AddCell(new Phrase("System Model", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[3].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("Machine Serial Number", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[4].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("Processor Type", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[5].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("Processor Implementation Mode", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[6].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("Processor Version", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[7].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("Number Of Processors", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[8].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("Processor Clock Speed", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[9].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("CPU Type", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[10].ToString(), bodyFont));
+                systemCheck.AddCell(new Phrase("Kernel Type", bodyFont));
+                systemCheck.AddCell(new Phrase(hardwareObj[11].ToString(), bodyFont));
+        }
+        document.Add(systemCheck);
+
+        document.Add(new Paragraph("3.2 Network configuration for " + chkServerObj[2].ToString(), subTitleFont));
+        var network = new PdfPTable(2);
+        network.HorizontalAlignment = 0;
+        network.SpacingBefore = 15;
+        network.SpacingAfter = 15;
+        network.DefaultCell.BorderWidth = 1f;
+        network.SetWidths(new int[] { 3, 5 });
+
+        network.AddCell(new Phrase("", boldTableFont));
+        network.AddCell(new Phrase("Values", boldTableFont));
+        network.AddCell(new Phrase("IP Address", bodyFont));
+        network.AddCell(new Phrase(hardwareObj[12].ToString(), bodyFont));
+        network.AddCell(new Phrase("Sub Netmask", bodyFont));
+        network.AddCell(new Phrase(hardwareObj[13].ToString(), bodyFont));
+        document.Add(network);
+
+        document.Add(new Paragraph("3.3 Crontab information for " + chkServerObj[2].ToString(), subTitleFont));
+        var contrab = new PdfPTable(1);
+        contrab.HorizontalAlignment = 0;
+        contrab.SpacingBefore = 15;
+        contrab.SpacingAfter = 15;
+        contrab.DefaultCell.BorderWidth = 1f;
+        contrab.SetWidths(new int[] {  5 });
+
+        contrab.AddCell(new Phrase("Crontab Information", boldTableFont));
+        contrab.AddCell(new Phrase(hardwareObj[14].ToString(), bodyFont));        
+        document.Add(contrab);
+
+
+        document.Add(new Paragraph("4. Database Information", titleFont));
+        Paragraph p4 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p4);
+        document.Add(new Paragraph("4.1 Database Configuration", subTitleFont));
+        var dbconfig = new PdfPTable(2);
+        dbconfig.HorizontalAlignment = 0;
+        dbconfig.SpacingBefore = 15;
+        dbconfig.SpacingAfter = 15;
+        dbconfig.DefaultCell.BorderWidth = 1f;
+        dbconfig.SetWidths(new int[] { 5,5 });
+
+        dbconfig.AddCell(new Phrase("What?", boldTableFont));
+        dbconfig.AddCell(new Phrase("Value?", boldTableFont));
+        List<object[]> databaseConfigObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseConfiguration WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (databaseConfigObj != null) {
+            for (int i = 0; i < databaseConfigObj.Count; i++) {
+                dbconfig.AddCell(new Phrase((databaseConfigObj[i])[2].ToString(), bodyFont));
+                dbconfig.AddCell(new Phrase((databaseConfigObj[i])[3].ToString(), bodyFont));
+            }
+        }
+        document.Add(dbconfig);
+
+        document.Add(new Paragraph("4.2 Database Parameter", subTitleFont));
+
+        List<object[]> databaseParameterObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseParameter WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        var dbParam = new PdfPTable(2);
+        dbParam.HorizontalAlignment = 0;
+        dbParam.SpacingBefore = 15;
+        dbParam.SpacingAfter = 15;
+        dbParam.DefaultCell.BorderWidth = 1f;
+        dbParam.SetWidths(new int[] { 5, 5 });
+
+        dbParam.AddCell(new Phrase("Name", boldTableFont));
+        dbParam.AddCell(new Phrase("Values", boldTableFont));
+        
+        if (databaseParameterObj != null)
+        {
+            for (int i = 0; i < databaseParameterObj.Count; i++)
+            {
+                dbParam.AddCell(new Phrase((databaseParameterObj[i])[2].ToString(), bodyFont));
+                dbParam.AddCell(new Phrase((databaseParameterObj[i])[3].ToString(), bodyFont));
+            }
+        }
+        document.Add(dbParam);
+
+        document.Add(new Paragraph("4.3 Major Security Initailization Parameters", subTitleFont));
+        string majorSecureStr = "SELECT * FROM DatabaseParameter WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "'";
+        majorSecureStr = majorSecureStr + " AND ( header = 'O7_DICTIONARY_ACCESSIBILITY' OR header = 'audit_trail' OR header = 'remote_login_passwordfile' OR header = 'remote_os_authent') ;";
+        List<object[]> majorSecureObj = dbHelper.GetMultiQueryObject(majorSecureStr);
+        var majorSecure = new PdfPTable(2);
+        majorSecure.HorizontalAlignment = 0;
+        majorSecure.SpacingBefore = 15;
+        majorSecure.SpacingAfter = 15;
+        majorSecure.DefaultCell.BorderWidth = 1f;
+        majorSecure.SetWidths(new int[] { 5, 5 });
+
+        majorSecure.AddCell(new Phrase("Name", boldTableFont));
+        majorSecure.AddCell(new Phrase("Values", boldTableFont));
+
+        if (majorSecureObj != null)
+        {
+            for (int i = 0; i < majorSecureObj.Count; i++)
+            {
+                majorSecure.AddCell(new Phrase((majorSecureObj[i])[2].ToString(), bodyFont));
+                majorSecure.AddCell(new Phrase((majorSecureObj[i])[3].ToString(), bodyFont));
+            }
+        }
+        document.Add(majorSecure);
+
+        document.Add(new Paragraph("4.4 Database Files", subTitleFont));
+        List<object[]> databaseFileObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var dbf = new PdfPTable(6);
+        dbf.HorizontalAlignment = 0;
+        dbf.SpacingBefore = 15;
+        dbf.SpacingAfter = 15;
+        dbf.DefaultCell.BorderWidth = 1f;
+        dbf.SetWidths(new int[] { 3,5,3,3,2,3 });
+
+        dbf.AddCell(new Phrase("Tbs Name", boldTableFont));
+        dbf.AddCell(new Phrase("File Name", boldTableFont));
+        dbf.AddCell(new Phrase("Size(MB)", boldTableFont));
+        dbf.AddCell(new Phrase("Max(MB)", boldTableFont));
+        dbf.AddCell(new Phrase("Aut", boldTableFont));
+        dbf.AddCell(new Phrase("Inc.(block)", boldTableFont));
+
+        if (databaseFileObj != null)
+        {
+            for (int i = 0; i < databaseFileObj.Count; i++)
+            {
+                dbf.AddCell(new Phrase((databaseFileObj[i])[2].ToString(), bodyFont));
+                dbf.AddCell(new Phrase((databaseFileObj[i])[3].ToString(), bodyFont));
+                dbf.AddCell(new Phrase((databaseFileObj[i])[4].ToString(), bodyFont));
+                dbf.AddCell(new Phrase((databaseFileObj[i])[5].ToString(), bodyFont));
+                dbf.AddCell(new Phrase((databaseFileObj[i])[6].ToString(), bodyFont));
+                dbf.AddCell(new Phrase((databaseFileObj[i])[7].ToString(), bodyFont));
+            }
+        }
+        document.Add(dbf);
+
+        document.Add(new Paragraph("4.5 Temporary Files", subTitleFont));
+        List<object[]> tempFileObj = dbHelper.GetMultiQueryObject("SELECT * FROM TempFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var tf = new PdfPTable(6);
+        tf.HorizontalAlignment = 0;
+        tf.SpacingBefore = 15;
+        tf.SpacingAfter = 15;
+        tf.DefaultCell.BorderWidth = 1f;
+        tf.SetWidths(new int[] { 3, 5, 3, 3, 2, 3 });
+
+        tf.AddCell(new Phrase("Tbs Name", boldTableFont));
+        tf.AddCell(new Phrase("File Name", boldTableFont));
+        tf.AddCell(new Phrase("Size(MB)", boldTableFont));
+        tf.AddCell(new Phrase("Max(MB)", boldTableFont));
+        tf.AddCell(new Phrase("Aut", boldTableFont));
+        tf.AddCell(new Phrase("Inc.(block)", boldTableFont));
+
+        if (tempFileObj != null)
+        {
+            for (int i = 0; i < tempFileObj.Count; i++)
+            {
+                tf.AddCell(new Phrase((tempFileObj[i])[2].ToString(), bodyFont));
+                tf.AddCell(new Phrase((tempFileObj[i])[3].ToString(), bodyFont));
+                tf.AddCell(new Phrase((tempFileObj[i])[4].ToString(), bodyFont));
+                tf.AddCell(new Phrase((tempFileObj[i])[5].ToString(), bodyFont));
+                tf.AddCell(new Phrase((tempFileObj[i])[6].ToString(), bodyFont));
+                tf.AddCell(new Phrase((tempFileObj[i])[7].ToString(), bodyFont));
+            }
+        }
+        document.Add(tf);
+
+        document.Add(new Paragraph("4.6 Redo Log File", subTitleFont));
+        List<object[]> redoLogObj = dbHelper.GetMultiQueryObject("SELECT * FROM RedoLogFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var rdf = new PdfPTable(3);
+        rdf.HorizontalAlignment = 0;
+        rdf.SpacingBefore = 15;
+        rdf.SpacingAfter = 15;
+        rdf.DefaultCell.BorderWidth = 1f;
+        rdf.SetWidths(new int[] { 3, 5, 3});
+        
+        rdf.AddCell(new Phrase("Group#", boldTableFont));
+        rdf.AddCell(new Phrase("Member", boldTableFont));
+        rdf.AddCell(new Phrase("Size(MB)", boldTableFont));
+
+        if (redoLogObj != null)
+        {
+            for (int i = 0; i < redoLogObj.Count; i++)
+            {
+                rdf.AddCell(new Phrase((redoLogObj[i])[2].ToString(), bodyFont));
+                rdf.AddCell(new Phrase((redoLogObj[i])[3].ToString(), bodyFont));
+                rdf.AddCell(new Phrase((redoLogObj[i])[4].ToString(), bodyFont));
+            }
+        }
+        document.Add(rdf);
+
+        document.Add(new Paragraph("4.7 ControlFile", subTitleFont));
+        List<object[]> controlObj = dbHelper.GetMultiQueryObject("SELECT * FROM ControlFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var cf = new PdfPTable(1);
+        cf.HorizontalAlignment = 0;
+        cf.SpacingBefore = 15;
+        cf.SpacingAfter = 15;
+        cf.DefaultCell.BorderWidth = 1f;
+        cf.SetWidths(new int[] { 5 });
+        
+        cf.AddCell(new Phrase("Control File Name#", boldTableFont));
+
+        if (controlObj != null)
+        {
+            for (int i = 0; i < controlObj.Count; i++)
+            {
+                cf.AddCell(new Phrase((controlObj[i])[2].ToString(), bodyFont));
+            }
+        }
+        document.Add(cf);
+
+        document.Add(new Paragraph("4.8 Daily Calendar Worksheet", subTitleFont));
+        List<object[]> dayCalObj = dbHelper.GetMultiQueryObject("SELECT * FROM DailyCalendarWorksheet WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var dc = new PdfPTable(3);
+        dc.HorizontalAlignment = 0;
+        dc.SpacingBefore = 15;
+        dc.SpacingAfter = 15;
+        dc.DefaultCell.BorderWidth = 1f;
+        dc.SetWidths(new int[] { 3, 5, 3 });
+        
+        dc.AddCell(new Phrase("Time", boldTableFont));
+        dc.AddCell(new Phrase("Description of Housekeeping and Batch Processing Schedule", boldTableFont));
+        dc.AddCell(new Phrase("Estimated Duration", boldTableFont));
+
+        if (dayCalObj != null)
+        {
+            for (int i = 0; i < dayCalObj.Count; i++)
+            {
+                dc.AddCell(new Phrase((dayCalObj[i])[2].ToString(), bodyFont));
+                dc.AddCell(new Phrase((dayCalObj[i])[3].ToString(), bodyFont));
+                dc.AddCell(new Phrase((dayCalObj[i])[4].ToString(), bodyFont));
+            }
+        }
+        document.Add(dc);
+
+        document.Add(new Paragraph("4.9 Monthly Calendar Worksheet", subTitleFont));
+        List<object[]> monthCalObj = dbHelper.GetMultiQueryObject("SELECT * FROM MonthlyCalendarWorksheet WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var mc = new PdfPTable(3);
+        mc.HorizontalAlignment = 0;
+        mc.SpacingBefore = 15;
+        mc.SpacingAfter = 15;
+        mc.DefaultCell.BorderWidth = 1f;
+        mc.SetWidths(new int[] { 3, 5, 3 });
+        
+        mc.AddCell(new Phrase("Day", boldTableFont));
+        mc.AddCell(new Phrase("Description of Housekeeping and Batch Processing Schedule", boldTableFont));
+        mc.AddCell(new Phrase("Estimated Duration", boldTableFont));
+
+        if (dayCalObj != null)
+        {
+            for (int i = 0; i < dayCalObj.Count; i++)
+            {
+                mc.AddCell(new Phrase((monthCalObj[i])[2].ToString(), bodyFont));
+                mc.AddCell(new Phrase((monthCalObj[i])[3].ToString(), bodyFont));
+                mc.AddCell(new Phrase((monthCalObj[i])[4].ToString(), bodyFont));
+            }
+        }
+        document.Add(mc);
+
+
+        document.Add(new Paragraph("5. RDBMS Performance", titleFont));
+        Paragraph p5 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p5);
+        document.Add(new Paragraph("5.1 Performance Review", subTitleFont));
+        List<object[]> perfReviceObj = dbHelper.GetMultiQueryObject("SELECT * FROM performanceReview WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var perfRev = new PdfPTable(2);
+        perfRev.HorizontalAlignment = 0;
+        perfRev.SpacingBefore = 15;
+        perfRev.SpacingAfter = 15;
+        perfRev.DefaultCell.BorderWidth = 1f;
+        perfRev.SetWidths(new int[] { 5,5 });
+        
+        perfRev.AddCell(new Phrase("Information Required to Tune Memory Allocation", boldTableFont));
+        perfRev.AddCell(new Phrase("Answer", boldTableFont));
+
+        if (perfReviceObj != null)
+        {
+            List<object[]> getHitRatioObj = dbHelper.GetMultiQueryObject("SELECT * FROM getHitRatio WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+            List<object[]> pinRatioObj = dbHelper.GetMultiQueryObject("SELECT * FROM PinRatio WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+            var getHit = new PdfPTable(2);
+            getHit.HorizontalAlignment = 0;
+            getHit.SpacingBefore = 15;
+            getHit.SpacingAfter = 15;
+            getHit.DefaultCell.BorderWidth = 1f;
+            getHit.SetWidths(new int[] { 5, 5 });
+            getHit.AddCell(new Phrase("NameSpace", boldTableFont));
+            getHit.AddCell(new Phrase("GetHitRatio", boldTableFont));
+            if (getHitRatioObj != null)
+            {
+                for (int j = 0; j < 0; j++)
+                {
+                    getHit.AddCell(new Phrase((pinRatioObj[j])[2].ToString(), bodyFont));
+                    getHit.AddCell(new Phrase((pinRatioObj[j])[3].ToString(), bodyFont));
+                }
+            }
+            perfRev.AddCell(new Phrase("1. What is the gethitratio of the librarycache?", bodyFont));
+            perfRev.AddCell(getHit);
+
+            var pin = new PdfPTable(3);
+            pin.HorizontalAlignment = 0;
+            pin.SpacingBefore = 15;
+            pin.SpacingAfter = 15;
+            pin.DefaultCell.BorderWidth = 1f;
+            pin.SetWidths(new int[] { 5, 5, 5 });
+            pin.AddCell(new Phrase("Execution", boldTableFont));
+            pin.AddCell(new Phrase("Cache Misses", boldTableFont));
+            pin.AddCell(new Phrase("Sum", boldTableFont));
+            if (pinRatioObj != null)
+            {
+                for (int i = 0; i < pinRatioObj.Count; i++)
+                {
+                    pin.AddCell(new Phrase((pinRatioObj[i])[2].ToString(), bodyFont));
+                    pin.AddCell(new Phrase((pinRatioObj[i])[3].ToString(), bodyFont));
+                    pin.AddCell(new Phrase((pinRatioObj[i])[4].ToString(), bodyFont));
+                }
+                perfRev.AddCell(new Phrase("2. What is the PIN / RELOAD ratio within the librarycache?", bodyFont));
+                perfRev.AddCell(pin);
+            }
+
+            for (int i = 0; i < perfReviceObj.Count; i++)
+            {
+                if (i == 11)
+                {
+                    perfRev.AddCell(new Phrase((perfReviceObj[i])[2].ToString(), bodyFont));
+                    perfRev.AddCell(new Phrase((perfReviceObj[i])[3].ToString(), bodyFont));
+
+                    var undoSeg = new PdfPTable(3);
+                    undoSeg.HorizontalAlignment = 0;
+                    undoSeg.SpacingBefore = 15;
+                    undoSeg.SpacingAfter = 15;
+                    undoSeg.DefaultCell.BorderWidth = 1f;
+                    undoSeg.SetWidths(new int[] { 5, 5, 5 });
+                    undoSeg.AddCell(new Phrase("Amount", boldTableFont));
+                    undoSeg.AddCell(new Phrase("Segment Type", boldTableFont));
+                    undoSeg.AddCell(new Phrase("Size(MB)", boldTableFont));
+                    List<object[]> segmentObj = dbHelper.GetMultiQueryObject("SELECT * FROM undoSegmentsSize WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+                    if (segmentObj != null) {
+                        for (int j = 0; j < segmentObj.Count; j++) {
+                            undoSeg.AddCell(new Phrase((segmentObj[j])[2].ToString(), bodyFont));
+                            undoSeg.AddCell(new Phrase((segmentObj[j])[3].ToString(), bodyFont));
+                            undoSeg.AddCell(new Phrase((segmentObj[j])[4].ToString(), bodyFont));
+                        }
+                    }
+                    perfRev.AddCell(new Phrase("Number and size of Undo Segments?", bodyFont));
+                    perfRev.AddCell(undoSeg);
+                }
+                else
+                {
+                    perfRev.AddCell(new Phrase((perfReviceObj[i])[2].ToString(), bodyFont));
+                    perfRev.AddCell(new Phrase((perfReviceObj[i])[3].ToString(), bodyFont));
+                }
+            }
+        }
+
+        document.Add(perfRev);
+
+        document.Add(new Paragraph("5.2 Database Growth Rate", subTitleFont));
+        var image = iTextSharp.text.Image.GetInstance(Chart());
+        image.ScalePercent(75f);
+        document.Add(image);
+
+        document.Add(new Paragraph("6. Tablespace Free Space", titleFont));
+        Paragraph p6 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p6);
+        document.Add(new Paragraph("6.1 Tablespace Free Space", subTitleFont));
+        List<object[]> tbsFreeObj = dbHelper.GetMultiQueryObject("SELECT * FROM TablespaceFreespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var tfs = new PdfPTable(5);
+        tfs.HorizontalAlignment = 0;
+        tfs.SpacingBefore = 15;
+        tfs.SpacingAfter = 15;
+        tfs.DefaultCell.BorderWidth = 1f;
+        tfs.SetWidths(new int[] { 3, 5, 3, 3, 2 });
+        
+        tfs.AddCell(new Phrase("Tablespace Name", boldTableFont));
+        tfs.AddCell(new Phrase("Max Blocks", boldTableFont));
+        tfs.AddCell(new Phrase("Count Blocks", boldTableFont));
+        tfs.AddCell(new Phrase("Sum Free Blocks", boldTableFont));
+        tfs.AddCell(new Phrase("PCT_FREE", boldTableFont));
+
+        if (tbsFreeObj != null)
+        {
+            for (int i = 0; i < tbsFreeObj.Count; i++)
+            {
+                tfs.AddCell(new Phrase((tbsFreeObj[i])[2].ToString(), bodyFont));
+                tfs.AddCell(new Phrase((tbsFreeObj[i])[3].ToString(), bodyFont));
+                tfs.AddCell(new Phrase((tbsFreeObj[i])[4].ToString(), bodyFont));
+                tfs.AddCell(new Phrase((tbsFreeObj[i])[5].ToString(), bodyFont));
+                tfs.AddCell(new Phrase((tbsFreeObj[i])[6].ToString(), bodyFont));
+            }
+        }
+        document.Add(tfs);
+
+        document.Add(new Paragraph("7. Default tablespace and temporary tablespace", titleFont));
+        Paragraph p7 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p7);
+        document.Add(new Paragraph("7.1 Default tablespace and temporary tablespace", subTitleFont));
+        List<object[]> defTbsFreeObj = dbHelper.GetMultiQueryObject("SELECT * FROM TablespaceAndTempTablespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var deftfs = new PdfPTable(3);
+        deftfs.HorizontalAlignment = 0;
+        deftfs.SpacingBefore = 15;
+        deftfs.SpacingAfter = 15;
+        deftfs.DefaultCell.BorderWidth = 1f;
+        deftfs.SetWidths(new int[] { 3, 5, 3 });
+        
+        deftfs.AddCell(new Phrase("User Name", boldTableFont));
+        deftfs.AddCell(new Phrase("Default Tablespace", boldTableFont));
+        deftfs.AddCell(new Phrase("Temporary Tablespace", boldTableFont));
+
+        if (defTbsFreeObj != null)
+        {
+            for (int i = 0; i < defTbsFreeObj.Count; i++)
+            {
+                deftfs.AddCell(new Phrase((defTbsFreeObj[i])[2].ToString(), bodyFont));
+                deftfs.AddCell(new Phrase((defTbsFreeObj[i])[3].ToString(), bodyFont));
+                deftfs.AddCell(new Phrase((defTbsFreeObj[i])[4].ToString(), bodyFont));
+            }
+        }
+        document.Add(deftfs);
+
+
+        document.Add(new Paragraph("8. Database Registry", titleFont));
+        Paragraph p8 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p8);
+        document.Add(new Paragraph("8.1 Check Database Registry", subTitleFont));
+        List<object[]> dbRegObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseRegistry WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var dbReg = new PdfPTable(4);
+        dbReg.HorizontalAlignment = 0;
+        dbReg.SpacingBefore = 15;
+        dbReg.SpacingAfter = 15;
+        dbReg.DefaultCell.BorderWidth = 1f;
+        dbReg.SetWidths(new int[] { 3, 5, 3, 3 });
+        
+        dbReg.AddCell(new Phrase("Comp ID", boldTableFont));
+        dbReg.AddCell(new Phrase("Version", boldTableFont));
+        dbReg.AddCell(new Phrase("Status", boldTableFont));
+        dbReg.AddCell(new Phrase("Last Modified", boldTableFont));
+
+        if (dbRegObj != null)
+        {
+            for (int i = 0; i < dbRegObj.Count; i++)
+            {
+                dbReg.AddCell(new Phrase((dbRegObj[i])[2].ToString(), bodyFont));
+                dbReg.AddCell(new Phrase((dbRegObj[i])[3].ToString(), bodyFont));
+                dbReg.AddCell(new Phrase((dbRegObj[i])[4].ToString(), bodyFont));
+                dbReg.AddCell(new Phrase((dbRegObj[i])[5].ToString(), bodyFont));
+            }
+        }
+        document.Add(dbReg);
+
+
+
+        document.Add(new Paragraph("9. Information from Alert Log", titleFont));
+        Paragraph p9 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p9);
+        document.Add(new Paragraph("9.1 alert log", subTitleFont));
+        List<object[]> listOfAlert = dbHelper.GetMultiQueryObject("SELECT * FROM AlertLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+
+        var alertLog = new PdfPTable(2);
+        alertLog.HorizontalAlignment = 0;
+        alertLog.SpacingBefore = 15;
+        alertLog.SpacingAfter = 15;
+        alertLog.DefaultCell.BorderWidth = 1f;
+        alertLog.SetWidths(new int[] { 3, 5 });       
+
+        if (listOfAlert != null)
+        {
+            for (int i = 0; i < listOfAlert.Count; i++)
+            {
+                alertLog.AddCell(new Phrase("Key Search", boldTableFont));
+                alertLog.AddCell(new Phrase((listOfAlert[i])[2].ToString(), bodyFont));
+                alertLog.AddCell(new Phrase("Action", boldTableFont));
+                alertLog.AddCell(new Phrase((listOfAlert[i])[3].ToString(), bodyFont));
+                alertLog.AddCell(new Phrase("Caused", boldTableFont));
+                alertLog.AddCell(new Phrase((listOfAlert[i])[4].ToString(), bodyFont));
+                alertLog.AddCell(new Phrase("Score", boldTableFont));
+                alertLog.AddCell(new Phrase((listOfAlert[i])[5].ToString(), bodyFont));
+            }
+        }
+        document.Add(alertLog);
+
+
+        document.Add(new Paragraph("10. Backup History", titleFont));
+        Paragraph p10 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(p10);
+        object[] backupFIle = dbHelper.GetSingleQueryObject("SELECT * FROM backupfile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (backupFIle != null)
+        {
+            document.Add(new Paragraph("10.1 Backup Database", subTitleFont));
+            var bd = new PdfPTable(1);
+            bd.HorizontalAlignment = 0;
+            bd.SpacingBefore = 15;
+            bd.SpacingAfter = 15;
+            bd.DefaultCell.BorderWidth = 1f;
+            bd.SetWidths(new int[] { 5 });
+            bd.AddCell(new Phrase("Last Backup Database", boldTableFont));
+            bd.AddCell(new Phrase(backupFIle[4].ToString(), bodyFont));
+
+            document.Add(new Paragraph("10.2 Backup Archivelog", subTitleFont));
+            var ba = new PdfPTable(1);
+            ba.HorizontalAlignment = 0;
+            ba.SpacingBefore = 15;
+            ba.SpacingAfter = 15;
+            ba.DefaultCell.BorderWidth = 1f;
+            ba.SetWidths(new int[] { 5 });
+            ba.AddCell(new Phrase("Last Backup Archivelog", boldTableFont));
+            ba.AddCell(new Phrase(backupFIle[3].ToString(), bodyFont));
+
+            document.Add(new Paragraph("10.3 Backup Controlfile", subTitleFont));
+            var bc = new PdfPTable(1);
+            bc.HorizontalAlignment = 0;
+            bc.SpacingBefore = 15;
+            bc.SpacingAfter = 15;
+            bc.DefaultCell.BorderWidth = 1f;
+            bc.SetWidths(new int[] { 5 });
+            bc.AddCell(new Phrase("Last Backup Controlfile", boldTableFont));
+            bc.AddCell(new Phrase(backupFIle[2].ToString(), bodyFont));
+        }
+
+        // Close the Document - this saves the document contents to the output stream
+        document.Close();
+    }
+
+    public static string GetTimestamp(DateTime value)
+    {
+        return value.ToString("yyyyMMddHHmmssffff");
+    }
+
+    private Byte[] Chart()
+    {
+        Object[] obj = dbHelper.GetSingleQueryObject("SELECT * FROM DBGrowthRate WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (obj != null)
+        {
+
+            List<double> allocateSpaceList = new List<double>();
+            List<double> usedSpaceList = new List<double>();
+
+            double allocateSpaceInit = double.Parse(obj[2].ToString());
+            double usedSpaceInit = double.Parse(obj[3].ToString());
+            double growthDay = double.Parse(obj[4].ToString());
+            double growthMonth = double.Parse(obj[5].ToString());
+            double UsedGrowth = growthDay * 30;
+            double AllowGrowth = growthMonth * 30;
+
+            allocateSpaceList.Add(allocateSpaceInit);
+            usedSpaceList.Add(usedSpaceInit);
+
+            for (int i = 0; i < 3; i++)
+            {
+                allocateSpaceList.Add(allocateSpaceInit += AllowGrowth);
+                usedSpaceList.Add(usedSpaceInit += UsedGrowth);
+            }
+
+            Chart1.Series.Clear();
+            Chart1.Series.Add("Series1");
+            Chart1.Series["Series1"].Points.AddXY(1, usedSpaceList[0]);
+            Chart1.Series["Series1"].Points.AddXY(2, usedSpaceList[1]);
+            Chart1.Series["Series1"].Points.AddXY(3, usedSpaceList[2]);
+            Chart1.Series["Series1"].Points.AddXY(4, usedSpaceList[3]);
+            Chart1.Series["Series1"].ChartType = SeriesChartType.Line;
+            Chart1.Series["Series1"].BorderWidth = 3;
+
+            Chart1.Series.Add("Series2");
+            Chart1.Series["Series2"].Points.AddXY(1, allocateSpaceList[0]);
+            Chart1.Series["Series2"].Points.AddXY(2, allocateSpaceList[1]);
+            Chart1.Series["Series2"].Points.AddXY(3, allocateSpaceList[2]);
+            Chart1.Series["Series2"].Points.AddXY(4, allocateSpaceList[3]);
+            Chart1.Series["Series2"].ChartType = SeriesChartType.Line;
+            Chart1.Series["Series2"].BorderWidth = 3;
+
+            Chart1.ChartAreas[0].AxisX.Interval = 1;
+            Chart1.Width = 500;
+
+            using (var chartimage = new MemoryStream())
+            {
+                Chart1.SaveImage(chartimage, ChartImageFormat.Png);
+                return chartimage.GetBuffer();
+            }
+
+        }
+        else { return null; }
     }
 }

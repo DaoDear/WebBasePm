@@ -82,8 +82,11 @@ public partial class production_pm_info : System.Web.UI.Page
 
         engineerName = engineerObj[2].ToString();
         engineerLastname = engineerObj[3].ToString();
-        object[] reviewerList = new object[] { DateTime.Now , engineerName + " " + engineerLastname, "Engineer" };
-        dbHelper.InsertReviewer(projectCoded, projectQuarter, reviewerList);
+        if (!IsPostBack)
+        {
+            object[] reviewerList = new object[] { DateTime.Now, engineerName + " " + engineerLastname, "Engineer" };
+            dbHelper.InsertReviewer(projectCoded, projectQuarter, reviewerList);
+        }
 
         List<object[]> author = dbHelper.GetMultiQueryObject("SELECT *  FROM AuthorLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (author != null)

@@ -873,21 +873,19 @@
                                                       <!-- End 8.1 -->
                                                   </div>
                                                   <!-- End Tab 8 -->
-                                                  <!-- Tab 10 -->
+                                                  <!-- Tab 9 -->
                                                   <div role="tabpanel" class="tab-pane fade" id="tab_content10" aria-labelledby="profile-tab">
-                                                      <h4><b>10. Information from Alert Log</b></h4>
-                                                      <!-- 10.1 -->
+                                                      <h4><b>9. Information from Alert Log</b></h4>
+                                                      <!-- 9.1 -->
                                                       <h5><b>Alert Log of <asp:Label ID="alertDatabaeName" runat="server"></asp:Label></b></h5>
                                                       <asp:Panel ID="alertLogPanel" runat="server">
-
-                                                      </asp:Panel>
-                                                      
-                                                      <!-- End 10.1 -->
+                                                      </asp:Panel>                                                      
+                                                      <!-- End 9.1 -->
                                                   </div>
-                                                  <!-- End Tab 10 -->
-                                                  <!-- Tab 11 -->
+                                                  <!-- End Tab 9 -->
+                                                  <!-- Tab 10 -->
                                                   <div role="tabpanel" class="tab-pane fade" id="tab_content11" aria-labelledby="profile-tab">
-                                                      <h4><b>11. Backup History</b></h4>
+                                                      <h4><b>10. Backup History</b></h4>
                                                       <!-- Backup Database -->
                                                       <h5><b>Backup Database</b></h5>
                                                       <table class="table table-striped table-bordered">
@@ -934,12 +932,11 @@
                                                       </table>                                                      
                                                       <!-- End Backup Controlfile -->
                                                   </div>
-                                                  <!-- End Tab 11 -->
+                                                  <!-- End Tab 10 -->
                                               </div>
                                               <!-- End Content on Tab -->
                                           </div>
                                           <!-- End Flat -->
-
                                       </div>
                                   </div>
                               </div>
