@@ -887,8 +887,9 @@ public partial class production_pm_info : System.Web.UI.Page
     {
         DatabaseHelper dbHelper = new DatabaseHelper();
         // Create a Document object
-        var document = new Document(PageSize.A4, 50, 50, 25, 25);
-
+        var document = new Document(PageSize.A4, 72, 72, 72, 72);
+        var output2 = new MemoryStream();
+        var writer2 = PdfWriter.GetInstance(document, output2);
         // Create a new PdfWriter object, specifying the output stream
         string timeStamp = GetTimestamp(DateTime.Now);
         string tempPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory.ToString(), "TEMP", "FILES_" + timeStamp);
@@ -897,11 +898,11 @@ public partial class production_pm_info : System.Web.UI.Page
         var output = new FileStream(filePath, FileMode.Create);
         var writer = PdfWriter.GetInstance(document, output);
 
-        var titleFont = FontFactory.GetFont("Microsoft Sans Serif", 18, Font.BOLD, BaseColor.BLUE);
-        var subTitleFont = FontFactory.GetFont("Microsoft Sans Serif", 14, Font.BOLD);
+        var titleFont = FontFactory.GetFont("Arial", 16, Font.BOLD, BaseColor.BLUE);
+        var subTitleFont = FontFactory.GetFont("Arial", 12, Font.BOLD, BaseColor.BLUE);
         var boldTableFont = FontFactory.GetFont("Microsoft Sans Serif", 12, Font.BOLD);
         var endingMessageFont = FontFactory.GetFont("Microsoft Sans Serif", 10, Font.ITALIC);
-        var bodyFont = FontFactory.GetFont("Microsoft Sans Serif", 12, Font.NORMAL);
+        var bodyFont = FontFactory.GetFont("Arial", 12, Font.NORMAL, BaseColor.BLACK);
 
 
         object[] pminfo = dbHelper.GetSingleQueryObject("SELECT * FROM PmInfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
@@ -921,9 +922,12 @@ public partial class production_pm_info : System.Web.UI.Page
         var pminfoPdf = new PdfPTable(2);
         pminfoPdf.DefaultCell.BorderWidth = 1f;
         pminfoPdf.HorizontalAlignment = 0;
+        pminfoPdf.WidthPercentage = 100;
         pminfoPdf.SpacingBefore = 15;
         pminfoPdf.SpacingAfter = 15;
         pminfoPdf.SetWidths(new int[] { 3, 5 });
+        pminfoPdf.DefaultCell.PaddingTop = 3f;
+        pminfoPdf.DefaultCell.PaddingBottom = 4f;
 
         pminfoPdf.AddCell(new Phrase("Project Name:", boldTableFont));
         pminfoPdf.AddCell(new Phrase(pminfo[3].ToString() , bodyFont));
@@ -942,10 +946,13 @@ public partial class production_pm_info : System.Web.UI.Page
 
         var cusInfoPdf = new PdfPTable(2);
         cusInfoPdf.HorizontalAlignment = 0;
+        cusInfoPdf.WidthPercentage = 100;
         cusInfoPdf.SpacingBefore = 15;
         cusInfoPdf.SpacingAfter = 15;
         cusInfoPdf.DefaultCell.BorderWidth = 1f;
         cusInfoPdf.SetWidths(new int[] { 3, 5 });
+        cusInfoPdf.DefaultCell.PaddingTop = 3f;
+        cusInfoPdf.DefaultCell.PaddingBottom = 4f;
 
         document.Add(new Paragraph("1.2 Customer Contact Information", subTitleFont));
         if (cusObj != null)
@@ -963,9 +970,12 @@ public partial class production_pm_info : System.Web.UI.Page
         var engInfoPdf = new PdfPTable(2);
         engInfoPdf.HorizontalAlignment = 0;
         engInfoPdf.SpacingBefore = 15;
+        engInfoPdf.WidthPercentage = 100;
         engInfoPdf.SpacingAfter = 15;
         engInfoPdf.DefaultCell.BorderWidth = 1f;
         engInfoPdf.SetWidths(new int[] { 3, 5 });
+        engInfoPdf.DefaultCell.PaddingTop = 3f;
+        engInfoPdf.DefaultCell.PaddingBottom = 4f;
 
         document.Add(new Paragraph("1.3 MFEC Engineers' Information", subTitleFont));
         if (cusObj != null)
@@ -980,11 +990,14 @@ public partial class production_pm_info : System.Web.UI.Page
         document.Add(engInfoPdf);
 
         var changeInfo = new PdfPTable(4);
+        changeInfo.WidthPercentage = 100;
         changeInfo.HorizontalAlignment = 0;
         changeInfo.SpacingBefore = 15;
         changeInfo.SpacingAfter = 15;
         changeInfo.DefaultCell.BorderWidth = 1f;
-        changeInfo.SetWidths(new int[] { 3, 5, 2, 4 });
+        changeInfo.SetWidths(new float[] { 30f, 37f, 13f, 20f });
+        changeInfo.DefaultCell.PaddingTop = 3f;
+        changeInfo.DefaultCell.PaddingBottom = 4f;
 
         document.Add(new Paragraph("1.4 Change Record", subTitleFont));
         if (author != null)
@@ -1005,11 +1018,14 @@ public partial class production_pm_info : System.Web.UI.Page
 
 
         var reviewInfo = new PdfPTable(3);
+        reviewInfo.WidthPercentage = 100;
         reviewInfo.HorizontalAlignment = 0;
         reviewInfo.SpacingBefore = 15;
         reviewInfo.SpacingAfter = 15;
         reviewInfo.DefaultCell.BorderWidth = 1f;
-        reviewInfo.SetWidths(new int[] { 3, 5, 4 });
+        reviewInfo.SetWidths(new float[] { 30f, 50f, 20f });
+        reviewInfo.DefaultCell.PaddingTop = 3f;
+        reviewInfo.DefaultCell.PaddingBottom = 4f;
 
         document.Add(new Paragraph("1.5 Reviewers", subTitleFont));
         if (reviewer != null)
@@ -1035,11 +1051,14 @@ public partial class production_pm_info : System.Web.UI.Page
         object[] chkServerObj = dbHelper.GetSingleQueryObject("SELECT * FROM ChkServerMacSpec WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var csms = new PdfPTable(2);
+        csms.WidthPercentage = 100;
         csms.HorizontalAlignment = 0;
         csms.SpacingBefore = 15;
         csms.SpacingAfter = 15;
         csms.DefaultCell.BorderWidth = 1f;
-        csms.SetWidths(new int[] { 3, 5 });
+        csms.SetWidths(new float[] { 20f, 80f });
+        csms.DefaultCell.PaddingTop = 3f;
+        csms.DefaultCell.PaddingBottom = 4f;
 
         if (csms != null)
         {
@@ -1083,11 +1102,14 @@ public partial class production_pm_info : System.Web.UI.Page
         object[] oracleReqObj = dbHelper.GetSingleQueryObject("SELECT * FROM CompareOracleRequirement WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var oraReq = new PdfPTable(2);
+        oraReq.WidthPercentage = 100;
         oraReq.HorizontalAlignment = 0;
         oraReq.SpacingBefore = 15;
         oraReq.SpacingAfter = 15;
         oraReq.DefaultCell.BorderWidth = 1f;
-        oraReq.SetWidths(new int[] { 3, 5 });
+        oraReq.SetWidths(new float[] { 5f, 20f });
+        oraReq.DefaultCell.PaddingTop = 3f;
+        oraReq.DefaultCell.PaddingBottom = 4f;
 
         oraReq.AddCell(new Phrase("Requirement", boldTableFont));
         oraReq.AddCell(new Phrase("Server Specification", boldTableFont));
@@ -1096,11 +1118,14 @@ public partial class production_pm_info : System.Web.UI.Page
 
         List<object[]> diskSpaceObj = dbHelper.GetMultiQueryObject("SELECT * FROM OSDiskSpace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         var dspo = new PdfPTable(7);
+        dspo.WidthPercentage = 100;
         dspo.HorizontalAlignment = 0;
         dspo.SpacingBefore = 15;
         dspo.SpacingAfter = 15;
         dspo.DefaultCell.BorderWidth = 1f;
         dspo.SetWidths(new int[] { 3,3,3,3,3,3,3 });
+        dspo.DefaultCell.PaddingTop = 3f;
+        dspo.DefaultCell.PaddingBottom = 4f;
 
         dspo.AddCell(new Phrase("Filesystem", boldTableFont));
         dspo.AddCell(new Phrase("MB blocks", boldTableFont));
@@ -1138,11 +1163,14 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> userEnvObj = dbHelper.GetMultiQueryObject("SELECT * FROM UserEnvironment WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var ueo = new PdfPTable(2);
+        ueo.WidthPercentage = 100;
         ueo.HorizontalAlignment = 0;
         ueo.SpacingBefore = 15;
         ueo.SpacingAfter = 15;
         ueo.DefaultCell.BorderWidth = 1f;
-        ueo.SetWidths(new int[] { 3, 5 });
+        ueo.SetWidths(new float[] { 30f, 70f });
+        ueo.DefaultCell.PaddingTop = 3f;
+        ueo.DefaultCell.PaddingBottom = 4f;
 
         ueo.AddCell(new Phrase("Parameter", boldTableFont));
         ueo.AddCell(new Phrase("Value", boldTableFont));
@@ -1161,11 +1189,14 @@ public partial class production_pm_info : System.Web.UI.Page
         object[] hardwareObj = dbHelper.GetSingleQueryObject("SELECT * FROM HardwareConfiguration WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var systemCheck = new PdfPTable(2);
+        systemCheck.WidthPercentage = 100;
         systemCheck.HorizontalAlignment = 0;
         systemCheck.SpacingBefore = 15;
         systemCheck.SpacingAfter = 15;
         systemCheck.DefaultCell.BorderWidth = 1f;
         systemCheck.SetWidths(new int[] { 3, 5 });
+        systemCheck.DefaultCell.PaddingTop = 3f;
+        systemCheck.DefaultCell.PaddingBottom = 4f;
 
         systemCheck.AddCell(new Phrase("", boldTableFont));
         systemCheck.AddCell(new Phrase("Values", boldTableFont));
@@ -1192,7 +1223,9 @@ public partial class production_pm_info : System.Web.UI.Page
         document.Add(systemCheck);
 
         document.Add(new Paragraph("3.2 Network configuration for " + chkServerObj[2].ToString(), subTitleFont));
+
         var network = new PdfPTable(2);
+        network.WidthPercentage = 100;
         network.HorizontalAlignment = 0;
         network.SpacingBefore = 15;
         network.SpacingAfter = 15;
@@ -1209,6 +1242,7 @@ public partial class production_pm_info : System.Web.UI.Page
 
         document.Add(new Paragraph("3.3 Crontab information for " + chkServerObj[2].ToString(), subTitleFont));
         var contrab = new PdfPTable(1);
+        contrab.WidthPercentage = 100;
         contrab.HorizontalAlignment = 0;
         contrab.SpacingBefore = 15;
         contrab.SpacingAfter = 15;
@@ -1225,6 +1259,7 @@ public partial class production_pm_info : System.Web.UI.Page
         document.Add(p4);
         document.Add(new Paragraph("4.1 Database Configuration", subTitleFont));
         var dbconfig = new PdfPTable(2);
+        dbconfig.WidthPercentage = 100;
         dbconfig.HorizontalAlignment = 0;
         dbconfig.SpacingBefore = 15;
         dbconfig.SpacingAfter = 15;
@@ -1246,6 +1281,7 @@ public partial class production_pm_info : System.Web.UI.Page
 
         List<object[]> databaseParameterObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseParameter WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         var dbParam = new PdfPTable(2);
+        dbParam.WidthPercentage = 100;
         dbParam.HorizontalAlignment = 0;
         dbParam.SpacingBefore = 15;
         dbParam.SpacingAfter = 15;
@@ -1270,6 +1306,7 @@ public partial class production_pm_info : System.Web.UI.Page
         majorSecureStr = majorSecureStr + " AND ( header = 'O7_DICTIONARY_ACCESSIBILITY' OR header = 'audit_trail' OR header = 'remote_login_passwordfile' OR header = 'remote_os_authent') ;";
         List<object[]> majorSecureObj = dbHelper.GetMultiQueryObject(majorSecureStr);
         var majorSecure = new PdfPTable(2);
+        majorSecure.WidthPercentage = 100;
         majorSecure.HorizontalAlignment = 0;
         majorSecure.SpacingBefore = 15;
         majorSecure.SpacingAfter = 15;
@@ -1293,6 +1330,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> databaseFileObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var dbf = new PdfPTable(6);
+        dbf.WidthPercentage = 100;
         dbf.HorizontalAlignment = 0;
         dbf.SpacingBefore = 15;
         dbf.SpacingAfter = 15;
@@ -1324,6 +1362,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> tempFileObj = dbHelper.GetMultiQueryObject("SELECT * FROM TempFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var tf = new PdfPTable(6);
+        tf.WidthPercentage = 100;
         tf.HorizontalAlignment = 0;
         tf.SpacingBefore = 15;
         tf.SpacingAfter = 15;
@@ -1355,6 +1394,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> redoLogObj = dbHelper.GetMultiQueryObject("SELECT * FROM RedoLogFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var rdf = new PdfPTable(3);
+        rdf.WidthPercentage = 100;
         rdf.HorizontalAlignment = 0;
         rdf.SpacingBefore = 15;
         rdf.SpacingAfter = 15;
@@ -1380,6 +1420,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> controlObj = dbHelper.GetMultiQueryObject("SELECT * FROM ControlFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var cf = new PdfPTable(1);
+        cf.WidthPercentage = 100;
         cf.HorizontalAlignment = 0;
         cf.SpacingBefore = 15;
         cf.SpacingAfter = 15;
@@ -1401,6 +1442,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> dayCalObj = dbHelper.GetMultiQueryObject("SELECT * FROM DailyCalendarWorksheet WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var dc = new PdfPTable(3);
+        dc.WidthPercentage = 100;
         dc.HorizontalAlignment = 0;
         dc.SpacingBefore = 15;
         dc.SpacingAfter = 15;
@@ -1426,6 +1468,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> monthCalObj = dbHelper.GetMultiQueryObject("SELECT * FROM MonthlyCalendarWorksheet WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var mc = new PdfPTable(3);
+        mc.WidthPercentage = 100;
         mc.HorizontalAlignment = 0;
         mc.SpacingBefore = 15;
         mc.SpacingAfter = 15;
@@ -1455,6 +1498,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> perfReviceObj = dbHelper.GetMultiQueryObject("SELECT * FROM performanceReview WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var perfRev = new PdfPTable(2);
+        perfRev.WidthPercentage = 100;
         perfRev.HorizontalAlignment = 0;
         perfRev.SpacingBefore = 15;
         perfRev.SpacingAfter = 15;
@@ -1489,6 +1533,7 @@ public partial class production_pm_info : System.Web.UI.Page
             perfRev.AddCell(getHit);
 
             var pin = new PdfPTable(3);
+            pin.WidthPercentage = 100;
             pin.HorizontalAlignment = 0;
             pin.SpacingBefore = 15;
             pin.SpacingAfter = 15;
@@ -1548,9 +1593,45 @@ public partial class production_pm_info : System.Web.UI.Page
 
         document.Add(new Paragraph("5.2 Database Growth Rate", subTitleFont));
         var image = iTextSharp.text.Image.GetInstance(Chart());
+
         image.ScalePercent(75f);
         document.Add(image);
+        Object[] obj = dbHelper.GetSingleQueryObject("SELECT * FROM DBGrowthRate WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (obj != null)
+        {
 
+            List<double> allocateSpaceList = new List<double>();
+            List<double> usedSpaceList = new List<double>();
+
+            double allocateSpaceInit = double.Parse(obj[2].ToString());
+            double usedSpaceInit = double.Parse(obj[3].ToString());
+            double growthDay = double.Parse(obj[4].ToString());
+            double growthMonth = double.Parse(obj[5].ToString());
+            double UsedGrowth = growthDay * 30;
+            double AllowGrowth = growthMonth * 30;
+
+            allocateSpaceList.Add(allocateSpaceInit);
+            usedSpaceList.Add(usedSpaceInit);
+
+            for (int i = 0; i < 3; i++)
+            {
+                allocateSpaceList.Add(allocateSpaceInit += AllowGrowth);
+                usedSpaceList.Add(usedSpaceInit += UsedGrowth);
+            }
+            string summarytxt = "Current size of database is ${datasize} GB. We compare data growth rate between current allocate data which is ${dataallocate} and total use data per month ${totalused} GB (The percentage of data growth per month is around ${datagrowth}%), ${databasename} database growth rate increasing around ${increaserate} GB per quarter (The percentage is around ${increaseratepercent}%).";
+            summarytxt += "As the result of database size forecast, the current allocate size of database is sufficient to support database growth rate in next quarter. The percentage of usage space is around ${percentused}%, it’s nearly 100% so you should concern about data growth in the future because maybe cause space of database is insufficient.";
+
+            summarytxt = summarytxt.Replace("${datasize}", String.Format("{0:0,0.00}", usedSpaceList[0]));
+            summarytxt = summarytxt.Replace("${dataallocate}", String.Format("{0:0,0.00}", allocateSpaceList[0]));
+            summarytxt = summarytxt.Replace("${totalused}", String.Format("{0:0,0.00}", usedSpaceList[1] - usedSpaceList[0]));
+            summarytxt = summarytxt.Replace("${datagrowth}", String.Format("{0:0.0}", (UsedGrowth * 100) / usedSpaceInit));
+            summarytxt = summarytxt.Replace("${increaseratepercent}", String.Format("{0:0.0}", (((usedSpaceList[1] - usedSpaceList[0]) * 3) * 100) / usedSpaceInit));
+            summarytxt = summarytxt.Replace("${percentused}", String.Format("{0:0.00}", (usedSpaceList[0] * 100) / allocateSpaceList[0]));
+            summarytxt = summarytxt.Replace("${increaserate}", String.Format("{0:0,0.0}", (usedSpaceList[1] - usedSpaceList[0]) * 3));
+            summarytxt = summarytxt.Replace("${databasename}", pminfo[8].ToString());
+        
+        document.Add(new Paragraph(summarytxt, bodyFont));
+        }
         document.Add(new Paragraph("6. Tablespace Free Space", titleFont));
         Paragraph p6 = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
         document.Add(p6);
@@ -1558,6 +1639,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> tbsFreeObj = dbHelper.GetMultiQueryObject("SELECT * FROM TablespaceFreespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var tfs = new PdfPTable(5);
+        tfs.WidthPercentage = 100;
         tfs.HorizontalAlignment = 0;
         tfs.SpacingBefore = 15;
         tfs.SpacingAfter = 15;
@@ -1590,6 +1672,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> defTbsFreeObj = dbHelper.GetMultiQueryObject("SELECT * FROM TablespaceAndTempTablespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var deftfs = new PdfPTable(3);
+        deftfs.WidthPercentage = 100;
         deftfs.HorizontalAlignment = 0;
         deftfs.SpacingBefore = 15;
         deftfs.SpacingAfter = 15;
@@ -1619,6 +1702,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> dbRegObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseRegistry WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var dbReg = new PdfPTable(4);
+        dbReg.WidthPercentage = 100;
         dbReg.HorizontalAlignment = 0;
         dbReg.SpacingBefore = 15;
         dbReg.SpacingAfter = 15;
@@ -1651,6 +1735,7 @@ public partial class production_pm_info : System.Web.UI.Page
         List<object[]> listOfAlert = dbHelper.GetMultiQueryObject("SELECT * FROM AlertLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
 
         var alertLog = new PdfPTable(2);
+        alertLog.WidthPercentage = 100;
         alertLog.HorizontalAlignment = 0;
         alertLog.SpacingBefore = 15;
         alertLog.SpacingAfter = 15;
@@ -1682,6 +1767,7 @@ public partial class production_pm_info : System.Web.UI.Page
         {
             document.Add(new Paragraph("10.1 Backup Database", subTitleFont));
             var bd = new PdfPTable(1);
+            bd.WidthPercentage = 100;
             bd.HorizontalAlignment = 0;
             bd.SpacingBefore = 15;
             bd.SpacingAfter = 15;
@@ -1692,6 +1778,7 @@ public partial class production_pm_info : System.Web.UI.Page
 
             document.Add(new Paragraph("10.2 Backup Archivelog", subTitleFont));
             var ba = new PdfPTable(1);
+            ba.WidthPercentage = 100;
             ba.HorizontalAlignment = 0;
             ba.SpacingBefore = 15;
             ba.SpacingAfter = 15;
@@ -1702,6 +1789,7 @@ public partial class production_pm_info : System.Web.UI.Page
 
             document.Add(new Paragraph("10.3 Backup Controlfile", subTitleFont));
             var bc = new PdfPTable(1);
+            bc.WidthPercentage = 100;
             bc.HorizontalAlignment = 0;
             bc.SpacingBefore = 15;
             bc.SpacingAfter = 15;
@@ -1713,6 +1801,8 @@ public partial class production_pm_info : System.Web.UI.Page
 
         // Close the Document - this saves the document contents to the output stream
         document.Close();
+        Response.ContentType = "application/pdf";
+        Response.BinaryWrite(output2.ToArray());
     }
 
     public static string GetTimestamp(DateTime value)
