@@ -477,60 +477,13 @@ namespace WebBasePM
             {
                 while ((alertLog = reader.ReadLine()) != null)
                 {
-                    if(alertLog.Contains("ora-"))
-                        alertObj.Add(alertLog);
+                    //if(alertLog.Contains("ora-"))
+                       // alertObj.Add(alertLog);
+                    dbHelper.InsertAlert(projectCode, quarter, alertLog);
                 }
             }
-            try
-            {
-                string postData = "  {\"searchSet\" : [";
-                for (int al = 0; al < alertObj.Count(); al++)
-                {
-                    postData += "{\"searchKey\" : \"" + alertObj[al].ToString() + "\"}";
-                    if (al != alertObj.Count() - 1)
-                    {
-                        postData += ",";
-                    }
-                }
-                postData += "]}";
 
-                WebRequest request = WebRequest.Create("http://localhost:3000/api/v1/findByOraId");
-                request.Method = "POST";
-                byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-                request.ContentType = "application/json";
-                request.ContentLength = byteArray.Length;
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-                WebResponse response = request.GetResponse();
-                Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-                dataStream = response.GetResponseStream();
-                StreamReader reader1 = new StreamReader(dataStream);
-                string responseFromServer = reader1.ReadToEnd();
-                Console.WriteLine(responseFromServer);
-                dbHelper.InsertAlert(projectCode, quarter, responseFromServer);
-
-                Root jsonObject = JsonConvert.DeserializeObject<Root>(responseFromServer);
-
-                List<object[]> alertList = new List<object[]>();
-
-                for (int ai = 0; ai < jsonObject.RootWord.Count; ai++)
-                {
-                    for (int aj = 0; aj < jsonObject.RootWord[ai].Results[0].ObjResults.Count(); aj++)
-                    {
-                        alertList.Add(new object[] { jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score });
-                        //Console.WriteLine("Keysearch: {0} \n action: {1} \n caused: ({2} \n Score : {3} \n\n", jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score);
-                    }
-                }
-                reader1.Close();
-                dataStream.Close();
-                response.Close();
-                dbHelper.InsertAlertLog(projectCode, quarter, alertList);
-            }
-            catch (Exception)
-            {
-                throw;
-            }         
+             
 
             SetOfTableList tables = null;
             OracleInformation oracleInfo = new OracleInformation();
@@ -826,41 +779,6 @@ namespace WebBasePM
             }
             return result;
         }
-
-        // Alert log Class.
-        public class KeySearch
-        {
-            public string ora_id { get; set; }
-        }
-
-        public class Word
-        {
-            public string caused { get; set; }
-            public string actions { get; set; }
-            public double score { get; set; }
-        }
-
-        public class ObjResult
-        {
-            public IList<Word> word { get; set; }
-        }
-
-        public class Result
-        {
-            public IList<KeySearch> KeySearch { get; set; }
-            public IList<ObjResult> ObjResults { get; set; }
-        }
-
-        public class RootWord
-        {
-            public IList<Result> Results { get; set; }
-        }
-
-        public class Root
-        {
-            public IList<RootWord> RootWord { get; set; }
-        }
-
         // Environment Class.
         public class environment
         {

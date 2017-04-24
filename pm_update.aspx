@@ -879,7 +879,58 @@
                                                       <!-- 9.1 -->
                                                       <h5><b>Alert Log of <asp:Label ID="alertDatabaeName" runat="server"></asp:Label></b></h5>
                                                       <asp:Panel ID="alertLogPanel" runat="server">
-                                                      </asp:Panel>                                                      
+                                                      </asp:Panel>                                  
+                                                      <asp:GridView ID="alertGridView" DataKeyNames="caseID" runat="server"
+                                                        AutoGenerateColumns="false" ShowFooter="true" HeaderStyle-Font-Bold="true"
+                                                        onrowcancelingedit="alertGridView_RowCancelingEdit"
+                                                        onrowediting="alertGridView_RowEditing"
+                                                        onrowupdating="alertGridView_RowUpdating"                                                  
+                                                        CssClass ="table table-striped table-bordered">
+                                                        <Columns>
+                                                         <asp:TemplateField HeaderText="CaseID">
+                                                            <ItemTemplate>
+                                                                <asp:Label ID="lblalertid" runat="server" Text='<%#Eval("caseID") %>'/>
+                                                            </ItemTemplate>
+                                                            <EditItemTemplate>
+                                                                <asp:Label ID="txtalertid" runat="server" Text='<%#Eval("caseID") %>'/>
+                                                            </EditItemTemplate>
+                                                        </asp:TemplateField>
+                                                        <asp:TemplateField HeaderText="Key Search">
+                                                            <ItemTemplate>
+                                                                <asp:Label ID="lblkeysearch" runat="server" Text='<%#Eval("keysearch") %>'/>
+                                                            </ItemTemplate>
+                                                            <EditItemTemplate>
+                                                                <asp:TextBox ID="txtkeysearch" ReadOnly="true" CssClass="form-control" runat="server" Text='<%#Eval("keysearch") %>'/>
+                                                            </EditItemTemplate>
+                                                        </asp:TemplateField>
+                                                         <asp:TemplateField HeaderText="Caused">
+                                                              <ItemTemplate>
+                                                                 <asp:Label ID="lblcaused" runat="server" Text='<%#Eval("caused") %>'/>
+                                                             </ItemTemplate>
+                                                             <EditItemTemplate>
+                                                                 <asp:TextBox ID="txtcaused" CssClass="form-control"  runat="server" Text='<%#Eval("caused") %>'/>
+                                                             </EditItemTemplate>
+                                                         </asp:TemplateField>
+                                                         <asp:TemplateField HeaderText="Action">
+                                                             <ItemTemplate>
+                                                                 <asp:Label ID="lblaction" runat="server" Text='<%#Eval("actions") %>'/>
+                                                             </ItemTemplate>
+                                                             <EditItemTemplate>
+                                                                 <asp:TextBox ID="txtaction" CssClass="form-control"  runat="server" Text='<%#Eval("actions") %>'/>
+                                                             </EditItemTemplate>
+                                                         </asp:TemplateField>
+                                                        <asp:TemplateField HeaderText="Action">
+                                                        <EditItemTemplate>
+                                                            <asp:LinkButton ID="ButtonUpdate" runat="server" CommandName="Update"  CssClass="btn btn-primary" >Add new case</asp:LinkButton>
+                                                            <asp:LinkButton ID="ButtonCancel" runat="server" CommandName="Cancel"  CssClass="btn btn-warning" >Cancel</asp:LinkButton>
+                                                        </EditItemTemplate>
+                                                        <ItemTemplate>
+                                                            <asp:LinkButton ID="ButtonEdit" runat="server" CommandName="Edit"  OnClientClick="if (!validatePage()) {return false;}"  UseSubmitBehavior="false" CssClass="btn btn-warning" >Edit</asp:LinkButton>
+                                                           
+                                                        </ItemTemplate>
+                                                        </asp:TemplateField>
+                                                         </Columns>
+                                                        </asp:GridView>                                                       
                                                       <!-- End 9.1 -->
                                                   </div>
                                                   <!-- End Tab 9 -->

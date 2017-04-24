@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.DataVisualization.Charting;
@@ -22,13 +26,13 @@ public partial class production_pm_info : System.Web.UI.Page
         if (Session["personID"] == null)
         {
             Response.Redirect("Login.aspx");
-            
+
         }
 
         nameHeader.Text = Session["Name"].ToString();
         nameHeader2.Text = Session["Name"].ToString();
 
-        dbHelper = new DatabaseHelper();       
+        dbHelper = new DatabaseHelper();
         string os = "";
         projectCoded = Request.QueryString["project"];
         projectQuarter = Request.QueryString["quarter"];
@@ -46,8 +50,10 @@ public partial class production_pm_info : System.Web.UI.Page
         }
 
         object[] pminfo = dbHelper.GetSingleQueryObject("SELECT * FROM PmInfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        hostTitle.Text = pminfo[2] + " " + pminfo[3] + " " + pminfo[4];
-        alertDatabaeName.Text = pminfo[8].ToString();
+        if (pminfo != null) {
+            hostTitle.Text = pminfo[2] + " " + pminfo[3] + " " + pminfo[4];
+            alertDatabaeName.Text = pminfo[8].ToString();
+        }
 
         object[] saleObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Sale';");
         object[] cusObj = dbHelper.GetSingleQueryObject("SELECT * FROM Personinfo WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' AND personType = 'Customer';");
@@ -74,18 +80,6 @@ public partial class production_pm_info : System.Web.UI.Page
             engName.Text = engObj[3].ToString() + " " + engObj[4].ToString();
             engPhone.Text = engObj[6].ToString();
             engEmail.Text = engObj[5].ToString();
-        }
-
-        string engineerName, engineerLastname, personId;
-        personId = Session["personID"].ToString();
-        object[] engineerObj = dbHelper.GetSingleQueryObject("select * from Person where Person_id = " + personId);
-
-        engineerName = engineerObj[2].ToString();
-        engineerLastname = engineerObj[3].ToString();
-        if (!IsPostBack)
-        {
-            object[] reviewerList = new object[] { DateTime.Now, engineerName + " " + engineerLastname, "Engineer" };
-            dbHelper.InsertReviewer(projectCoded, projectQuarter, reviewerList);
         }
 
         List<object[]> author = dbHelper.GetMultiQueryObject("SELECT *  FROM AuthorLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
@@ -137,145 +131,145 @@ public partial class production_pm_info : System.Web.UI.Page
 
         /*  Check server    */
         object[] chkServerObj = dbHelper.GetSingleQueryObject("SELECT * FROM ChkServerMacSpec WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (chkServerObj != null) {
+            hostname.Text = chkServerObj[2].ToString();
+            hostname2.Text = chkServerObj[2].ToString();
+            hostname3.Text = chkServerObj[2].ToString();
+            hostname4.Text = chkServerObj[2].ToString();
+            hostname5.Text = chkServerObj[2].ToString();
+            hostname6.Text = chkServerObj[2].ToString();
 
-        hostname.Text  = chkServerObj[2].ToString();
-        hostname2.Text = chkServerObj[2].ToString();
-        hostname3.Text = chkServerObj[2].ToString();
-        hostname4.Text = chkServerObj[2].ToString();
-        hostname5.Text = chkServerObj[2].ToString();
-        hostname6.Text = chkServerObj[2].ToString();
-
-        ipAddress.Text = chkServerObj[3].ToString();
-        login.Text = chkServerObj[4].ToString();
-        homeDirectory.Text = chkServerObj[5].ToString();
-        shell.Text = chkServerObj[6].ToString();
-        oracleFirstGroup.Text = chkServerObj[7].ToString();
-        oracleSecondGroup.Text = chkServerObj[8].ToString(); 
-        
+            ipAddress.Text = chkServerObj[3].ToString();
+            login.Text = chkServerObj[4].ToString();
+            homeDirectory.Text = chkServerObj[5].ToString();
+            shell.Text = chkServerObj[6].ToString();
+            oracleFirstGroup.Text = chkServerObj[7].ToString();
+            oracleSecondGroup.Text = chkServerObj[8].ToString();
+        }
         /*  Oracle Requirement  */
         object[] oracleReqObj = dbHelper.GetSingleQueryObject("SELECT * FROM CompareOracleRequirement WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-       
-        os = oracleReqObj[3].ToString();
-        osInfo.Text = oracleReqObj[4].ToString();
-        ram.Text = oracleReqObj[5].ToString();
-        swap.Text = oracleReqObj[6].ToString();
-        tmp.Text = oracleReqObj[7].ToString();
-        java.Text = oracleReqObj[8].ToString();
-        kernel.Text = oracleReqObj[9].ToString();
-        
-        osType.Text = os;
-        osType1.Text = os;
-        osType2.Text = os;
-        osType3.Text = os;
-        osType4.Text = os;
-       
+        if (oracleReqObj != null) {
+            os = oracleReqObj[3].ToString();
+            osInfo.Text = oracleReqObj[4].ToString();
+            ram.Text = oracleReqObj[5].ToString();
+            swap.Text = oracleReqObj[6].ToString();
+            tmp.Text = oracleReqObj[7].ToString();
+            java.Text = oracleReqObj[8].ToString();
+            kernel.Text = oracleReqObj[9].ToString();
+
+            osType.Text = os;
+            osType1.Text = os;
+            osType2.Text = os;
+            osType3.Text = os;
+            osType4.Text = os;
+        }
         List<object[]> diskSpaceObj = dbHelper.GetMultiQueryObject("SELECT * FROM OSDiskSpace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        for (int row = 0; row < diskSpaceObj.Count(); row++)
-        {
-            TableRow tRow = new TableRow();
-            TableCell fileSystem = new TableCell();
-            TableCell mbBlocks = new TableCell();
-            TableCell free = new TableCell();
-            TableCell percentUsed = new TableCell();
-            TableCell iUsed = new TableCell();
-            TableCell percentIUsed = new TableCell();
-            TableCell mountedOn = new TableCell();
+        if (diskSpaceObj != null) {
+            for (int row = 0; row < diskSpaceObj.Count(); row++)
+            {
+                TableRow tRow = new TableRow();
+                TableCell fileSystem = new TableCell();
+                TableCell mbBlocks = new TableCell();
+                TableCell free = new TableCell();
+                TableCell percentUsed = new TableCell();
+                TableCell iUsed = new TableCell();
+                TableCell percentIUsed = new TableCell();
+                TableCell mountedOn = new TableCell();
 
-            fileSystem.Text = (diskSpaceObj[row])[3].ToString();
-            mbBlocks.Text = (diskSpaceObj[row])[4].ToString();
-            free.Text = (diskSpaceObj[row])[5].ToString();
-            percentUsed.Text = (diskSpaceObj[row])[6].ToString();
-            iUsed.Text = (diskSpaceObj[row])[7].ToString();
-            percentIUsed.Text = (diskSpaceObj[row])[8].ToString();
-            mountedOn.Text = (diskSpaceObj[row])[9].ToString();
+                fileSystem.Text = (diskSpaceObj[row])[3].ToString();
+                mbBlocks.Text = (diskSpaceObj[row])[4].ToString();
+                free.Text = (diskSpaceObj[row])[5].ToString();
+                percentUsed.Text = (diskSpaceObj[row])[6].ToString();
+                iUsed.Text = (diskSpaceObj[row])[7].ToString();
+                percentIUsed.Text = (diskSpaceObj[row])[8].ToString();
+                mountedOn.Text = (diskSpaceObj[row])[9].ToString();
 
-            tRow.Cells.Add(fileSystem);
-            tRow.Cells.Add(mbBlocks);
-            tRow.Cells.Add(free);
-            tRow.Cells.Add(percentUsed);
-            tRow.Cells.Add(iUsed);
-            tRow.Cells.Add(percentIUsed);
-            tRow.Cells.Add(mountedOn);
-            diskTable.Rows.Add(tRow);
+                tRow.Cells.Add(fileSystem);
+                tRow.Cells.Add(mbBlocks);
+                tRow.Cells.Add(free);
+                tRow.Cells.Add(percentUsed);
+                tRow.Cells.Add(iUsed);
+                tRow.Cells.Add(percentIUsed);
+                tRow.Cells.Add(mountedOn);
+                diskTable.Rows.Add(tRow);
+            }
         }
+        List<object[]> userEnvObj = userEnvObj = dbHelper.GetMultiQueryObject("SELECT * FROM UserEnvironment WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (userEnvObj != null) {
+            for (int row = 0; row < userEnvObj.Count(); row++) {
+                TableRow tRow = new TableRow();
+                TableCell parameter = new TableCell();
+                TableCell valueEnv = new TableCell();
+                parameter.Text = (userEnvObj[row])[2].ToString();
+                valueEnv.Text = (userEnvObj[row])[3].ToString();
 
-
-        List<object[]> userEnvObj = new List<object[]>();
-        userEnvObj = dbHelper.GetMultiQueryObject("SELECT * FROM UserEnvironment WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        
-        for(int row = 0; row < userEnvObj.Count(); row++) { 
-            TableRow tRow = new TableRow();
-            TableCell parameter = new TableCell();            
-            TableCell valueEnv = new TableCell();
-            parameter.Text = (userEnvObj[row])[2].ToString();
-            valueEnv.Text = (userEnvObj[row])[3].ToString();
-
-            tRow.Cells.Add(parameter);
-            tRow.Cells.Add(valueEnv);
-            envTable.Rows.Add(tRow);
+                tRow.Cells.Add(parameter);
+                tRow.Cells.Add(valueEnv);
+                envTable.Rows.Add(tRow);
+            }
         }
-
         /*  Hardware Configuration  */
         List<object[]> hardwareObj = dbHelper.GetMultiQueryObject("SELECT * FROM HardwareConfiguration WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        for(int row = 0; row < hardwareObj.Count(); row++)
-        {
-            systemModel.Text = (hardwareObj[row])[3].ToString();
-            machineSerialNumber.Text = (hardwareObj[row])[4].ToString();
-            processorType.Text = (hardwareObj[row])[5].ToString();
-            processorImplementationMode.Text = (hardwareObj[row])[6].ToString();
-            processorVersion.Text = (hardwareObj[row])[7].ToString();
-            numOfProc.Text = (hardwareObj[row])[8].ToString();
-            cpuType.Text = (hardwareObj[row])[9].ToString();
-            kernelType.Text = (hardwareObj[row])[10].ToString();
-            ipaddresses.Text = (hardwareObj[row])[11].ToString();
-            subNetMask.Text = (hardwareObj[row])[12].ToString();
-            crontab.Text = (hardwareObj[row])[13].ToString();
+        if (hardwareObj != null) {
+            for (int row = 0; row < hardwareObj.Count(); row++)
+            {
+                systemModel.Text = (hardwareObj[row])[3].ToString();
+                machineSerialNumber.Text = (hardwareObj[row])[4].ToString();
+                processorType.Text = (hardwareObj[row])[5].ToString();
+                processorImplementationMode.Text = (hardwareObj[row])[6].ToString();
+                processorVersion.Text = (hardwareObj[row])[7].ToString();
+                numOfProc.Text = (hardwareObj[row])[8].ToString();
+                cpuType.Text = (hardwareObj[row])[9].ToString();
+                kernelType.Text = (hardwareObj[row])[10].ToString();
+                ipaddresses.Text = (hardwareObj[row])[12].ToString();
+                subNetMask.Text = (hardwareObj[row])[13].ToString();
+                crontab.Text = (hardwareObj[row])[14].ToString();
+            }
         }
 
         /* Datbase Configuration */
         List<object[]> databaseConfigObj = dbHelper.GetMultiQueryObject("SELECT * FROM DatabaseConfiguration WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        for(int row = 0; row < databaseConfigObj.Count(); row++)
-        {
-            TableRow tRow = new TableRow();
-            TableCell parameter = new TableCell();            
-            TableCell valueEnv = new TableCell();            
-            TableCell free = new TableCell();
+        if (databaseConfigObj != null) {
+            for (int row = 0; row < databaseConfigObj.Count(); row++)
+            {
+                TableRow tRow = new TableRow();
+                TableCell parameter = new TableCell();
+                TableCell valueEnv = new TableCell();
+                TableCell free = new TableCell();
 
-            parameter.Text = (databaseConfigObj[row])[2].ToString();
-            valueEnv.Text = (databaseConfigObj[row])[3].ToString();
+                parameter.Text = (databaseConfigObj[row])[2].ToString();
+                valueEnv.Text = (databaseConfigObj[row])[3].ToString();
 
-            tRow.Cells.Add(parameter);
-            tRow.Cells.Add(valueEnv);
-            databaseConfigTable.Rows.Add(tRow);
+                tRow.Cells.Add(parameter);
+                tRow.Cells.Add(valueEnv);
+                databaseConfigTable.Rows.Add(tRow);
+            }
         }
-
-
-        /* Temp table space table */       
-        Table subTableTempsize = new Table();
-        TableRow mainRowTempsize = new TableRow();
-        TableCell mainHeaderTempSize = new TableCell();        
-        TableCell mainValueTempSize = new TableCell();
-        mainHeaderTempSize.Text = "Temp tablespace size";
-        mainValueTempSize.Controls.Add(subTableTempsize);
-        mainRowTempsize.Cells.Add(mainHeaderTempSize);
-        mainRowTempsize.Cells.Add(mainValueTempSize);
-        databaseConfigTable.Rows.AddAt(5, mainRowTempsize);
-        
-        subTableTempsize.ID = "subTempTable";
-        subTableTempsize.CssClass = "table table-striped table-bordered";
-
-        TableRow tRowHead = new TableRow();
-        TableHeaderCell head1 = new TableHeaderCell();
-        head1.Text = "Temporary tablespace name";
-        TableHeaderCell head2 = new TableHeaderCell();
-        head2.Text = "Size(Mb)";
-        tRowHead.Cells.Add(head1);
-        tRowHead.Cells.Add(head2);
-        subTableTempsize.Rows.Add(tRowHead);
-
         List<object[]> tempTableSizeObj = dbHelper.GetMultiQueryObject("SELECT * FROM TempTableSize WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (tempTableSizeObj != null)
         {
+            /* Temp table space table */
+            Table subTableTempsize = new Table();
+            TableRow mainRowTempsize = new TableRow();
+            TableCell mainHeaderTempSize = new TableCell();
+            TableCell mainValueTempSize = new TableCell();
+            mainHeaderTempSize.Text = "Temp tablespace size";
+            mainValueTempSize.Controls.Add(subTableTempsize);
+            mainRowTempsize.Cells.Add(mainHeaderTempSize);
+            mainRowTempsize.Cells.Add(mainValueTempSize);
+            databaseConfigTable.Rows.AddAt(5, mainRowTempsize);
+
+            subTableTempsize.ID = "subTempTable";
+            subTableTempsize.CssClass = "table table-striped table-bordered";
+
+            TableRow tRowHead = new TableRow();
+            TableHeaderCell head1 = new TableHeaderCell();
+            head1.Text = "Temporary tablespace name";
+            TableHeaderCell head2 = new TableHeaderCell();
+            head2.Text = "Size(Mb)";
+            tRowHead.Cells.Add(head1);
+            tRowHead.Cells.Add(head2);
+            subTableTempsize.Rows.Add(tRowHead);
             for (int row = 0; row < tempTableSizeObj.Count(); row++)
             {
                 TableRow tRow = new TableRow();
@@ -292,33 +286,32 @@ public partial class production_pm_info : System.Web.UI.Page
             }
         }
 
-        /* Table Space Name */
-        Table subTableTableSpaceName = new Table();
-        TableRow mainRowTable = new TableRow();
-        TableCell mainHeaderTableSpaceName = new TableCell();
-        TableCell mainValueTableSpaceName = new TableCell();
-
-        mainHeaderTableSpaceName.Text = "Tablespace size";
-        mainValueTableSpaceName.Controls.Add(subTableTableSpaceName);
-        mainRowTable.Cells.Add(mainHeaderTableSpaceName);
-        mainRowTable.Cells.Add(mainValueTableSpaceName);
-        databaseConfigTable.Rows.AddAt(6, mainRowTable);
-        subTableTableSpaceName.ID = "subTableName";
-        subTableTableSpaceName.CssClass = "table table-striped table-bordered";
-
-        TableRow tRowHeadTableSpaceName = new TableRow();
-        TableHeaderCell temphead1TableSpaceName = new TableHeaderCell();
-        TableHeaderCell temphead2TableSpaceName = new TableHeaderCell();
-        temphead1TableSpaceName.Text = "Tablespace name";
-        temphead2TableSpaceName.Text = "Size(Mb)";
-
-        tRowHeadTableSpaceName.Cells.Add(temphead1TableSpaceName);
-        tRowHeadTableSpaceName.Cells.Add(temphead2TableSpaceName);
-        subTableTableSpaceName.Rows.Add(tRowHeadTableSpaceName);
-
         List<object[]> tempTableSpaceObj = dbHelper.GetMultiQueryObject("SELECT * FROM TablespaceName WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (tempTableSpaceObj != null)
         {
+            /* Table Space Name */
+            Table subTableTableSpaceName = new Table();
+            TableRow mainRowTable = new TableRow();
+            TableCell mainHeaderTableSpaceName = new TableCell();
+            TableCell mainValueTableSpaceName = new TableCell();
+
+            mainHeaderTableSpaceName.Text = "Tablespace size";
+            mainValueTableSpaceName.Controls.Add(subTableTableSpaceName);
+            mainRowTable.Cells.Add(mainHeaderTableSpaceName);
+            mainRowTable.Cells.Add(mainValueTableSpaceName);
+            databaseConfigTable.Rows.AddAt(6, mainRowTable);
+            subTableTableSpaceName.ID = "subTableName";
+            subTableTableSpaceName.CssClass = "table table-striped table-bordered";
+
+            TableRow tRowHeadTableSpaceName = new TableRow();
+            TableHeaderCell temphead1TableSpaceName = new TableHeaderCell();
+            TableHeaderCell temphead2TableSpaceName = new TableHeaderCell();
+            temphead1TableSpaceName.Text = "Tablespace name";
+            temphead2TableSpaceName.Text = "Size(Mb)";
+
+            tRowHeadTableSpaceName.Cells.Add(temphead1TableSpaceName);
+            tRowHeadTableSpaceName.Cells.Add(temphead2TableSpaceName);
+            subTableTableSpaceName.Rows.Add(tRowHeadTableSpaceName);
             for (int row = 0; row < tempTableSpaceObj.Count(); row++)
             {
                 TableRow tRow = new TableRow();
@@ -437,7 +430,7 @@ public partial class production_pm_info : System.Web.UI.Page
             }
         }
 
-        /* 4.5 Redo Log File */
+        /* 4.6 Redo Log File */
         List<object[]> redoLogObj = dbHelper.GetMultiQueryObject("SELECT * FROM RedoLogFile WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (redoLogObj != null)
         {
@@ -520,90 +513,90 @@ public partial class production_pm_info : System.Web.UI.Page
 
         /* Perfomance Review */
         List<object[]> perfReviceObj = dbHelper.GetMultiQueryObject("SELECT * FROM performanceReview WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        for(int row = 0; row < perfReviceObj.Count(); row++)
-        {
-            TableRow tRow = new TableRow();
-            TableCell parameter = new TableCell();
-            TableCell valueEnv = new TableCell();
+        if (perfReviceObj != null) {
+            for (int row = 0; row < perfReviceObj.Count(); row++)
+            {
+                TableRow tRow = new TableRow();
+                TableCell parameter = new TableCell();
+                TableCell valueEnv = new TableCell();
 
-            parameter.Text = (perfReviceObj[row])[2].ToString();            
-            valueEnv.Text  = (perfReviceObj[row])[3].ToString();
+                parameter.Text = (perfReviceObj[row])[2].ToString();
+                valueEnv.Text = (perfReviceObj[row])[3].ToString();
 
-            tRow.Cells.Add(parameter);
-            tRow.Cells.Add(valueEnv);
-            perfReview.Rows.Add(tRow);
-
+                tRow.Cells.Add(parameter);
+                tRow.Cells.Add(valueEnv);
+                perfReview.Rows.Add(tRow);
+            }
         }
-
-
-        Table hitRatio = new Table();
-        TableRow hitRatioHeader = new TableRow();
-        TableCell hitCell1 = new TableCell();        
-        TableCell hitCell2 = new TableCell();
-        hitCell1.Text = "1. What is the gethitratio of the librarycache ?";
-        hitCell2.Controls.Add(hitRatio);
-
-        hitRatio.CssClass = "table table-striped table-bordered";
-        hitRatioHeader.Cells.Add(hitCell1);
-        hitRatioHeader.Cells.Add(hitCell2);
-        perfReview.Rows.AddAt(1, hitRatioHeader);
-
         List<object[]> getHitRatioObj = dbHelper.GetMultiQueryObject("SELECT * FROM getHitRatio WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-       
-        TableRow tRow1 = new TableRow();
-        TableHeaderCell parameter1 = new TableHeaderCell();
-        parameter1.Text = "Name Space";
-        TableHeaderCell value1 = new TableHeaderCell();
-        value1.Text = "Get Hit Ratio";
 
-        tRow1.Cells.Add(parameter1);
-        tRow1.Cells.Add(value1);
-        hitRatio.Rows.Add(tRow1);
+        if (getHitRatioObj != null) {
+            Table hitRatio = new Table();
+            TableRow hitRatioHeader = new TableRow();
+            TableCell hitCell1 = new TableCell();
+            TableCell hitCell2 = new TableCell();
+            hitCell1.Text = "1. What is the gethitratio of the librarycache ?";
+            hitCell2.Controls.Add(hitRatio);
 
-        for(int row = 0; row < getHitRatioObj.Count(); row++)
-        {
-            TableRow tRow = new TableRow();
-            TableCell parameter = new TableCell();
-            TableCell valueEnv = new TableCell();
+            hitRatio.CssClass = "table table-striped table-bordered";
+            hitRatioHeader.Cells.Add(hitCell1);
+            hitRatioHeader.Cells.Add(hitCell2);
+            perfReview.Rows.AddAt(1, hitRatioHeader);
 
-            parameter.Text = (getHitRatioObj[row])[2].ToString();           
-            valueEnv.Text =  (getHitRatioObj[row])[3].ToString();
 
-            tRow.Cells.Add(parameter);
-            tRow.Cells.Add(valueEnv);
-            hitRatio.Rows.Add(tRow);
+            TableRow tRow1 = new TableRow();
+            TableHeaderCell parameter1 = new TableHeaderCell();
+            parameter1.Text = "Name Space";
+            TableHeaderCell value1 = new TableHeaderCell();
+            value1.Text = "Get Hit Ratio";
+
+            tRow1.Cells.Add(parameter1);
+            tRow1.Cells.Add(value1);
+            hitRatio.Rows.Add(tRow1);
+            for (int row = 0; row < getHitRatioObj.Count(); row++)
+            {
+                TableRow tRow = new TableRow();
+                TableCell parameter = new TableCell();
+                TableCell valueEnv = new TableCell();
+
+                parameter.Text = (getHitRatioObj[row])[2].ToString();
+                valueEnv.Text = (getHitRatioObj[row])[3].ToString();
+
+                tRow.Cells.Add(parameter);
+                tRow.Cells.Add(valueEnv);
+                hitRatio.Rows.Add(tRow);
+            }
         }
 
         /* 2 Pin Ratio */
-
-        Table pinRatio = new Table();
-        TableRow pinRatioHeader = new TableRow();
-        TableCell pinCell1 = new TableCell();
-        pinCell1.Text = "2. What is the PIN / RELOAD ratio within the librarycache?";
-        TableCell pinCell2 = new TableCell();
-        pinCell2.Controls.Add(pinRatio);
-
-        pinRatio.CssClass = "table table-striped table-bordered";
-        pinRatioHeader.Cells.Add(pinCell1);
-        pinRatioHeader.Cells.Add(pinCell2);
-        perfReview.Rows.AddAt(2, pinRatioHeader);
-
         List<object[]> pinRatioObj = dbHelper.GetMultiQueryObject("SELECT * FROM PinRatio WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-
-        TableRow tRow2 = new TableRow();
-        TableHeaderCell parameter2 = new TableHeaderCell();
-        parameter2.Text = "Execution";
-        TableHeaderCell value2 = new TableHeaderCell();
-        value2.Text = "Cache Misses";
-        TableHeaderCell value3 = new TableHeaderCell();
-        value3.Text = "Sum";
-
-        tRow2.Cells.Add(parameter2);
-        tRow2.Cells.Add(value2);
-        tRow2.Cells.Add(value3);
-        pinRatio.Rows.Add(tRow2);
         if (pinRatioObj != null)
         {
+            Table pinRatio = new Table();
+            TableRow pinRatioHeader = new TableRow();
+            TableCell pinCell1 = new TableCell();
+            pinCell1.Text = "2. What is the PIN / RELOAD ratio within the librarycache?";
+            TableCell pinCell2 = new TableCell();
+            pinCell2.Controls.Add(pinRatio);
+
+            pinRatio.CssClass = "table table-striped table-bordered";
+            pinRatioHeader.Cells.Add(pinCell1);
+            pinRatioHeader.Cells.Add(pinCell2);
+            perfReview.Rows.AddAt(2, pinRatioHeader);
+
+            TableRow tRow2 = new TableRow();
+            TableHeaderCell parameter2 = new TableHeaderCell();
+            parameter2.Text = "Execution";
+            TableHeaderCell value2 = new TableHeaderCell();
+            value2.Text = "Cache Misses";
+            TableHeaderCell value3 = new TableHeaderCell();
+            value3.Text = "Sum";
+
+            tRow2.Cells.Add(parameter2);
+            tRow2.Cells.Add(value2);
+            tRow2.Cells.Add(value3);
+            pinRatio.Rows.Add(tRow2);
+
             for (int row = 0; row < pinRatioObj.Count(); row++)
             {
                 TableRow tRow = new TableRow();
@@ -623,35 +616,32 @@ public partial class production_pm_info : System.Web.UI.Page
         }
 
         /* 3 Undo Segment */
-
-        Table segmentTable = new Table();
-        TableRow segmentTableHeader = new TableRow();
-
-        TableCell segCell1 = new TableCell();
-        segCell1.Text = "Number and size of Undo Segments?";
-        TableCell segCell2 = new TableCell();
-        segCell2.Controls.Add(segmentTable);
-        segmentTable.CssClass = "table table-striped table-bordered";
-        segmentTableHeader.Cells.Add(segCell1);
-        segmentTableHeader.Cells.Add(segCell2);
-        perfReview.Rows.AddAt(15, segmentTableHeader);
-
         List<object[]> segmentObj = dbHelper.GetMultiQueryObject("SELECT * FROM undoSegmentsSize WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-       
-        TableRow tRow3 = new TableRow();
-        TableHeaderCell value7 = new TableHeaderCell();
-        value7.Text = "Amount";
-        TableHeaderCell value8 = new TableHeaderCell();
-        value8.Text = "Segment Type";
-        TableHeaderCell value9 = new TableHeaderCell();
-        value9.Text = "Size (Mb)";
-
-        tRow3.Cells.Add(value7);
-        tRow3.Cells.Add(value8);
-        tRow3.Cells.Add(value9);
-        segmentTable.Rows.Add(tRow3);
         if (segmentObj != null)
         {
+            Table segmentTable = new Table();
+            TableRow segmentTableHeader = new TableRow();
+
+            TableCell segCell1 = new TableCell();
+            segCell1.Text = "Number and size of Undo Segments?";
+            TableCell segCell2 = new TableCell();
+            segCell2.Controls.Add(segmentTable);
+            segmentTable.CssClass = "table table-striped table-bordered";
+            segmentTableHeader.Cells.Add(segCell1);
+            segmentTableHeader.Cells.Add(segCell2);
+            perfReview.Rows.AddAt(15, segmentTableHeader);
+            TableRow tRow3 = new TableRow();
+            TableHeaderCell value7 = new TableHeaderCell();
+            value7.Text = "Amount";
+            TableHeaderCell value8 = new TableHeaderCell();
+            value8.Text = "Segment Type";
+            TableHeaderCell value9 = new TableHeaderCell();
+            value9.Text = "Size (Mb)";
+
+            tRow3.Cells.Add(value7);
+            tRow3.Cells.Add(value8);
+            tRow3.Cells.Add(value9);
+            segmentTable.Rows.Add(tRow3);
             for (int row = 0; row < segmentObj.Count(); row++)
             {
                 TableRow tRow = new TableRow();
@@ -697,7 +687,7 @@ public partial class production_pm_info : System.Web.UI.Page
                 freespaceTable.Rows.Add(tRow);
             }
         }
-            
+
         /* 7.1 Default Tablespace Free Space */
         List<object[]> defTbsFreeObj = dbHelper.GetMultiQueryObject("SELECT * FROM TablespaceAndTempTablespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (defTbsFreeObj != null)
@@ -774,11 +764,15 @@ public partial class production_pm_info : System.Web.UI.Page
             backupCF.Text = "";
         }
 
-        List<object[]> listOfAlert = dbHelper.GetMultiQueryObject("SELECT * FROM AlertLog WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         Panel alertpanel = (Panel)alertLogPanel;
+        List<object[]> listOfAlert = dbHelper.GetMultiQueryObject("SELECT * FROM alert WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        List<object[]> alertList = null;
         if (listOfAlert != null)
+            alertList = GetAlertFromAPI(listOfAlert);
+
+        if (alertList != null)
         {
-            for (int i = 0; i < listOfAlert.Count; i++)
+            for (int i = 0; i < alertList.Count; i++)
             {
                 Table alertTable = new Table();
                 TableRow tRowHeader = new TableRow();
@@ -787,7 +781,7 @@ public partial class production_pm_info : System.Web.UI.Page
                 TableRow tRowA3 = new TableRow();
 
                 TableCell alertTopic = new TableCell();
-                alertTopic.Text = "Key search: " + (listOfAlert[i])[2].ToString();
+                alertTopic.Text = "Key search: " + (alertList[i])[1].ToString();
                 tRowHeader.Cells.Add(alertTopic);
                 tRowHeader.Cells[0].ColumnSpan = 3;
                 alertTable.Rows.Add(tRowHeader);
@@ -801,9 +795,9 @@ public partial class production_pm_info : System.Web.UI.Page
                 TableCell actionTopic = new TableCell();
                 TableCell scoreTopic = new TableCell();
 
-                cause.Text = (listOfAlert[i])[3].ToString();
-                action.Text = (listOfAlert[i])[4].ToString();
-                score.Text = (listOfAlert[i])[5].ToString();
+                cause.Text = (alertList[i])[2].ToString();
+                action.Text = (alertList[i])[3].ToString();
+                score.Text = (alertList[i])[4].ToString();
 
                 causeTopic.Text = "Caused";
                 actionTopic.Text = "Action";
@@ -826,6 +820,7 @@ public partial class production_pm_info : System.Web.UI.Page
                 tRowA1.Cells[0].Width = 200;
             }
         }
+    
         /*  DATABASE GROWTH RATE  */
         Object[] obj = dbHelper.GetSingleQueryObject("SELECT * FROM DBGrowthRate WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
         if (obj != null)
@@ -889,8 +884,64 @@ public partial class production_pm_info : System.Web.UI.Page
             allocGrowth.Text = growthDay.ToString();
             usedGrowth.Text = growthMonth.ToString();
             SummaryLabel.Text = summarytxt;
-
         }
+    }
+
+    public List<object[]> GetAlertFromAPI(List<object[]> listOfAlert)
+    {
+        List<object[]> alertList = new List<object[]>();
+        try
+        {
+            string postData = "  {\"searchSet\" : [";
+            for (int al = 0; al < listOfAlert.Count(); al++)
+            {
+                postData += "{\"searchKey\" : \"" + (listOfAlert[al])[2].ToString() + "\"}";
+                if (al != listOfAlert.Count() - 1)
+                {
+                    postData += ",";
+                }
+            }
+            postData += "]}";
+
+            WebRequest request = WebRequest.Create("http://103.27.202.76/api/v1/findByOraId");
+            request.Method = "POST";
+            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+            request.ContentType = "application/json";
+            request.ContentLength = byteArray.Length;
+            Stream dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+            WebResponse response = request.GetResponse();
+            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            dataStream = response.GetResponseStream();
+            StreamReader reader1 = new StreamReader(dataStream);
+            string responseFromServer = reader1.ReadToEnd();
+
+            Root jsonObject = JsonConvert.DeserializeObject<Root>(responseFromServer);
+            for (int ai = 0; ai < jsonObject.RootWord.Count; ai++)
+            {
+                if (jsonObject.RootWord[ai].Results[0].ObjResults != null)
+                {
+                    for (int aj = 0; aj < jsonObject.RootWord[ai].Results[0].ObjResults.Count(); aj++)
+                    {
+                        alertList.Add(new object[] { jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caseID, jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].caused, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].actions, jsonObject.RootWord[ai].Results[0].ObjResults[aj].word[0].score });
+                    }
+                }
+                else
+                {
+                    alertList.Add(new object[] { "null", jsonObject.RootWord[ai].Results[0].KeySearch[0].ora_id, "Please contact oracle support for more information.", "N/A", "N/A" });
+                }
+            }
+            reader1.Close();
+            dataStream.Close();
+            response.Close();
+        }
+        catch (Exception ex)
+        {
+            throw new HttpException("BAD REQUEST", ex);
+        }
+
+        return alertList;
     }
 
     protected void approveButton_Click(object sender, EventArgs e)
@@ -912,5 +963,40 @@ public partial class production_pm_info : System.Web.UI.Page
         DatabaseHelper dbHelper = new DatabaseHelper();
         dbHelper.getUpdate("UPDATE [dbo].[PmInfo] SET [pmstatus] = 'In Progess' WHERE projectCode like '" + projectCoded + "' AND projectQuarter like '" + projectQuarter + "';");
         Response.Redirect("index.aspx");
+    }
+
+    // Alert log Class.
+    public class KeySearch
+    {
+        public string ora_id { get; set; }
+    }
+
+    public class Word
+    {
+        public string caseID { get; set; }
+        public string caused { get; set; }
+        public string actions { get; set; }
+        public double score { get; set; }
+    }
+
+    public class ObjResult
+    {
+        public IList<Word> word { get; set; }
+    }
+
+    public class Result
+    {
+        public IList<KeySearch> KeySearch { get; set; }
+        public IList<ObjResult> ObjResults { get; set; }
+    }
+
+    public class RootWord
+    {
+        public IList<Result> Results { get; set; }
+    }
+
+    public class Root
+    {
+        public IList<RootWord> RootWord { get; set; }
     }
 }
