@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="GenPM.aspx.cs" Inherits="WebBasePM.ProductionGenerator" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="GenPM.aspx.cs" Inherits="WebBasePM.ProductionGenerator" Debug="true" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -51,7 +51,7 @@
                         <!-- sidebar menu -->
                         <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                             <div class="menu_section">
-                                <h3>Monday 24 August 2016</h3>
+                                <h3><asp:Label ID="dateToday" runat="server"></asp:Label></h3>
                                 <ul class="nav side-menu">
                                     <li>
                                         <a href="index.aspx"><i class="fa fa-home"></i>Home</a>
@@ -115,7 +115,6 @@
                                 <div class="x_content">
                                 <!-- Smart Wizard -->
                                  <form runat="server">
-                                        <p>This is a basic form wizard example that inherits the colors from the selected scheme.</p>
                                         <div id="wizard" class="form_wizard wizard_horizontal">
                                             <ul class="wizard_steps">
                                                 <li>
@@ -271,10 +270,7 @@
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ospath">Input Path</label>                                                        
                                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                                             <div class="input-group">
-                                                                <asp:TextBox ID="OSInput" CssClass="form-control" runat="server"></asp:TextBox>
-                                                                <span class="input-group-btn">
-                                                                    <asp:Button id="OpenFolder" OnClick="OpenFolder_Click" Text="BROWSE" CssClass="btn btn-primary" runat="server" />
-                                                                </span>
+                                                                  <asp:FileUpload ID="FolderUpload" webkitdirectory mozdirectory msdirectory odirectory directory AllowMultiple="true" runat="server" />
                                                             </div>
                                                         </div>                                                  
                                                     </div>
@@ -421,8 +417,22 @@
                 // all step validation logic     
                 return isStepValid;
             }
+
+            var inps = document.getElementById('uploadFolder');
+            [].forEach.call(inps, function (inp) {
+                inp.onchange = function (e) {
+                    console.log(this.files);
+                };
+            });
+
+          
+
          });
 
+            
+  
+
+        
 
     </script>
     <!-- /jQuery Smart Wizard -->    

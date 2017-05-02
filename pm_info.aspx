@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="pm_info.aspx.cs" Inherits="production_pm_info" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="pm_info.aspx.cs" Inherits="production_pm_info"  Debug="true"%>
 <%@ Register Assembly="System.Web.DataVisualization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" Namespace="System.Web.UI.DataVisualization.Charting" TagPrefix="asp" %>
 
 <!DOCTYPE html>
@@ -112,8 +112,19 @@
                               <div class="col-md-12 col-sm-12 col-xs-12">
                                   <div class="x_panel">
                                       <div class="x_title">
-                                          <h2><asp:Label ID="hostTitle" runat="server"></asp:Label></h2>
+                                          <div class="row">
+                                          <div class="col-md-8 col-sm-8 col-xs-8">
+                                             <h2><asp:Label ID="hostTitle" runat="server"></asp:Label></h2>
+                                          </div>
+                                          <div class="col-md-4 col-sm-4 col-xs-4 right">
+                                            <div class="pull-right"> 
+                                            <asp:Button  CssClass="btn btn-success" runat="server" ID="exportButton" OnClick="exportButton_Click" Text="Export Document" />
+                                            </div>
+                                          </div>
+                                          </div>
                                           <div class="clearfix"></div>
+
+
                                       </div>
                                       <div class="x_content">
                                           <!-- Flat -->
@@ -146,15 +157,12 @@
                                                   </li>
                                                   <li role="presentation" class="">
                                                       <a href="#tab_content9" role="tab" id="profile-tab8" data-toggle="tab" aria-expanded="false">8</a>
+                                                  </li>                               
+                                                  <li role="presentation" class="">
+                                                      <a href="#tab_content10" role="tab" id="profile-tab10" data-toggle="tab" aria-expanded="false">9</a>
                                                   </li>
                                                   <li role="presentation" class="">
-                                                      <a href="#tab_content10" role="tab" id="profile-tab9" data-toggle="tab" aria-expanded="false">9</a>
-                                                  </li>
-                                                  <li role="presentation" class="">
-                                                      <a href="#tab_content11" role="tab" id="profile-tab10" data-toggle="tab" aria-expanded="false">10</a>
-                                                  </li>
-                                                  <li role="presentation" class="">
-                                                      <a href="#tab_content12" role="tab" id="profile-tab11" data-toggle="tab" aria-expanded="false">11</a>
+                                                      <a href="#tab_content11" role="tab" id="profile-tab11" data-toggle="tab" aria-expanded="false">10</a>
                                                   </li>
                                               </ul>
                                               <!-- End Head Tab -->
@@ -164,58 +172,32 @@
                                                   <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
                                                       <h4><b>Summary Suggestion</b></h4>
                                                       <!-- Database Section -->
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th colspan="6">Database Section</th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td><b>Detail</b></td>
-                                                                  <td><b>More Detail</b></td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Verify invalid objects and disabled constraints</td>
-                                                                  <td>Topic : APPENDIX A – Invalid Object</td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>
-                                                                      Investigate SQL statement <br>
-                                                                      - SQL_ID: 8htrh753jm2ad <br>
-                                                                      - SQL_ID: cwzwtsdb5a34g
-                                                                  </td>
-                                                                  <td>Topic : APPENDIX C – SQL Statement should be to investigate</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End Database Section -->
-                                                      <!-- OS Section -->
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th colspan="6">Operating System Section</th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td><b>Detail</b></td>
-                                                                  <td><b>More Detail</b></td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Verify invalid objects and disabled constraints</td>
-                                                                  <td>Topic : APPENDIX A – Invalid Object</td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>
-                                                                      Investigate SQL statement <br>
-                                                                      - SQL_ID: 8htrh753jm2ad <br>
-                                                                      - SQL_ID: cwzwtsdb5a34g
-                                                                  </td>
-                                                                  <td>Topic : APPENDIX C – SQL Statement should be to investigate</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                         Operating System: The space usage of mount point.<br />
+                                                      <center>
+                                                        <asp:Chart ID="ChartDataSpace"  runat="server">
+                                                              <Series>
+                                                                  <asp:Series Name="Series1"></asp:Series>
+                                                              </Series>
+                                                              <ChartAreas>
+                                                                  <asp:ChartArea Name="ChartArea1">
+                                                                  </asp:ChartArea>
+                                                              </ChartAreas>
+                                                          </asp:Chart>
+                                                        </center>
+                                                      <br />
+                                                       <!-- Database Section -->
+                                                       Database: Top 10 Tablespace Free Space  <br />
+                                                      <center>  
+                                                      <asp:Chart ID="TableSpaceChart"  runat="server">
+                                                              <Series>
+                                                                  <asp:Series Name="Series1"></asp:Series>
+                                                              </Series>
+                                                              <ChartAreas>
+                                                                  <asp:ChartArea Name="ChartArea1">
+                                                                  </asp:ChartArea>
+                                                              </ChartAreas>
+                                                          </asp:Chart>
+                                                     </center>
                                                       <!-- End OS Section -->
                                                   </div>
                                                   <!-- End Tab Summary -->
@@ -289,43 +271,25 @@
                                                       <!-- End 1.3 -->
                                                       <!-- 1.4 -->
                                                       <h5><b>1.4 Change Record</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Date</b></th>
-                                                                  <th><b>Author</b></th>
-                                                                  <th><b>Version</b></th>
-                                                                  <th><b>Change Reference</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td>29-JUNE-2016</td>
-                                                                  <td>K.Supaporn Rattanapan</td>
-                                                                  <td>1.0</td>
-                                                                  <td>Initial Document</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                        <asp:Table ID="authorTable" runat="server" CssClass ="table table-striped table-bordered">
+                                                        <asp:TableHeaderRow>
+                                                        <asp:TableHeaderCell>Date</asp:TableHeaderCell>
+                                                        <asp:TableHeaderCell>Author</asp:TableHeaderCell>
+                                                        <asp:TableHeaderCell>Version</asp:TableHeaderCell>
+                                                        <asp:TableHeaderCell>Change Reference</asp:TableHeaderCell>
+                                                        </asp:TableHeaderRow>
+                                                        </asp:Table>
+                                                     
                                                       <!-- End 1.4 -->
                                                       <!-- 1.5 -->
                                                       <h5><b>1.5 Reviewer</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Date</b></th>
-                                                                  <th><b>Name</b></th>
-                                                                  <th><b>Position</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td>29-JUNE-2016</td>
-                                                                  <td>K.Avika Sangpenprow</td>
-                                                                  <td>Database Administrator</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                        <asp:Table ID="reviewerTable" runat="server" CssClass ="table table-striped table-bordered">
+                                                            <asp:TableHeaderRow>
+                                                                <asp:TableHeaderCell>Date</asp:TableHeaderCell>
+                                                                <asp:TableHeaderCell>Name</asp:TableHeaderCell>
+                                                                <asp:TableHeaderCell>Position</asp:TableHeaderCell>
+                                                            </asp:TableHeaderRow>
+                                                        </asp:Table>                                                     
                                                       <!-- End 1.5 -->
                                                   </div>
                                                   <!-- End Tab 1 -->
@@ -654,6 +618,38 @@
                                                         </asp:TableHeaderRow>
                                                       </asp:Table> 
                                                       <h5><b>5.2 Database Growth Rate</b></h5>
+                                                      <div>Current data information about space usage of database <asp:Label ID="DatabaseNameLabel" runat="server"></asp:Label> as below. <br /></div>
+                                                          <table class="table table-striped table-bordered">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th scope="row">Database Name</th>
+                                                                    <td><asp:Label ID="DatabaseNameLabel2" runat="server"></asp:Label></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Current Allocated (GB)</th>
+                                                                    <td><asp:Label ID="currAllocated" runat="server"></asp:Label></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Current Used data (GB) </th>
+                                                                    <td><asp:Label ID="currUsed" runat="server"></asp:Label></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Percent Used </th>
+                                                                    <td><asp:Label ID="percUsed" runat="server"></asp:Label></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="row">Allocated Growth(GB) per day </th>
+                                                                    <td><asp:Label ID="allocGrowth" runat="server"></asp:Label></td>
+                                                                </tr>
+                                                                 <tr>
+                                                                    <th scope="row">Used Growth(GB) per day  </th>
+                                                                    <td><asp:Label ID="usedGrowth" runat="server"></asp:Label></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <div>The database growth rate graph and database size forecast graph as the following graph.  <br /></div>
+                                                        <div class="form-group">
+                                                        <center>
                                                          <asp:Chart ID="Chart1"  runat="server">
                                                               <Series>
                                                                   <asp:Series Name="Series1"></asp:Series>
@@ -663,6 +659,20 @@
                                                                   </asp:ChartArea>
                                                               </ChartAreas>
                                                           </asp:Chart>
+                                                            </center>
+                                                          </div>
+                                                          <table class="table table-striped table-bordered">
+                                                          <thead>
+                                                              <tr>
+                                                                  <th> Summary </th>
+                                                              </tr>
+                                                          </thead>
+                                                          <tbody>
+                                                              <tr>
+                                                                  <td><asp:Label ID="SummaryLabel" runat="server"></asp:Label></td>
+                                                              </tr>
+                                                          </tbody>
+                                                          </table>
                                                   </div>
                                                   <!-- End Tab 5 -->
                                                   <!-- Tab 6 -->
@@ -716,92 +726,17 @@
                                                   <!-- End Tab 8 -->
                                                   <!-- Tab 9 -->
                                                   <div role="tabpanel" class="tab-pane fade" id="tab_content10" aria-labelledby="profile-tab">
-                                                      <h4><b>9. Invalid Object</b></h4>
+                                                      <h4><b>9. Information from Alert Log</b></h4>
                                                       <!-- 9.1 -->
-                                                      <h5><b>9.1 Invalid Object Report</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Creator:</b></th>
-                                                              </tr>
-                                                              <tr>
-                                                                  <th><b>Object Name</b></th>
-                                                                  <th><b>Object Type</b></th>
-                                                                  <th><b>Status</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                      <h5><b>Alert Log of <asp:Label ID="alertDatabaeName" runat="server"></asp:Label></b></h5>
+                                                      <asp:Panel ID="alertLogPanel" runat="server">
+                                                      </asp:Panel>                                                      
                                                       <!-- End 9.1 -->
-                                                      <!-- 9.2 -->
-                                                      <h5><b>9.2 Disabled Constraints</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th><b>Creator:</b></th>
-                                                              </tr>
-                                                              <tr>
-                                                                  <th><b>Object Name</b></th>
-                                                                  <th><b>Object Type</b></th>
-                                                                  <th><b>C</b></th>
-                                                                  <th><b>Status</b></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                                  <td> .. </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End 9.2 -->
                                                   </div>
                                                   <!-- End Tab 9 -->
                                                   <!-- Tab 10 -->
                                                   <div role="tabpanel" class="tab-pane fade" id="tab_content11" aria-labelledby="profile-tab">
-                                                      <h4><b>10. Information from Alert Log</b></h4>
-                                                      <!-- 10.1 -->
-                                                      <h5><b>Alert Log of $DatabaseName</b></h5>
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th></th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <!-- 
-                                                              <tr>
-                                                                  <td>Message: </td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Posstble Cause: </td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Action:</td>
-                                                              </tr>
-                                                                  -->
-                                                               <tr>
-                                                                  <td>Message: </td>
-                                                              </tr>
-                                                               <tr>
-                                                                  <td><asp:Label ID="alertMsg" runat="server"></asp:Label> </td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End 10.1 -->
-                                                  </div>
-                                                  <!-- End Tab 10 -->
-                                                  <!-- Tab 11 -->
-                                                  <div role="tabpanel" class="tab-pane fade" id="tab_content12" aria-labelledby="profile-tab">
-                                                      <h4><b>11. Backup History</b></h4>
+                                                      <h4><b>10. Backup History</b></h4>
                                                       <!-- Backup Database -->
                                                       <h5><b>Backup Database</b></h5>
                                                       <table class="table table-striped table-bordered">
@@ -848,7 +783,7 @@
                                                       </table>                                                      
                                                       <!-- End Backup Controlfile -->
                                                   </div>
-                                                  <!-- End Tab 11 -->
+                                                  <!-- End Tab 10 -->
                                               </div>
                                               <!-- End Content on Tab -->
                                           </div>

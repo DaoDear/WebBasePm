@@ -57,7 +57,7 @@
             <!-- sidebar menu -->
             <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
               <div class="menu_section">
-                <h3>Monday 24 August 2016</h3>
+                <h3><asp:Label ID="dateToday" runat="server"></asp:Label></h3>
 					<ul class="nav side-menu">
 					  <li><a href="index.aspx"><i class="fa fa-home"></i> Home</a>
 					  </li>
@@ -138,14 +138,15 @@
                       <div class="form-group">
                         <label for="pm-status" class="control-label col-md-3 col-sm-3 col-xs-12">PM Doc Status</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          
-                          <select class="form-control">
-                            <option>In Progress</option>
-                            <option>Wait Review</option>
-							<option>Complete</option>
-                          </select>
+                                <asp:DropDownList ID="statusList" CssClass="form-control" runat="server">
+                                <asp:ListItem Text="All Status" Value="All"></asp:ListItem>
+                                <asp:ListItem Text="In progress" Value="In Progess"></asp:ListItem>
+                                <asp:ListItem Text="Reject" Value="Rejected"></asp:ListItem>
+                                <asp:ListItem Text="Wait Review" Value="Wait Review"></asp:ListItem>
+                                <asp:ListItem Text="Approve" Value="Approved"></asp:ListItem>
+                            </asp:DropDownList>
                         </div>
-						<button type="submit" class="btn btn-success">Search</button>
+                          <asp:Button ID="searchKeyword" CssClass="btn btn-primary" Text="Search" OnClick="searchKeyword_Click" runat="server" />
                       </div>
                     </div>
                   </div>
