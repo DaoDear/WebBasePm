@@ -51,7 +51,7 @@
                         <!-- sidebar menu -->
                         <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                             <div class="menu_section">
-                                <h3>Monday 24 August 2016</h3>
+                                <h3><asp:Label ID="dateToday" runat="server"></asp:Label></h3>
                                 <ul class="nav side-menu">
                                     <li>
                                         <a href="index.aspx"><i class="fa fa-home"></i>Home</a>
@@ -115,7 +115,6 @@
                                 <div class="x_content">
                                 <!-- Smart Wizard -->
                                  <form runat="server">
-                                        <p>This is a basic form wizard example that inherits the colors from the selected scheme.</p>
                                         <div id="wizard" class="form_wizard wizard_horizontal">
                                             <ul class="wizard_steps">
                                                 <li>

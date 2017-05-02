@@ -27,8 +27,13 @@ public partial class production_pm_info : System.Web.UI.Page
         projectCoded = Request.QueryString["project"];
         projectQuarter = Request.QueryString["quarter"];
 
-        Session["PreviousPage"] = Request.Url.AbsoluteUri;
+        DatabaseHelper dbHelper = new DatabaseHelper();
+        dbHelper.getUpdate("UPDATE [dbo].[PmInfo] SET [pmstatus] = 'Wait Review' WHERE projectCode like '" + projectCoded + "' AND projectQuarter like '" + projectQuarter + "';");
 
+
+        dateToday.Text = DateTime.Now.ToLongDateString();
+        Session["PreviousPage"] = Request.Url.AbsoluteUri;
+        dateToday.Text = DateTime.Now.ToLongDateString();
         if (Session["personID"] == null)
         {
             Response.Redirect("Login.aspx");
@@ -977,6 +982,59 @@ public partial class production_pm_info : System.Web.UI.Page
             usedGrowth.Text = growthMonth.ToString();
             SummaryLabel.Text = summarytxt;
 
+        }
+
+        List<Object[]> obj2 = dbHelper.GetMultiQueryObject("SELECT mountedOn, percentUsed FROM OSDiskSpace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (obj2 != null)
+        {
+            ChartDataSpace.Series.Clear();
+            ChartDataSpace.Series.Add("Series1");
+            ChartDataSpace.Series["Series1"].ChartType = SeriesChartType.Bar;
+            double[] y = { 90.4, 45, 43, 23, 43 };
+            //ChartDataSpace.Series["Series1"].Points.AddY(Math.Round((double)60, 0));
+            for (int i = 0; i < obj2.Count; i++)
+            {
+                string yValue = (obj2[i])[1].ToString().Substring(0, (obj2[i])[1].ToString().Length - 1);
+                double yValueDouble;
+                try
+                {
+                    yValueDouble = Double.Parse(yValue);
+                }
+                catch (Exception ex)
+                {
+                    yValueDouble = 0;
+                    new System.Exception("Crash", ex);
+                }
+                ChartDataSpace.Series["Series1"].Points.AddY(yValueDouble);
+                ChartDataSpace.Series["Series1"].Points[i].AxisLabel = (obj2[i])[0].ToString();
+                ChartDataSpace.Series["Series1"].Points[i].Label = (obj2[i])[1].ToString();
+            }
+
+
+            ChartDataSpace.ChartAreas[0].AxisX.Interval = 1;
+            ChartDataSpace.Width = 800;
+        }
+
+        List<Object[]> obj3 = dbHelper.GetMultiQueryObject("SELECT TOP 10 tablespaceName, pct_free from dbo.TablespaceFreespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' ORDER BY convert(float,pct_free) ASC;");
+        
+        if (obj3 != null)
+        {
+            obj3.Reverse();
+            TableSpaceChart.Series.Clear();
+            TableSpaceChart.Series.Add("Series1");
+            TableSpaceChart.Series["Series1"].ChartType = SeriesChartType.Bar;
+            for (int i = 0; i < obj3.Count; i++)
+            {
+                double yValue = Double.Parse((obj3[i])[1].ToString());
+                TableSpaceChart.Series["Series1"].Points.AddY(yValue);
+                TableSpaceChart.Series["Series1"].Points[i].AxisLabel = (obj3[i])[0].ToString();
+                TableSpaceChart.Series["Series1"].Points[i].Label = (obj3[i])[1].ToString();
+                TableSpaceChart.Series["Series1"].Color = System.Drawing.Color.Green;
+            }
+
+
+            TableSpaceChart.ChartAreas[0].AxisX.Interval = 1;
+            TableSpaceChart.Width = 800;
         }
     }
 

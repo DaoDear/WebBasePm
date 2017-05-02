@@ -172,6 +172,8 @@
                                                   <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
                                                       <h4><b>Summary Suggestion</b></h4>
                                                       <!-- Database Section -->
+                                                         Operating System: The space usage of mount point.<br />
+                                                      <center>
                                                         <asp:Chart ID="ChartDataSpace"  runat="server">
                                                               <Series>
                                                                   <asp:Series Name="Series1"></asp:Series>
@@ -181,9 +183,12 @@
                                                                   </asp:ChartArea>
                                                               </ChartAreas>
                                                           </asp:Chart>
-
+                                                        </center>
+                                                      <br />
                                                        <!-- Database Section -->
-                                                        <asp:Chart ID="TableSpaceChart"  runat="server">
+                                                       Database: Top 10 Tablespace Free Space  <br />
+                                                      <center>  
+                                                      <asp:Chart ID="TableSpaceChart"  runat="server">
                                                               <Series>
                                                                   <asp:Series Name="Series1"></asp:Series>
                                                               </Series>
@@ -192,6 +197,7 @@
                                                                   </asp:ChartArea>
                                                               </ChartAreas>
                                                           </asp:Chart>
+                                                     </center>
                                                       <!-- End OS Section -->
                                                   </div>
                                                   <!-- End Tab Summary -->

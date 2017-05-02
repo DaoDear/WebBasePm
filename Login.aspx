@@ -29,11 +29,15 @@
       <a class="hiddenanchor" id="signup"></a>
       <a class="hiddenanchor" id="signin"></a>
 
-      <div class="login_wrapper">
+      <div class="login_box">
         <div class="animate form login_form">
           <section class="login_content">
             <form name="LoginForm" runat="server">
-                <asp:Login ID = "LoginForm" createuserurl="CreateUser.aspx" createusertext="Create a New Account" runat = "server" OnAuthenticate= "ValidateUser"></asp:Login>
+                <asp:Login ID = "LoginForm" createuserurl="CreateUser.aspx" createusertext="Create a New Account" runat = "server" OnAuthenticate= "ValidateUser">
+                    <TextBoxStyle CssClass="form-control" />
+                    <LoginButtonStyle CssClass="btn btn-success" />
+                    <CheckBoxStyle CssClass="BootstrapCheckboxStyle" />
+                </asp:Login>
             </form>
           </section>
         </div>        

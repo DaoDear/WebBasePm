@@ -55,7 +55,7 @@
                               <!-- sidebar menu -->
                               <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                                   <div class="menu_section">
-                                      <h3>Monday 24 August 2016</h3>
+                                      <h3><asp:Label ID="dateToday" runat="server"></asp:Label></h3>
                                       <ul class="nav side-menu">
                                           <li>
                                               <a href="index.aspx"><i class="fa fa-home"></i> Home</a>
@@ -171,58 +171,32 @@
                                                   <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="home-tab">
                                                       <h4><b>Summary Suggestion</b></h4>
                                                       <!-- Database Section -->
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th colspan="6">Database Section</th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td><b>Detail</b></td>
-                                                                  <td><b>More Detail</b></td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Verify invalid objects and disabled constraints</td>
-                                                                  <td>Topic : APPENDIX A – Invalid Object</td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>
-                                                                      Investigate SQL statement <br>
-                                                                      - SQL_ID: 8htrh753jm2ad <br>
-                                                                      - SQL_ID: cwzwtsdb5a34g
-                                                                  </td>
-                                                                  <td>Topic : APPENDIX C – SQL Statement should be to investigate</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
-                                                      <!-- End Database Section -->
-                                                      <!-- OS Section -->
-                                                      <table class="table table-striped table-bordered">
-                                                          <thead>
-                                                              <tr>
-                                                                  <th colspan="6">Operating System Section</th>
-                                                              </tr>
-                                                          </thead>
-                                                          <tbody>
-                                                              <tr>
-                                                                  <td><b>Detail</b></td>
-                                                                  <td><b>More Detail</b></td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>Verify invalid objects and disabled constraints</td>
-                                                                  <td>Topic : APPENDIX A – Invalid Object</td>
-                                                              </tr>
-                                                              <tr>
-                                                                  <td>
-                                                                      Investigate SQL statement <br>
-                                                                      - SQL_ID: 8htrh753jm2ad <br>
-                                                                      - SQL_ID: cwzwtsdb5a34g
-                                                                  </td>
-                                                                  <td>Topic : APPENDIX C – SQL Statement should be to investigate</td>
-                                                              </tr>
-                                                          </tbody>
-                                                      </table>
+                                                         Operating System: The space usage of mount point.<br />
+                                                      <center>
+                                                        <asp:Chart ID="ChartDataSpace"  runat="server">
+                                                              <Series>
+                                                                  <asp:Series Name="Series1"></asp:Series>
+                                                              </Series>
+                                                              <ChartAreas>
+                                                                  <asp:ChartArea Name="ChartArea1">
+                                                                  </asp:ChartArea>
+                                                              </ChartAreas>
+                                                          </asp:Chart>
+                                                        </center>
+                                                      <br />
+                                                       <!-- Database Section -->
+                                                       Database: Top 10 Tablespace Free Space  <br />
+                                                      <center>  
+                                                      <asp:Chart ID="TableSpaceChart"  runat="server">
+                                                              <Series>
+                                                                  <asp:Series Name="Series1"></asp:Series>
+                                                              </Series>
+                                                              <ChartAreas>
+                                                                  <asp:ChartArea Name="ChartArea1">
+                                                                  </asp:ChartArea>
+                                                              </ChartAreas>
+                                                          </asp:Chart>
+                                                     </center>
                                                       <!-- End OS Section -->
                                                   </div>
                                                   <!-- End Tab Summary -->

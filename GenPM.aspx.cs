@@ -24,7 +24,7 @@ namespace WebBasePM
         protected void Page_Load(object sender, EventArgs e)
         {
             dbHelper = new DatabaseHelper();
-
+            dateToday.Text = DateTime.Now.ToLongDateString();
             if (!IsPostBack) //check if the webpage is loaded for the first time.
             {
                 Session["PreviousPage"] = Request.Url.AbsoluteUri; //Saves the Previous page url in ViewState

@@ -847,6 +847,7 @@ public partial class production_pm_info : System.Web.UI.Page
             }
 
             Chart1.Series.Clear();
+            Chart1.ForeColor = System.Drawing.Color.Black;
             Chart1.Series.Add("Series1");
             Chart1.Series["Series1"].Points.AddXY(1, usedSpaceList[0]);
             Chart1.Series["Series1"].Points.AddXY(2, usedSpaceList[1]);
@@ -914,12 +915,14 @@ public partial class production_pm_info : System.Web.UI.Page
 
 
             ChartDataSpace.ChartAreas[0].AxisX.Interval = 1;
-            ChartDataSpace.Width = 500;
+            ChartDataSpace.Width = 800;
         }
 
-        List<Object[]> obj3 = dbHelper.GetMultiQueryObject("SELECT tablespaceName, pct_free from dbo.TablespaceFreespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
-        if (obj2 != null)
+        List<Object[]> obj3 = dbHelper.GetMultiQueryObject("SELECT TOP 10 tablespaceName, pct_free from dbo.TablespaceFreespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' ORDER BY convert(float,pct_free) ASC;");
+        
+        if (obj3 != null)
         {
+            obj3.Reverse();
             TableSpaceChart.Series.Clear();
             TableSpaceChart.Series.Add("Series1");
             TableSpaceChart.Series["Series1"].ChartType = SeriesChartType.Bar;
@@ -929,13 +932,14 @@ public partial class production_pm_info : System.Web.UI.Page
                 TableSpaceChart.Series["Series1"].Points.AddY(yValue);
                 TableSpaceChart.Series["Series1"].Points[i].AxisLabel = (obj3[i])[0].ToString();
                 TableSpaceChart.Series["Series1"].Points[i].Label = (obj3[i])[1].ToString();
+                TableSpaceChart.Series["Series1"].Color = System.Drawing.Color.Green;
             }
 
 
             TableSpaceChart.ChartAreas[0].AxisX.Interval = 1;
-            TableSpaceChart.Width = 1000;
-            TableSpaceChart.Height = 1000;
+            TableSpaceChart.Width = 800;
         }
+
     }
 
     protected void exportButton_Click(object sender, EventArgs e)
@@ -962,6 +966,35 @@ public partial class production_pm_info : System.Web.UI.Page
 
         // Open the Document for writing
         document.Open();
+        document.Add(new Paragraph("Summary", titleFont));
+        Paragraph pz = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
+        document.Add(pz);
+
+        document.Add(new Paragraph("Operating System: The space usage of mount point.", subTitleFont));
+        if (GetDiskSpaceUsed() != null)
+        {
+            var image = iTextSharp.text.Image.GetInstance(GetDiskSpaceUsed());
+
+            image.ScalePercent(50f);
+            if (image != null)
+            {
+                document.Add(image);
+            }
+        }
+
+        document.Add(new Paragraph("Database: Top 10 Tablespace Free Space.", subTitleFont));
+        if (GetTopFreeSpace() != null)
+        {
+            var image = iTextSharp.text.Image.GetInstance(GetTopFreeSpace());
+
+            image.ScalePercent(50f);
+            if (image != null)
+            {
+                document.Add(image);
+            }
+        }
+
+
         document.Add(new Paragraph("1. General Project Information", titleFont));
         Paragraph p = new Paragraph(new Chunk(new iTextSharp.text.pdf.draw.LineSeparator(0.0F, 100.0F, BaseColor.BLUE, Element.ALIGN_LEFT, 0.8F)));
         document.Add(p);
@@ -1923,6 +1956,80 @@ public partial class production_pm_info : System.Web.UI.Page
         }
         else { return null; }
     }
+
+
+    private Byte[] GetDiskSpaceUsed()
+    {
+        List<Object[]> obj2 = dbHelper.GetMultiQueryObject("SELECT mountedOn, percentUsed FROM OSDiskSpace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "';");
+        if (obj2 != null)
+        {
+            ChartDataSpace.Series.Clear();
+            ChartDataSpace.Series.Add("Series1");
+            ChartDataSpace.Series["Series1"].ChartType = SeriesChartType.Bar;
+            double[] y = { 90.4, 45, 43, 23, 43 };
+            //ChartDataSpace.Series["Series1"].Points.AddY(Math.Round((double)60, 0));
+            for (int i = 0; i < obj2.Count; i++)
+            {
+                string yValue = (obj2[i])[1].ToString().Substring(0, (obj2[i])[1].ToString().Length - 1);
+                double yValueDouble;
+                try
+                {
+                    yValueDouble = Double.Parse(yValue);
+                }
+                catch (Exception ex)
+                {
+                    yValueDouble = 0;
+                    new System.Exception("Crash", ex);
+                }
+                ChartDataSpace.Series["Series1"].Points.AddY(yValueDouble);
+                ChartDataSpace.Series["Series1"].Points[i].AxisLabel = (obj2[i])[0].ToString();
+                ChartDataSpace.Series["Series1"].Points[i].Label = (obj2[i])[1].ToString();
+            }
+            using (var chartimage = new MemoryStream())
+            {
+                ChartDataSpace.SaveImage(chartimage, ChartImageFormat.Png);
+                return chartimage.GetBuffer();
+            }
+
+        }
+        else { return null; }
+    }
+
+    private Byte[] GetTopFreeSpace()
+    {
+        List<Object[]> obj3 = dbHelper.GetMultiQueryObject("SELECT TOP 10 tablespaceName, pct_free from dbo.TablespaceFreespace WHERE projectCode = '" + projectCoded + "' AND projectQuarter = '" + projectQuarter + "' ORDER BY convert(float,pct_free) ASC;");
+        
+        if (obj3 != null)
+        {
+            obj3.Reverse();
+            TableSpaceChart.Series.Clear();
+            TableSpaceChart.Series.Add("Series1");
+            TableSpaceChart.Series["Series1"].ChartType = SeriesChartType.Bar;
+            for (int i = 0; i < obj3.Count; i++)
+            {
+                double yValue = Double.Parse((obj3[i])[1].ToString());
+                TableSpaceChart.Series["Series1"].Points.AddY(yValue);
+                TableSpaceChart.Series["Series1"].Points[i].AxisLabel = (obj3[i])[0].ToString();
+                TableSpaceChart.Series["Series1"].Points[i].Label = (obj3[i])[1].ToString();
+                TableSpaceChart.Series["Series1"].Color = System.Drawing.Color.Green;
+            }
+
+
+            TableSpaceChart.ChartAreas[0].AxisX.Interval = 1;
+            TableSpaceChart.Width = 800;
+        
+        using (var chartimage = new MemoryStream())
+            {
+                TableSpaceChart.SaveImage(chartimage, ChartImageFormat.Png);
+                return chartimage.GetBuffer();
+            }
+
+        }
+        else { return null; }
+    }
+
+
+    
 
     private Byte[] GetDiskSpaceChart()
     {
